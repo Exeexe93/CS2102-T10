@@ -12,8 +12,13 @@ cache:
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
-  
+
+env:
+  - TEST_DIR=client
+  - TEST_DIR=server
+
 script:
-  - cd client
+  - cd $TEST_DIR
+  - npm install
   - npm test
   - npm run build

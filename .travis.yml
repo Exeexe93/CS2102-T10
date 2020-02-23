@@ -3,8 +3,6 @@ language: node_js
 node_js:
   - "stable"
 
-install: npm install
-
 services:
   - postgresql
 
@@ -14,7 +12,9 @@ cache:
 
 before_script:
   - psql -c 'create database travis_ci_test;' -U postgres
-  
+
 script:
+  - cd client
+  - npm install
   - npm test
   - npm run build

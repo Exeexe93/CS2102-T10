@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/CS2102-T10/main.svg?branch=master)](https://travis-ci.com/CS2102-T10/main)
+[![Build Status](https://travis-ci.com/CS2102-T10/CS2102-T10.svg?branch=master)](https://travis-ci.com/CS2102-T10/CS2102-T10)
 
 # CS2102 Project
 

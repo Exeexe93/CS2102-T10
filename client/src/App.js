@@ -1,26 +1,58 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { Component } from 'react';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      title: 'Simple Country Application',
+      countries: []
+    }
+  }
+
+  componentDidMount() {
+    console.log('Component has mounted')
+  }
+
+  addCountry(event) {
+    event.preventDefault();
+    let data = {
+      country_name: this.refs.country_name.value,
+      continent_name: this.refs.continent_name.value,
+      eid: Math.random().toFixed(3)
+    }
+    var request = new Request('http://localhost:3001/api/new-country', {
+      method: 'POST',
+      headers: new Headers({'Content-Type': 'application/json'}),
+      body: JSON.stringify(data)
+    })
+
+    // xmlhttprequest()
+
+    fetch(request)
+      .then(function(response) {
+        return response.json();
+      })
+      .catch(function(err) {
+        console.log(err);
+      })
+  }
+
+  render() {
+    let title = this.state.title;
+    return (
+      <div className="App">
+        <h1>{title}</h1>
+      
+        <form ref="countryForm"> 
+          <input type="text" ref="country_name" placeholder="country_name"/>
+          <input type="text" ref="continent_name" placeholder="continent name"/>
+          <button onClick={this.addCountry.bind(this)}>Add Country</button>
+        </form>
+      </div>
+    );
+  }
 }
 
 export default App;

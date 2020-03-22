@@ -1,0 +1,31 @@
+.content {
+    justify-content: center;
+    display: flex;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 3em;
+}
+
+.searchContainer {
+    display: flex;
+}
+
+.shoppingCart {
+    margin-left: 5mm;
+}
+
+.input {
+    width: 500px;
+    text-align: center;
+}
+
+.section {
+    display: flex;
+    justify-self: center;
+    justify-content: center;
+}

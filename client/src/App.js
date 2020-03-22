@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import {Link} from 'react-router-dom';
 
 class App extends Component {
 
@@ -50,6 +51,11 @@ class App extends Component {
           <input type="text" ref="continent_name" placeholder="continent name"/>
           <button onClick={this.addCountry.bind(this)}>Add Country</button>
         </form>
+        <div className="menu">
+              <Link to="/CustomerMainPage">MainCustomerPage</Link>
+              <br/>
+              <Link to="/Login">Login</Link>
+        </div>
       </div>
     );
   }

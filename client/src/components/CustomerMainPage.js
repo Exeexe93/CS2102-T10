@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-//import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import "../styles/login.css";
+import "../styles/CustomerMainPage.css";
+import { GiShoppingCart } from "react-icons/gi";
+import { Link } from "react-router-dom";
+import { MdPerson } from "react-icons/md";
 
 class CustomerMainPage extends Component {
     constructor(props) {
@@ -19,9 +21,10 @@ class CustomerMainPage extends Component {
 
     handleChange(e) {
         let newList = [];
+        let currentList = this.state.restuarantList;
 
         if (e.target.value !== "") {
-            let currentList = this.state.restuarantList;
+            
 
             newList = currentList.filter(item => {
                 const lowercaseItem = item.toLowerCase();
@@ -29,7 +32,7 @@ class CustomerMainPage extends Component {
                 return lowercaseItem.includes(filter);
             });
         } else {
-            newList = this.props.items;
+            newList = currentList;
         }
         this.setState({
             filtered: newList
@@ -38,13 +41,21 @@ class CustomerMainPage extends Component {
 
     render() {
         return(
-            <div className="content">
+            <div className="content" >
                 <div className="container">
-                <input type="text" className="input" onChange={(e)=> this.handleChange(e)} placeholder="Search..." />
+                    <div className="searchContainer">
+                        <input type="text" className="input" onChange={(e)=> this.handleChange(e)} placeholder="Search..." />
+                        <Link to='/' className="shoppingCart">
+                            <GiShoppingCart size='3em' color='black'/>
+                        </Link>
+                        <Link to='/'>
+                            <MdPerson size='3em' color='black'/>
+                        </Link>
+                    </div>
                     <section className="section">
                         <ul>
                             {this.state.filtered.map(item =>(
-                                <li key={item}>{item}</li>
+                                <ul key={item}><Link to="/">{item}</Link></ul>
                             ))}
                         </ul>
                     </section>
@@ -53,4 +64,5 @@ class CustomerMainPage extends Component {
         );
     }
 }
+
 export default CustomerMainPage;

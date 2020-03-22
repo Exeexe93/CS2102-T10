@@ -19,9 +19,10 @@ class CustomerMainPage extends Component {
 
     handleChange(e) {
         let newList = [];
-
+        let currentList = this.state.restuarantList;
+        
         if (e.target.value !== "") {
-            let currentList = this.state.restuarantList;
+            
 
             newList = currentList.filter(item => {
                 const lowercaseItem = item.toLowerCase();
@@ -29,7 +30,7 @@ class CustomerMainPage extends Component {
                 return lowercaseItem.includes(filter);
             });
         } else {
-            newList = this.props.items;
+            newList = currentList;
         }
         this.setState({
             filtered: newList
@@ -40,7 +41,7 @@ class CustomerMainPage extends Component {
         return(
             <div className="content">
                 <div className="container">
-                <input type="text" className="input" onChange={(e)=> this.handleChange(e)} placeholder="Search..." />
+                <input type="text" className="input"  style={{ width: "500px", textAlign: "middle" }} onChange={(e)=> this.handleChange(e)} placeholder="Search..." />
                     <section className="section">
                         <ul>
                             {this.state.filtered.map(item =>(
@@ -53,4 +54,5 @@ class CustomerMainPage extends Component {
         );
     }
 }
+
 export default CustomerMainPage;

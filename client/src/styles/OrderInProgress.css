@@ -2,17 +2,17 @@
   font-family: Helvetica, Arial;
 }
 
-.buttonRow button {
+.button-row button {
   text-align: center;
   font-family: Helvetica, Arial;
   font-size: 18px;
-  padding: 0.5em;
+  padding: 1em 0.5em;
   margin: 0.5em;
   background: #78c5ef;
   border-color: #78c5ef;
 }
 
-.buttonRow button:hover {
+.button-row button:hover {
   color: #ffffff !important;
   background: #51a0d5;
   font-style: italic;

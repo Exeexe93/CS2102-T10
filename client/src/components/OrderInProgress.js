@@ -32,7 +32,7 @@ class OrderInProgress extends Component {
           <p>{restaurantLocation}</p>
         </div>
 
-        <div className="buttonRow">
+        <div className="button-row">
           <span>
             <button>Depart for the restaurant to collect order</button>
           </span>

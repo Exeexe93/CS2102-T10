@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Order from "./Order";
+import "../styles/PendingOrders.css";
 
 class PendingOrders extends Component {
   // A list of orders needs to be passed in via props
@@ -13,12 +14,14 @@ class PendingOrders extends Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div className="pending-order-container">
         <h1>Pending Jobs</h1>
-        {this.state.orders.map(order => (
-          <Order orderInfo={order} />
-        ))}
-      </React.Fragment>
+        <div>
+          {this.state.orders.map(order => (
+            <Order orderInfo={order} />
+          ))}
+        </div>
+      </div>
     );
   }
 }

@@ -48,6 +48,8 @@ class FTriderMainPage extends Component {
 
           <RiderStatsPanel />
         </Jumbotron>
+
+        <PendingOrders orders={orders} />
       </Container>
     );
   }

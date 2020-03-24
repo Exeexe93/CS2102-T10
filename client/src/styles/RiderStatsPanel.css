@@ -1,10 +1,10 @@
-.side-panel {
+.panel {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.side-panel button {
+.panel button {
   font-family: Helvetica, Arial;
   font-size: 18px;
   padding-top: 1em;
@@ -15,19 +15,21 @@
   border-color: #78c5ef;
 }
 
-.side-panel button:hover {
+.panel button:hover {
   color: #ffffff !important;
   background: #51a0d5;
   border-color: #51a0d5 !important;
-  border-radius: 8px;
+  border-radius: 18px;
   transition: all 0.4s ease 0s;
 }
 
-.side-panel p {
+.panel p {
   font-family: Helvetica, Arial;
   font-size: 18px;
   padding-top: 1em;
   padding-bottom: 1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
   width: 80%;
   word-wrap: break-word;
   /* offset-x | offset-y | blur-radius | spread-radius | color */

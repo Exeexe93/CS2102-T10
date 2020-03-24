@@ -1,15 +1,22 @@
 import React, { Component } from "react";
 import "../styles/RiderStatsPanel.css";
+import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 
 class RiderStatsPanel extends Component {
   state = {};
   render() {
     return (
       <React.Fragment>
-        <div className="side-panel">
-          <button>Salary this week/month</button>
+        <div className="panel">
+          <button>
+            <FaMoneyBillAlt />
+            <span> Salary this week/month</span>
+          </button>
           <p>Your Rating: </p>
-          <button>Schedule</button>
+          <button>
+            <FaRegCalendarAlt />
+            <span> Schedule</span>
+          </button>
         </div>
       </React.Fragment>
     );

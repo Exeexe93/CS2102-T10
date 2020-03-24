@@ -8,10 +8,10 @@ class CustomerMainPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            restuarantList: [
-                "Restuarant 1",
-                "Restuarant 2",
-                "Restuarant 3"
+            restaurantList: [
+                "Restaurant 1",
+                "Restaurant 2",
+                "Restaurant 3"
             ],
             filtered: []
         }
@@ -27,7 +27,7 @@ class CustomerMainPage extends Component {
 
     handleChange(e) {
         let newList = [];
-        let currentList = this.state.restuarantList;
+        let currentList = this.state.restaurantList;
 
         if (e.target.value !== "") {
             

@@ -1,8 +1,8 @@
 import React from 'react';
-import App from '../App';
-import CustomerMainPage from '../components/CustomerMainPage';
-import Login from '../components/Login';
 import { Switch, Route } from 'react-router-dom';
+import App from '../App';
+import Login from '../components/Login';
+import CustomerMainPage from '../components/CustomerMainPage';
 
 class Routes extends React.Component {
     render() {

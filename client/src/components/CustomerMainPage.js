@@ -19,6 +19,12 @@ class CustomerMainPage extends Component {
         this.handleChange.bind(this);
     }
 
+    componentDidMount() {
+        this.setState({
+            filtered: this.state.restuarantList
+        })
+    }
+
     handleChange(e) {
         let newList = [];
         let currentList = this.state.restuarantList;

@@ -8,14 +8,13 @@ import {
   NavLink,
   Jumbotron
 } from "reactstrap";
-import "../styles/FTRiderMainPage.css";
 
 import RiderStatsPanel from "./RiderStatsPanel";
 import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
 
-class FTriderMainPage extends Component {
+class PTRiderMainPage extends Component {
   state = {};
   render() {
     const { name, orders } = this.props;
@@ -23,7 +22,7 @@ class FTriderMainPage extends Component {
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
-          <NavbarBrand href="/">Full Time Rider</NavbarBrand>
+          <NavbarBrand href="/">Part Time Rider</NavbarBrand>
           <Nav className="mr-auto">
             <NavLink href="#home" className="link">
               <MdHome />
@@ -52,4 +51,4 @@ class FTriderMainPage extends Component {
   }
 }
 
-export default FTriderMainPage;
+export default PTRiderMainPage;

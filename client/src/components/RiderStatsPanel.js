@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import "../styles/RiderSidePanel.css";
+import "../styles/RiderStatsPanel.css";
 
-class RiderSidePanel extends Component {
+class RiderStatsPanel extends Component {
   state = {};
   render() {
     return (
@@ -16,4 +16,4 @@ class RiderSidePanel extends Component {
   }
 }
 
-export default RiderSidePanel;
+export default RiderStatsPanel;

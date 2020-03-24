@@ -13,7 +13,7 @@ import {
 } from "reactstrap";
 import "../styles/FTRiderMainPage.css";
 
-import RiderSidePanel from "./RiderSidePanel";
+import RiderStatsPanel from "./RiderStatsPanel";
 import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
@@ -45,6 +45,8 @@ class FTriderMainPage extends Component {
           </div>
 
           <p className="lead">Summary of your activities</p>
+
+          <RiderStatsPanel />
         </Jumbotron>
       </Container>
     );

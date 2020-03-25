@@ -5,6 +5,7 @@ import Schedule from "../components/Schedule";
 import Login from "../components/Login";
 import { Switch, Route } from "react-router-dom";
 import FTRiderMainPage from "../components/FTRiderMainPage";
+import PTRiderMainPage from "../components/PTRiderMainPage";
 
 class Routes extends React.Component {
   render() {
@@ -18,8 +19,9 @@ class Routes extends React.Component {
         {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}
         <Route exact path="/FTRiderMainPage/schedule" component={Schedule} />
 
+        <Route exact path="/PTRiderMainPage" component={PTRiderMainPage} />
         {/* <Route exact path="/PTriderMainPage/salary" component={Salary} /> */}
-        {/* <Route exact path="/PTRiderMainPage/schedule" component={Schedule} /> */}
+        <Route exact path="/PTRiderMainPage/schedule" component={Schedule} />
       </Switch>
     );
   }

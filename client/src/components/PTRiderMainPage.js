@@ -9,16 +9,33 @@ import {
   Jumbotron
 } from "reactstrap";
 
-import RiderStatsPanel from "./RiderStatsPanel";
 import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
+import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 
 class PTRiderMainPage extends Component {
-  state = {};
-  render() {
-    const { name, orders } = this.props;
+  constructor(props) {
+    super(props);
+    this.state = {
+      isFTRider: false,
+      name: this.props.location.name,
+      orders: this.props.location.orders
+    };
+  }
 
+  handleViewSalary = () => {
+    // this.props.history.push("/PTriderMainPage/salary");
+  };
+
+  handleViewSchedule = () => {
+    this.props.history.push({
+      pathname: "PTRiderMainPage/schedule",
+      isFTRider: this.state.isFTRider
+    });
+  };
+
+  render() {
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
@@ -35,17 +52,30 @@ class PTRiderMainPage extends Component {
           <div className="centered">
             <h1 className="display-2">
               <GiFoodTruck />
-              <span> Welcome back {name}! </span>
+              <span> Welcome back {this.state.name}! </span>
               <GiFoodTruck />
             </h1>
           </div>
 
           <p className="lead">Summary of your activities</p>
 
-          <RiderStatsPanel />
+          {/* Stats panel for PT Rider */}
+          <div className="stats-panel">
+            <button onClick={this.handleViewSalary}>
+              <FaMoneyBillAlt />
+              <span> Salary this week/month</span>
+            </button>
+
+            <p>Your Rating: </p>
+
+            <button onClick={this.handleViewSchedule}>
+              <FaRegCalendarAlt />
+              <span> Schedule</span>
+            </button>
+          </div>
         </Jumbotron>
 
-        <PendingOrders orders={orders} />
+        <PendingOrders orders={this.state.orders} />
       </Container>
     );
   }

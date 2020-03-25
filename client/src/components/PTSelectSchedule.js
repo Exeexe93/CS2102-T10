@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Form } from "reactstrap";
 import Checkbox from "./Checkbox";
+import "../styles/PTSelectSchedule.css";
 
 class PTSelectSchedule extends Component {
   state = {};
@@ -21,7 +22,7 @@ class PTSelectSchedule extends Component {
     ];
 
     return (
-      <div>
+      <div className="PT-schedule-container">
         <h2>Select your preferred schedule!</h2>
 
         <Form className="pt-schedule-form">

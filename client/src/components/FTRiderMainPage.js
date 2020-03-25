@@ -34,17 +34,15 @@ class FTRiderMainPage extends Component {
   };
 
   handleViewSchedule = () => {
-    if (this.state.isFTRider) {
-      this.props.history.push({
-        pathname: "/FTRiderMainPage/schedule",
-        isFTRider: true
-      });
-    } else {
-      // this.props.history.push({
-      //   pathname: "PTRiderMainPage/schedule",
-      //   isFTRider: false
-      // });
-    }
+    this.props.history.push({
+      pathname: "/FTRiderMainPage/schedule",
+      isFTRider: this.state.isFTRider
+    });
+
+    // this.props.history.push({
+    //   pathname: "PTRiderMainPage/schedule",
+    //   isFTRider: false
+    // });
   };
 
   render() {
@@ -71,7 +69,7 @@ class FTRiderMainPage extends Component {
 
           <p className="lead">Summary of your activities</p>
 
-          {/* <RiderStatsPanel isFTRider={true} /> */}
+          {/* Stats panel for FT Rider */}
           <div className="stats-panel">
             <button onClick={this.handleViewSalary}>
               <FaMoneyBillAlt />

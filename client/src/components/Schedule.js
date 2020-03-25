@@ -13,10 +13,17 @@ import { MdHome } from "react-icons/md";
 
 import "../styles/Schedule.css";
 import FTSelectSchedule from "./FTSelectSchedule";
+import PTSelectSchedule from "./PTSelectSchedule";
 
 class Schedule extends Component {
   state = {};
   render() {
+    let scheduleComponent = this.props.isFTRider ? (
+      <FTSelectSchedule />
+    ) : (
+      <PTSelectSchedule />
+    );
+
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
@@ -33,7 +40,8 @@ class Schedule extends Component {
           <Calendar className="react-calendar" />
         </div>
 
-        <FTSelectSchedule />
+        {scheduleComponent}
+
         <div className="centered submit-button">
           <button>Submit</button>
         </div>

@@ -1,0 +1,10 @@
+.ft-schedule-form {
+  margin: 1em;
+}
+
+.ft-schedule-form label {
+  padding: 1em;
+  font-size: 24px;
+  font-family: Helvetica, Arial, sans-serif;
+  background-color: red;
+}

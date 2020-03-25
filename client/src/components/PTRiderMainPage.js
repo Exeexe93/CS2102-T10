@@ -35,13 +35,23 @@ class PTRiderMainPage extends Component {
     });
   };
 
+  handleHomeNavigation = () => {
+    this.props.history.push({
+      pathname: "/"
+    });
+  };
+
   render() {
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Part Time Rider</NavbarBrand>
           <Nav className="mr-auto">
-            <NavLink href="#home" className="link">
+            <NavLink
+              href=""
+              onClick={this.handleHomeNavigation}
+              className="link"
+            >
               <MdHome />
               <span> Home</span>
             </NavLink>

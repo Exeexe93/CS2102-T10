@@ -38,11 +38,6 @@ class FTRiderMainPage extends Component {
       pathname: "/FTRiderMainPage/schedule",
       isFTRider: this.state.isFTRider
     });
-
-    // this.props.history.push({
-    //   pathname: "PTRiderMainPage/schedule",
-    //   isFTRider: false
-    // });
   };
 
   render() {

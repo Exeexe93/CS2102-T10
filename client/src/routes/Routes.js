@@ -1,9 +1,9 @@
 import React from "react";
+import { Switch, Route } from "react-router-dom";
 import App from "../App";
 import CustomerMainPage from "../components/CustomerMainPage";
 import Schedule from "../components/Schedule";
 import Login from "../components/Login";
-import { Switch, Route } from "react-router-dom";
 import FTRiderMainPage from "../components/FTRiderMainPage";
 import PTRiderMainPage from "../components/PTRiderMainPage";
 

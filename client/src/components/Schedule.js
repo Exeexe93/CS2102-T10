@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  Container,
-  Navbar,
-  NavbarBrand,
-  Nav,
-  NavLink,
-  Jumbotron
-} from "reactstrap";
+import { Container, Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
 
 import Calendar from "react-calendar";
 import { MdHome } from "react-icons/md";
@@ -16,14 +9,19 @@ import FTSelectSchedule from "./FTSelectSchedule";
 import PTSelectSchedule from "./PTSelectSchedule";
 
 class Schedule extends Component {
-  state = {};
-  render() {
-    let scheduleComponent = this.props.location.isFTRider ? (
-      <FTSelectSchedule />
-    ) : (
-      <PTSelectSchedule />
-    );
+  constructor(props) {
+    super(props);
 
+    this.state = {
+      scheduleComponent: this.props.location.isFTRider ? (
+        <FTSelectSchedule />
+      ) : (
+        <PTSelectSchedule />
+      )
+    };
+  }
+
+  render() {
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
@@ -40,7 +38,7 @@ class Schedule extends Component {
           <Calendar className="react-calendar" />
         </div>
 
-        {scheduleComponent}
+        {this.state.scheduleComponent}
 
         <div className="centered submit-button">
           <button>Submit</button>

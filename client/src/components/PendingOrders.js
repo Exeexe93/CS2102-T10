@@ -6,11 +6,10 @@ class PendingOrders extends Component {
   // A list of orders needs to be passed in via props
   constructor(props) {
     super(props);
+    this.state = {
+      orders: this.props.orders
+    };
   }
-
-  state = {
-    orders: this.props.orders
-  };
 
   render() {
     return (

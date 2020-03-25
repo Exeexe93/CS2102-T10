@@ -15,11 +15,16 @@ import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
 
-class FTriderMainPage extends Component {
-  state = {};
-  render() {
-    const { name, orders } = this.props;
+class FTRiderMainPage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: this.props.location.name,
+      orders: this.props.location.orders
+    };
+  }
 
+  render() {
     return (
       <Container fluid className="container-fluid">
         <Navbar className="navbar" color="dark" dark>
@@ -36,20 +41,20 @@ class FTriderMainPage extends Component {
           <div className="centered">
             <h1 className="display-2">
               <GiFoodTruck />
-              <span> Welcome back {name}! </span>
+              <span> Welcome back {this.state.name}! </span>
               <GiFoodTruck />
             </h1>
           </div>
 
           <p className="lead">Summary of your activities</p>
 
-          <RiderStatsPanel />
+          <RiderStatsPanel isFTRider={true} />
         </Jumbotron>
 
-        <PendingOrders orders={orders} />
+        <PendingOrders orders={this.state.orders} />
       </Container>
     );
   }
 }
 
-export default FTriderMainPage;
+export default FTRiderMainPage;

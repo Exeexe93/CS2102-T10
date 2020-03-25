@@ -18,7 +18,7 @@ import PTSelectSchedule from "./PTSelectSchedule";
 class Schedule extends Component {
   state = {};
   render() {
-    let scheduleComponent = this.props.isFTRider ? (
+    let scheduleComponent = this.props.location.isFTRider ? (
       <FTSelectSchedule />
     ) : (
       <PTSelectSchedule />

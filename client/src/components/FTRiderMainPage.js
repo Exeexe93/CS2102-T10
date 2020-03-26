@@ -81,7 +81,7 @@ class FTRiderMainPage extends Component {
               <span> Salary this week/month</span>
             </button>
 
-            <p>Your Rating: </p>
+            <p className="centered">Your Rating: </p>
 
             <button onClick={this.handleViewSchedule}>
               <FaRegCalendarAlt />

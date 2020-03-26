@@ -44,7 +44,7 @@ class Schedule extends Component {
           </Nav>
         </Navbar>
 
-        <div className="centered">
+        <div className="centered-container">
           <Calendar className="react-calendar" />
         </div>
 

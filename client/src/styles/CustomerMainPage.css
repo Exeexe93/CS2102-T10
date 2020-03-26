@@ -1,31 +1,41 @@
 .content {
-    justify-content: center;
-    display: flex;
+  justify-content: center;
+  display: flex;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-top: 3em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3em;
 }
 
 .searchContainer {
-    display: flex;
-}
-
-.shoppingCart {
-    margin-left: 5mm;
+  display: flex;
 }
 
 .input {
-    width: 500px;
-    text-align: center;
+  width: 500px;
+  height: 70px;
+  font-size: 28px;
+
+  text-align: center;
 }
 
 .section {
-    display: flex;
-    justify-self: center;
-    justify-content: center;
+  margin-top: 1cm;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.header-centered {
+  text-align: center;
+}
+
+.restItem {
+  font-size: 28px;
 }

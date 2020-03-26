@@ -3,7 +3,9 @@ let bodyParser = require('body-parser');
 let morgan = require('morgan');
 let pg = require('pg');
 let cors = require('cors');
-const PORT = 3001;
+
+const ENV = process.env.NODE_ENV;
+const PORT = process.env.PORT || 3001;
 
 let pool = new pg.Pool({
     user: 'postgres',

@@ -1,6 +1,10 @@
-.centered {
+.centered-container {
   display: flex;
   justify-content: center;
+}
+
+.centered-text {
+  text-align: center;
 }
 
 .link {

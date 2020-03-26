@@ -3,66 +3,101 @@ import "../styles/CustomerMainPage.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
+import { Navbar, Nav, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 
 class CustomerMainPage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            restuarantList: [
-                "Restuarant 1",
-                "Restuarant 2",
-                "Restuarant 3"
-            ],
-            filtered: []
-        }
+  constructor(props) {
+    super(props);
+    this.state = {
+      restaurantList: ["Restaurant 1", "Restaurant 2", "Restaurant 3"],
+      filtered: [],
+      customerName: "Mr Cranston"
+    };
 
-        this.handleChange.bind(this);
+    this.handleChange.bind(this);
+  }
+
+  componentDidMount() {
+    this.setState({
+      filtered: this.state.restaurantList
+    });
+  }
+
+  handleProfile = () => {
+    this.props.history.push("/");
+  };
+
+  handleCart = () => {
+    this.props.history.push("/Login");
+  };
+
+  handleChange(e) {
+    let newList = [];
+    let currentList = this.state.restaurantList;
+
+    if (e.target.value !== "") {
+      newList = currentList.filter(item => {
+        const lowercaseItem = item.toLowerCase();
+        const filter = e.target.value.toLowerCase();
+        return lowercaseItem.includes(filter);
+      });
+    } else {
+      newList = currentList;
     }
+    this.setState({
+      filtered: newList
+    });
+  }
 
-    handleChange(e) {
-        let newList = [];
-        let currentList = this.state.restuarantList;
+  render() {
+    return (
+      <div>
+        <Navbar dark color="dark">
+          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
+          <div calssName="icon-container">
+            <GiShoppingCart
+              size="3em"
+              color="black"
+              onClick={this.handleCart}
+            />
+            <MdPerson size="3em" color="black" onClick={this.handleProfile} />
+          </div>
+        </Navbar>
 
-        if (e.target.value !== "") {
-            
+        <Row>
+          <Col>
+            <Jumbotron className="header-centered">
+              <h1 className="display-3">Welcome {this.state.customerName}</h1>
+              <p className="lead">What foods to order today? Yum! Yum!</p>
+            </Jumbotron>
+          </Col>
+        </Row>
 
-            newList = currentList.filter(item => {
-                const lowercaseItem = item.toLowerCase();
-                const filter = e.target.value.toLowerCase();
-                return lowercaseItem.includes(filter);
-            });
-        } else {
-            newList = currentList;
-        }
-        this.setState({
-            filtered: newList
-        });
-    }
-
-    render() {
-        return(
-            <div className="content" >
-                <div className="container">
-                    <div className="searchContainer">
-                        <input type="text" className="input" onChange={(e)=> this.handleChange(e)} placeholder="Search..." />
-                        <Link to='/' className="shoppingCart">
-                            <GiShoppingCart size='3em' color='black'/>
-                        </Link>
-                        <Link to='/'>
-                            <MdPerson size='3em' color='black'/>
-                        </Link>
-                    </div>
-                    <section className="section">
-                        <ul>
-                            {this.state.filtered.map(item =>(
-                                <ul key={item}><Link to="/">{item}</Link></ul>
-                            ))}
-                        </ul>
-                    </section>
-                </div>
+        <div className="content">
+          <div className="container">
+            <div className="searchContainer">
+              <input
+                type="text"
+                className="input"
+                onChange={e => this.handleChange(e)}
+                placeholder="Search..."
+              />
             </div>
-        );
-    }
+
+            <div className="section">
+              {this.state.filtered.map(item => (
+                <div key={item}>
+                  <Link to="/" className="restItem">
+                    {item}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default CustomerMainPage;

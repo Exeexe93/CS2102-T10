@@ -64,7 +64,7 @@ class FTRiderMainPage extends Component {
         </Navbar>
 
         <Jumbotron>
-          <div className="centered">
+          <div className="centered-container">
             <h1 className="display-2">
               <GiFoodTruck />
               <span> Welcome back {this.state.name}! </span>
@@ -81,7 +81,7 @@ class FTRiderMainPage extends Component {
               <span> Salary this week/month</span>
             </button>
 
-            <p className="centered">Your Rating: </p>
+            <p className="centered-text">Your Rating: </p>
 
             <button onClick={this.handleViewSchedule}>
               <FaRegCalendarAlt />

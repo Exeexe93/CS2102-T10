@@ -6,6 +6,8 @@ import Schedule from "../components/Schedule";
 import Login from "../components/Login";
 import FTRiderMainPage from "../components/FTRiderMainPage";
 import PTRiderMainPage from "../components/PTRiderMainPage";
+import FDSManager from "../components/FDSManager";
+import Profile from "../components/Profile";
 
 class Routes extends React.Component {
   render() {
@@ -14,6 +16,8 @@ class Routes extends React.Component {
         <Route exact path="/" component={App} />
         <Route exact path="/CustomerMainPage" component={CustomerMainPage} />
         <Route exact path="/Login" component={Login} />
+        <Route exact path="/Profile" component={Profile} />
+        <Route exact path="/FDSManager" component={FDSManager} />
 
         <Route exact path="/FTRiderMainPage" component={FTRiderMainPage} />
         {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}

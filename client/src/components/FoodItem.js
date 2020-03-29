@@ -4,7 +4,7 @@ import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
-import { Form, ListGroup } from "react-bootstrap";
+import { Form, ListGroup, Button } from "react-bootstrap";
 
 class FoodItem extends Component {
   constructor(props) {
@@ -82,15 +82,22 @@ class FoodItem extends Component {
 
   generateQuantity = () => {
     let currentList = this.state.foodItem;
+    let values = [];
     var item, i;
     for (item in currentList) {
-      for (i = 1; i <= currentList[item].limit; i++) {
+      values.push({ value: 0 });
+      for (i = 0; i <= currentList[item].limit; i++) {
         currentList[item].amount.push({ value: i });
       }
     }
     this.setState({
-      foodItem: currentList
+      foodItem: currentList,
+      values: values
     });
+  };
+
+  submit = () => {
+    // Link to the receipt part send the foodItem to there.
   };
 
   render() {
@@ -150,6 +157,10 @@ class FoodItem extends Component {
               <ListGroup.Item>{item.limit}</ListGroup.Item>
             </ListGroup>
           ))}
+          <div className="separator"></div>
+          <Button type="button" className="submitButton" onClick={this.submit}>
+            Submit
+          </Button>
         </ListGroup>
       </div>
     );

@@ -38,3 +38,8 @@ body {
 .separator {
   height: 30px;
 }
+
+.submitButton {
+  width: 120px;
+  height: 50px;
+}

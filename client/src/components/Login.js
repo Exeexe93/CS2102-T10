@@ -25,7 +25,7 @@ class Login extends Component {
 
   render() {
     return (
-      <div class="login-form">
+      <div className="login-form">
         <h1>Login</h1>
         <form action="auth" method="POST">
           <input

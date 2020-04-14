@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import "../styles/CustomerMainPage.css";
+import "../styles/Customer.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { Navbar, Nav, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 
-class CustomerMainPage extends Component {
+class Customer extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -109,4 +109,4 @@ class CustomerMainPage extends Component {
   }
 }
 
-export default CustomerMainPage;
+export default Customer;

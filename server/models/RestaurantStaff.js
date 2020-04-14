@@ -12,11 +12,11 @@ class RestaurantStaff {
 
   static addFood(name, price, food_limit, quantity, category, callback) {
     db.query(
-        "INSERT INTO Foods (name, price, food_limit, quantity, category) values ('$1', '$2', $3, '$4', '$5');",
+        "INSERT INTO Foods (name, price, food_limit, quantity, category) values ('$1', '$2', '$3', '$4', '$5')",
         name,
         price,
-        food_limit,
-        quantity,
+        null,
+        null,
         category,
         (err, res) => {
             if (err.error) {

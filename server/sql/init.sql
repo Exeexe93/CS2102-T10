@@ -225,8 +225,8 @@ CREATE TABLE Foods (
     menu_id serial,
     name varchar(255) not null,
     price money not null,
-    food_limit integer not null,
-    quantity integer not null,
+    food_limit integer,
+    quantity integer,
     category varchar(255) not null,
     foreign key (menu_id) references Menus on delete cascade
 );
@@ -433,4 +433,4 @@ insert into Menus (menu_id, rest_id) values (9, 9);
 insert into Menus (menu_id, rest_id) values (10, 10);
 
 -- Foods
-insert into Foods (name, price, food_limit, quantity, category) values ('exeexe pancake', '$0.10', 1, '1000', 'best food');
+insert into Foods (name, price, food_limit, quantity, category) values ('exeexe pancake', '$0.10', '1', '1000', 'best food');

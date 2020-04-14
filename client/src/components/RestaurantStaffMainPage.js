@@ -7,13 +7,13 @@ import FormGroup from 'react-bootstrap/FormGroup'
 import { Col } from 'reactstrap';
 import { Table } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
+import axios from 'axios';
 
 class RestaurantStaffMainPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             foodItems: [],
-            apiResponse: "",
             restaurantName: "Mr. Eng Pte Ltd"
         }
         this.handleSubmit.bind(this);
@@ -37,23 +37,17 @@ class RestaurantStaffMainPage extends Component {
         event.preventDefault();
         let newFood = {
             name: form.elements.foodName.value,
-            price:  parseFloat(form.elements.foodPrice.value).toFixed(2),
-            quantity:  Math.round(form.elements.foodQuantity.value),
-            category:  form.elements.foodCategory.value,
-            food_limit:  Math.round(form.elements.foodLimit.value)
+            price: parseFloat(form.elements.foodPrice.value).toFixed(2),
+            quantity: Math.round(form.elements.foodQuantity.value),
+            category: form.elements.foodCategory.value,
+            food_limit: Math.round(form.elements.foodLimit.value)
         }
-        // const requestOptions = {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(newFood)
-        // };
-        // fetch('localhost:3001/api/new-food', requestOptions)
-        //     .then(response => response.json())
-        //     .then(data => this.setState({ postId: data.id }));
-        this.setState ({ 
-            foodItems: [...this.state.foodItems, newFood]
-        });
-        this.foodForm.reset()
+        axios
+      .post('http://localhost:3001/RestaurantStaff', newFood)
+      .then(() => console.log('Food Created'))
+      .catch(err => {
+        console.error(err);
+      });
     }
 
     renderItem = (food, index) => {

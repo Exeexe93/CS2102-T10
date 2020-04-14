@@ -42,7 +42,7 @@ class FDSManager extends Component {
 
     handleQuery = () => {
         console.log('month %s, year %s', this.state.month, this.state.year);
-        fetch('/api/FDSManager', {
+        fetch('http://localhost:3001/FDSManager', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ month: this.state.month, year: this.state.year})

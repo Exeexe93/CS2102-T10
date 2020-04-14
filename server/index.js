@@ -22,7 +22,6 @@ let app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 // app.use(function(request, response, next) {
 //     response.header("Access-Control-Allow-Origin", "*");
 //     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -53,8 +52,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
-db.query("SELECT * FROM Accounts", (err, res) => {
-  console.log(res.rows);
-});
+db.query(
+  "SELECT * FROM Accounts",
+  (value, output) => {
+    console.log(output);
+  },
+
+  (err, res) => {
+    console.log(res);
+  }
+);
 
 module.exports = app;

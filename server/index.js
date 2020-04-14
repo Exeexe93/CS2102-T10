@@ -19,9 +19,12 @@ const db = require("./database/index.js");
 // })
 
 let app = express();
-app.use(cors());
+//app.use(cors());
+//app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
 // app.use(function(request, response, next) {
 //     response.header("Access-Control-Allow-Origin", "*");
 //     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -53,7 +56,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
 // db.query(
-//   "SELECT * FROM Accounts",
+//   "SELECT name FROM Restaurants",
 //   (value, output) => {
 //     console.log(output);
 //   },

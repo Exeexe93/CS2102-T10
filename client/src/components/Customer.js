@@ -9,7 +9,7 @@ class Customer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      restaurantList: ["Restaurant 1", "Restaurant 2", "Restaurant 3"],
+      restaurantList: [],
       filtered: [],
       customerName: "Mr Cranston",
     };
@@ -17,7 +17,25 @@ class Customer extends Component {
     this.handleChange.bind(this);
   }
 
+  getRestaurantList = () => {
+    fetch("/api/Customer")
+      .then((res) => {
+        res.json();
+        console.log(res);
+      })
+      .then((res) => {
+        var restaurantList = res.map((r) => r.name);
+        this.setState({
+          restaurantList,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   componentDidMount() {
+    this.getRestaurantList();
     this.setState({
       filtered: this.state.restaurantList,
     });
@@ -53,8 +71,8 @@ class Customer extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
-          <div calssName="icon-container">
+          <NavbarBrand href="/Customer">Main Page</NavbarBrand>
+          <div className="icon-container">
             <GiShoppingCart
               size="3em"
               color="black"

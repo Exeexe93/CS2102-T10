@@ -53,12 +53,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
 db.query(
-  "SELECT * FROM Accounts",
+  "SELECT FROM Accounts",
   (value, output) => {
-    console.log(output);
+    // console.log(output);
   },
 
   (err, res) => {
+    if (err) {
+      console.log(err);
+    }
     console.log(res);
   }
 );

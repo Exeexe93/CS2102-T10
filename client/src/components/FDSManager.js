@@ -8,7 +8,11 @@ import {
     NavbarBrand,
     Col, 
     Jumbotron,
-    Row
+    Row,
+    InputGroup,
+    Input,
+    InputGroupAddon,
+    Button
 } from 'reactstrap';
 
 class FDSManager extends Component {
@@ -16,11 +20,40 @@ class FDSManager extends Component {
         super(props);
         this.state = {
             // Change to the FDSManager name here
+            year: '',
+            month: '',
+            num: 0,
             FDSManagerName: "Mr Eng"
-        }
+        };
 
 
     }
+
+    handleInputQueryMonth = (e) => {
+        this.setState({ month: e.target.value })
+    };
+
+    handleInputQueryYear = (e) => {
+        this.setState({ year: e.target.value })
+    };
+
+    handleQuery = () => {
+        fetch('/api/FDSManager', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})
+        })
+        .then(res => res.json())
+        .then(res => {
+            this.setState(
+                { 
+                    month: '',
+                    year: '',
+                });
+            // console.log(res);
+        })
+    }; 
+
     render() {
         console.log("hi from fdsmanager");
         return (
@@ -40,7 +73,30 @@ class FDSManager extends Component {
                     <Tab eventKey="customers">Customers</Tab>
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
                 </TabList>
-                <TabPanel>Text for Customers</TabPanel>
+                <TabPanel>
+                    <InputGroup>
+                        <Input 
+                            type="text" 
+                            name="Month" 
+                            value={this.state.month}
+                            placeholder="Month 1-12"
+                            onChange={this.handleInputQueryMonth}
+                        />
+
+                        <Input 
+                            type="text" 
+                            name="Year" 
+                            value={this.state.year}
+                            placeholder="Year"
+                            onChange={this.handleInputQueryYear}
+                        />
+                        <InputGroupAddon addonType="append">
+                            <Button color="primary" onClick={this.handleQuery}>
+                                Enter
+                            </Button>
+                        </InputGroupAddon>
+                    </InputGroup>
+                </TabPanel>
                 <TabPanel>Text for Riders</TabPanel>
             </Tabs>
 

@@ -4,11 +4,11 @@ class Database {
   constructor() {
     this.pool = new pg.Pool({
       user: "postgres",
-      database: "delivery",
+      database: "cs2102",
       password: "",
       host: "localhost",
       port: 5432,
-      max: 10
+      max: 10,
     });
 
     this.pool.on("error", (err, client) => {
@@ -23,7 +23,7 @@ class Database {
       }
       const params = args.length === 2 ? args[0] : [];
       const callback = args.length === 1 ? args[0] : args[1];
-      db.connect(query, params, (err, res) => {
+      db.query(query, params, (err, res) => {
         done();
         if (err) {
           console.log(err.stack);

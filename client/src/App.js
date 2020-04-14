@@ -57,6 +57,8 @@ class App extends Component {
         <div className="menu">
           <Link to="/CustomerMainPage">MainCustomerPage</Link>
           <br />
+          <Link to="/RestaurantStaffMainPage">RestaurantStaffPage</Link>
+          <br />
           <Link to="/Login">Login</Link>
           <br />
           <Link to="/FDSManager">FDSManager</Link>

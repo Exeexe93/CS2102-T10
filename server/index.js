@@ -19,9 +19,16 @@ const db = require("./database/index.js");
 // })
 
 let app = express();
-app.use(cors());
+//app.use(cors());
+//app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
+// Register Login API
+app.use("/api/Login", require("./api/Login"));
+app.use("/api/FDSManager", require("./api/FDSManager"));
+
 // app.use(function(request, response, next) {
 //     response.header("Access-Control-Allow-Origin", "*");
 //     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -52,18 +59,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
-db.query(
-  "SELECT FROM Accounts",
-  (value, output) => {
-    // console.log(output);
-  },
+// db.query(
+//   "SELECT name FROM Restaurants",
+//   (value, output) => {
+//     console.log(output);
+//   },
 
-  (err, res) => {
-    if (err) {
-      console.log(err);
-    }
-    console.log(res);
-  }
-);
+//   (err, res) => {
+//     console.log(res);
+//   }
+// );
 
 module.exports = app;

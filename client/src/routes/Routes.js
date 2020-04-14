@@ -2,6 +2,8 @@ import React from "react";
 import { Switch, Route } from "react-router-dom";
 import App from "../App";
 import Customer from "../components/Customer";
+import RestaurantStaffMainPage from "../components/RestaurantStaffMainPage";
+import RestaurantSummaryPage from "../components/RestaurantSummaryPage";
 import Schedule from "../components/Schedule";
 import Login from "../components/Login";
 import FTRiderMainPage from "../components/FTRiderMainPage";
@@ -20,6 +22,17 @@ class Routes extends React.Component {
         <Route exact path="/Login" component={Login} />
         <Route exact path="/Profile" component={Profile} />
         <Route exact path="/FDSManager" component={FDSManager} />
+
+        <Route
+          exact
+          path="/RestaurantStaffMainPage"
+          component={RestaurantStaffMainPage}
+        />
+        <Route
+          exact
+          path="/RestaurantSummaryPage"
+          component={RestaurantSummaryPage}
+        />
 
         <Route exact path="/FTRiderMainPage" component={FTRiderMainPage} />
         {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}

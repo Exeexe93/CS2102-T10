@@ -87,7 +87,16 @@ class CustomerMainPage extends Component {
             <div className="section">
               {this.state.filtered.map(item => (
                 <div key={item}>
-                  <Link to="/" className="restItem">
+                  <Link
+                    className="restItem"
+                    to={{
+                      pathname: "/" + item,
+                      state: {
+                        customerName: this.state.customerName,
+                        restaurant: { item }
+                      }
+                    }}
+                  >
                     {item}
                   </Link>
                 </div>

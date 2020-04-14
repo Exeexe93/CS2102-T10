@@ -29,11 +29,23 @@ app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
 app.use("/api/Login", require("./api/Login"));
 app.use("/api/FDSManager", require("./api/FDSManager"));
 
+<<<<<<< HEAD
 app.use(function(request, response, next) {
     response.header("Access-Control-Allow-Origin", "*");
     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
+=======
+// Register Restaurant Staff API
+app.use("https://localhost:3001/api/RestaurantStaff", require("./api/RestaurantStaff"));
+app.use("/api/RestaurantStaff", require("./api/RestaurantStaff"));
+
+// app.use(function(request, response, next) {
+//     response.header("Access-Control-Allow-Origin", "*");
+//     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+//     next();
+//   });
+>>>>>>> c9ec42f10a326c7c554bbd3bc4901d431817c4b1
 
 //   app.post('/api/new-country', function(request, response) {
 //     var country_name = request.body.country_name;
@@ -59,11 +71,12 @@ app.use(function(request, response, next) {
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
-// db.query(
-//   "SELECT name FROM Restaurants",
-//   (value, output) => {
-//     console.log(output);
-//   },
+db.query(
+  "SELECT * FROM Foods",
+  (value, output) => {
+    console.log(output);
+  },
+);
 
 //   (err, res) => {
 //     console.log(res);

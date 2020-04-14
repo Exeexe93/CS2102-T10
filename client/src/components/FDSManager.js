@@ -12,6 +12,7 @@ import {
     InputGroup,
     Input,
     InputGroupAddon,
+    ListGroup,
     Button
 } from 'reactstrap';
 
@@ -20,6 +21,8 @@ class FDSManager extends Component {
         super(props);
         this.state = {
             // Change to the FDSManager name here
+            displayMonth: 'the Month',
+            displayYear: 'the Year',
             year: '',
             month: '',
             num: 0,
@@ -38,19 +41,28 @@ class FDSManager extends Component {
     };
 
     handleQuery = () => {
+        console.log('month %s, year %s', this.state.month, this.state.year);
         fetch('/api/FDSManager', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ month: this.state.month, year: this.state.year})
         })
-        .then(res => res.json())
+        .then(res => 
+            {
+                console.log(res);
+                return res.json();
+            })
         .then(res => {
             this.setState(
                 { 
+                    displayMonth: this.state.month,
+                    displayYear: this.state.year,
                     month: '',
                     year: '',
+                    // Here need to update value
+
                 });
-            // console.log(res);
+            console.log(res);
         })
     }; 
 
@@ -96,6 +108,11 @@ class FDSManager extends Component {
                             </Button>
                         </InputGroupAddon>
                     </InputGroup>
+                    <ListGroup key="listgroup">
+                        <p>
+                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num}  
+                        </p>
+                    </ListGroup>
                 </TabPanel>
                 <TabPanel>Text for Riders</TabPanel>
             </Tabs>

@@ -3,13 +3,15 @@ let FDSManagerModel = require('../models/FDSManager');
 
 let router = express.Router();
 
-router.post('/', function (req, res) {
+router.post('/', (req, res) => {
     let month = req.body.month;
     let year = req.body.year;
-    FDSManagerModel.queryTotalNewCustomers(month, year, function (err, fdsmanager) {
+    FDSManagerModel.queryTotalNewCustomers(month, year, function (err, result) {
         if (err) 
             return res.json(err);
-        return res.json(fdsmanager);
+        console.log("From api model");
+        console.log(result);
+        return res.json(result);
     });
 });
 

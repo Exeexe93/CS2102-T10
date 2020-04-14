@@ -29,11 +29,11 @@ app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
 app.use("/api/Login", require("./api/Login"));
 app.use("/api/FDSManager", require("./api/FDSManager"));
 
-// app.use(function(request, response, next) {
-//     response.header("Access-Control-Allow-Origin", "*");
-//     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//     next();
-//   });
+app.use(function(request, response, next) {
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 
 //   app.post('/api/new-country', function(request, response) {
 //     var country_name = request.body.country_name;
@@ -69,5 +69,11 @@ app.listen(PORT, () => console.log("Listening on port " + PORT));
 //     console.log(res);
 //   }
 // );
+// const FDSManager = require('./models/FDSManager');
+// FDSManager.queryTotalNewCustomers("10", "2019", (err, result) => {
+//   console.log(result[0].num);
+// });
+
+// fetch('https://localhost:3001/api/FDSManager');
 
 module.exports = app;

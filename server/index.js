@@ -49,11 +49,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //       }
 //     })
 //   });
+  
+app.post('/api/foodItems', () => {
+  return db.query('SELECT * FROM Foods');
+  }
+)
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
 db.query(
-  "SELECT * FROM Accounts",
+  "SELECT * FROM Foods",
   (value, output) => {
     console.log(output);
   },

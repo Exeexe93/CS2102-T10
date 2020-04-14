@@ -1,0 +1,1 @@
+insert into Foods (name, price, food_limit, quantity, category) values ('exeexe pancake', '$0.10', 1, '1000', 'best food');

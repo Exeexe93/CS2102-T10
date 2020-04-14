@@ -13,11 +13,29 @@ class RestaurantStaffMainPage extends Component {
         super(props);
         this.state = {
             foodItems: [
-                {name: "Banana", price: "5.00", quantity: "3", category: "Side", limit:"1"},
+                {name: "Banana", price: "5.00", quantity: "3", category: "Side", food_limit:"1"},
             ],
             restaurantName: "Mr. Eng Pte Ltd"
         }
         this.handleSubmit.bind(this);
+    }
+
+    componentDidMount() {
+        fetch(`http://localhost:3001/api/foodItems`)
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    this.setState({
+                        foodItems: result.foodItems
+                    })
+                },
+                (error) => {
+                    this.setState({
+                      isLoaded: true,
+                      error
+                    });
+                  }
+            )
     }
 
     handleSubmit = (event) => {
@@ -28,8 +46,16 @@ class RestaurantStaffMainPage extends Component {
             price:  parseFloat(form.elements.foodPrice.value).toFixed(2),
             quantity:  Math.round(form.elements.foodQuantity.value),
             category:  form.elements.foodCategory.value,
-            limit:  Math.round(form.elements.foodLimit.value)
+            food_limit:  Math.round(form.elements.foodLimit.value)
         }
+        // const requestOptions = {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(newFood)
+        // };
+        // fetch('localhost:3001/api/new-food', requestOptions)
+        //     .then(response => response.json())
+        //     .then(data => this.setState({ postId: data.id }));
         this.setState ({ 
             foodItems: [...this.state.foodItems, newFood]
         });
@@ -44,7 +70,7 @@ class RestaurantStaffMainPage extends Component {
                 <td><span>$</span>{food.price}</td>
                 <td>{food.quantity}</td>
                 <td>{food.category}</td>
-                <td>{food.limit}</td>
+                <td>{food.food_limit}</td>
             </tr>
         )
     }
@@ -101,7 +127,7 @@ class RestaurantStaffMainPage extends Component {
                                 <th>Price</th>
                                 <th>Quantity</th>
                                 <th>Category</th>
-                                <th>Limit</th>
+                                <th>Food Limit</th>
                             </tr>
                         </thead>
                         <tbody>

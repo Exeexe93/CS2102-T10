@@ -11,7 +11,7 @@ class CustomerMainPage extends Component {
     this.state = {
       restaurantList: ["Restaurant 1", "Restaurant 2", "Restaurant 3"],
       filtered: [],
-      customerName: "Mr Cranston"
+      customerName: "Mr Cranston",
     };
 
     this.handleChange.bind(this);
@@ -19,7 +19,7 @@ class CustomerMainPage extends Component {
 
   componentDidMount() {
     this.setState({
-      filtered: this.state.restaurantList
+      filtered: this.state.restaurantList,
     });
   }
 
@@ -36,7 +36,7 @@ class CustomerMainPage extends Component {
     let currentList = this.state.restaurantList;
 
     if (e.target.value !== "") {
-      newList = currentList.filter(item => {
+      newList = currentList.filter((item) => {
         const lowercaseItem = item.toLowerCase();
         const filter = e.target.value.toLowerCase();
         return lowercaseItem.includes(filter);
@@ -45,7 +45,7 @@ class CustomerMainPage extends Component {
       newList = currentList;
     }
     this.setState({
-      filtered: newList
+      filtered: newList,
     });
   }
 
@@ -79,22 +79,22 @@ class CustomerMainPage extends Component {
               <input
                 type="text"
                 className="input"
-                onChange={e => this.handleChange(e)}
+                onChange={(e) => this.handleChange(e)}
                 placeholder="Search..."
               />
             </div>
 
             <div className="section">
-              {this.state.filtered.map(item => (
+              {this.state.filtered.map((item) => (
                 <div key={item}>
                   <Link
                     className="restItem"
                     to={{
-                      pathname: "/" + item,
+                      pathname: "/Customer/" + item,
                       state: {
                         customerName: this.state.customerName,
-                        restaurant: { item }
-                      }
+                        restaurant: { item },
+                      },
                     }}
                   >
                     {item}

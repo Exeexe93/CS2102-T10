@@ -431,3 +431,6 @@ insert into Menus (menu_id, rest_id) values (7, 7);
 insert into Menus (menu_id, rest_id) values (8, 8);
 insert into Menus (menu_id, rest_id) values (9, 9);
 insert into Menus (menu_id, rest_id) values (10, 10);
+
+-- Foods
+insert into Foods (name, price, food_limit, quantity, category) values ('exeexe pancake', '$0.10', 1, '1000', 'best food');

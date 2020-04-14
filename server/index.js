@@ -28,6 +28,10 @@ app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
 // Register Login API
 app.use("/api/Login", require("./api/Login"));
 
+// Register Restaurant Staff API
+app.use("https://localhost:3001/api/RestaurantStaff", require("./api/RestaurantStaff"));
+app.use("/api/RestaurantStaff", require("./api/RestaurantStaff"));
+
 // app.use(function(request, response, next) {
 //     response.header("Access-Control-Allow-Origin", "*");
 //     response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -58,11 +62,12 @@ app.use("/api/Login", require("./api/Login"));
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
-// db.query(
-//   "SELECT name FROM Restaurants",
-//   (value, output) => {
-//     console.log(output);
-//   },
+db.query(
+  "SELECT * FROM Foods",
+  (value, output) => {
+    console.log(output);
+  },
+);
 
 //   (err, res) => {
 //     console.log(res);

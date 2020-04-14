@@ -18,20 +18,14 @@ class Customer extends Component {
   }
 
   getRestaurantList = () => {
-    fetch("/api/Customer")
-      .then((res) => {
-        res.json();
-        console.log(res);
-      })
-      .then((res) => {
-        var restaurantList = res.map((r) => r.name);
-        this.setState({
-          restaurantList,
-        });
-      })
-      .catch((err) => {
-        console.log(err);
+    fetch("http://localhost:3001/Customer")
+    .then(res => res.json())
+    .then((res) => {
+      var restaurantList = res.map((r) => r.name);
+      this.setState({
+        restaurantList,
       });
+    })
   };
 
   componentDidMount() {

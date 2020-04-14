@@ -8,17 +8,18 @@ class Login extends Component {
       account_id: this.refs.id.value,
       account_pass: this.refs.password.value
     };
-    var request = new Request("http://localhost:3001/api/Login", {
+    var request = new Request("http://localhost:3001/Login", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
       body: JSON.stringify(data)
     });
 
     fetch(request)
-      .then(function(response) {
-        console.log(response.json());
+      .then(response => response.json())
+      .then(response => {
+        console.log(response);
       })
-      .catch(function(err) {
+      .catch(err => {
         console.log(err);
       });
   };
@@ -42,11 +43,7 @@ class Login extends Component {
             placeholder="Password"
             required
           />
-          <input
-            type="submit"
-            value="LOGIN"
-            onClick={this.handleLogin.bind(this)}
-          />
+          <input type="submit" value="LOGIN" onClick={this.handleLogin} />
           <span>
             Don't have an account?
             <Link to="/"> Sign up here</Link>

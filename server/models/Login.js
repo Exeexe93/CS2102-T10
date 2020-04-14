@@ -7,7 +7,7 @@ class Login {
       [account_id, account_pass],
       (err, res) => {
         if (err.error) {
-          console.err("Could not check login credentials: ", err);
+          console.log("Could not check login credentials: ", err);
           return callback(err, res);
         }
         return callback(err, res);

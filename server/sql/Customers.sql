@@ -1,0 +1,10 @@
+insert into Customers (cid, name, reward_points) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', 'Florida', 30);
+insert into Customers (cid, name, reward_points) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Liesa', 15);
+insert into Customers (cid, name, reward_points) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fae', 84);
+insert into Customers (cid, name, reward_points) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'Florentia', 84);
+insert into Customers (cid, name, reward_points) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'Deni', 17);
+insert into Customers (cid, name, reward_points) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'Meriel', 11);
+insert into Customers (cid, name, reward_points) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Ripley', 56);
+insert into Customers (cid, name, reward_points) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Merry', 71);
+insert into Customers (cid, name, reward_points) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Mendie', 24);
+insert into Customers (cid, name, reward_points) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Lilyan', 49);

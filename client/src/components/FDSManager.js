@@ -22,7 +22,7 @@ class FDSManager extends Component {
 
     }
     render() {
-        console.log("hi from fdsmanage");
+        console.log("hi from fdsmanager");
         return (
             <Tabs className='centered'>
                 <Navbar dark color="dark">

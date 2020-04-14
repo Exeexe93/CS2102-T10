@@ -8,9 +8,9 @@ router.post("/", (request, response) => {
   const account_pass = request.body.account_pass;
   Login.checkLogin(account_id, account_pass, (err, result) => {
     if (err) {
-      return response.json(err);
+      return response.status(404).json(err);
     }
-    return response.json(result);
+    return response.status(200).json(result);
   });
 });
 

@@ -12,32 +12,26 @@ class RestaurantStaffMainPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            foodItems: [
-                {name: "Banana", price: "5.00", quantity: "3", category: "Side", food_limit:"1"},
-            ],
+            foodItems: [],
+            apiResponse: "",
             restaurantName: "Mr. Eng Pte Ltd"
         }
         this.handleSubmit.bind(this);
     }
-
-    componentDidMount() {
-        fetch(`http://localhost:3001/api/foodItems`)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.setState({
-                        foodItems: result.foodItems
-                    })
-                },
-                (error) => {
-                    this.setState({
-                      isLoaded: true,
-                      error
-                    });
-                  }
-            )
+    
+    getFoodItems() {
+        fetch("http://localhost:3001/RestaurantStaff")
+        .then(res => res.json())
+        .then(res => this.setState({ foodItems: res }));
+      };
+    
+    componentWillMount() {
+        this.getFoodItems();
+        this.setState({
+            foodItems: this.state.foodItems,
+          });
     }
-
+    
     handleSubmit = (event) => {
         let form = event.target;
         event.preventDefault();
@@ -80,6 +74,7 @@ class RestaurantStaffMainPage extends Component {
             <div className="content">
                 <div className="container">
                     <div className="header">
+                    <p className="App-intro">;{this.state.apiResponse}</p>
                         <h1> {this.state.restaurantName} {' '}
                             <Link to='/RestaurantSummaryPage'>
                                 <Button variant={"primary"}>Summary Info</Button>

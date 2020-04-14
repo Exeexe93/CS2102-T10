@@ -7,7 +7,7 @@ class App extends Component {
     super(props);
     this.state = {
       title: "Simple Country Application",
-      countries: []
+      countries: [],
     };
   }
 
@@ -20,21 +20,21 @@ class App extends Component {
     let data = {
       country_name: this.refs.country_name.value,
       continent_name: this.refs.continent_name.value,
-      eid: Math.random().toFixed(3)
+      eid: Math.random().toFixed(3),
     };
     var request = new Request("http://localhost:3001/api/new-country", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
     // xmlhttprequest()
 
     fetch(request)
-      .then(function(response) {
+      .then(function (response) {
         return response.json();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         console.log(err);
       });
   }
@@ -55,7 +55,7 @@ class App extends Component {
           <button onClick={this.addCountry.bind(this)}>Add Country</button>
         </form>
         <div className="menu">
-          <Link to="/CustomerMainPage">MainCustomerPage</Link>
+          <Link to="/Customer">Customer</Link>
           <br />
           <Link to="/RestaurantStaffMainPage">RestaurantStaffPage</Link>
           <br />

@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import "../styles/CustomerMainPage.css";
+import "../styles/Customer.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { Navbar, Nav, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 
-class CustomerMainPage extends Component {
+class Customer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      restaurantList: ["Restaurant 1", "Restaurant 2", "Restaurant 3"],
+      restaurantList: [],
       filtered: [],
       customerName: "Mr Cranston",
     };
@@ -17,7 +17,19 @@ class CustomerMainPage extends Component {
     this.handleChange.bind(this);
   }
 
+  getRestaurantList = () => {
+    fetch("http://localhost:3001/Customer")
+    .then(res => res.json())
+    .then((res) => {
+      var restaurantList = res.map((r) => r.name);
+      this.setState({
+        restaurantList,
+      });
+    })
+  };
+
   componentDidMount() {
+    this.getRestaurantList();
     this.setState({
       filtered: this.state.restaurantList,
     });
@@ -53,8 +65,8 @@ class CustomerMainPage extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
-          <div calssName="icon-container">
+          <NavbarBrand href="/Customer">Main Page</NavbarBrand>
+          <div className="icon-container">
             <GiShoppingCart
               size="3em"
               color="black"
@@ -109,4 +121,4 @@ class CustomerMainPage extends Component {
   }
 }
 
-export default CustomerMainPage;
+export default Customer;

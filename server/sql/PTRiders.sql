@@ -1,9 +1,0 @@
-insert into PTRiders (rid, name) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'Travers');
-insert into PTRiders (rid, name) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 'Lemuel');
-insert into PTRiders (rid, name) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'Mireielle');
-insert into PTRiders (rid, name) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'Eda');
-insert into PTRiders (rid, name) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'Vic');
-insert into PTRiders (rid, name) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'Crosby');
-insert into PTRiders (rid, name) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'Lambert');
-insert into PTRiders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'Ring');
-insert into PTRiders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');

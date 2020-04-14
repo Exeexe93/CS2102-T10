@@ -10,7 +10,7 @@ class FDSManager {
                     return callback(err);
                 console.log("From Models Manager");
                 console.log(res[0].num);
-                return callback(err, res);
+                callback(err, res[0]);
             });
     }
 

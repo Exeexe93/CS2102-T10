@@ -49,10 +49,11 @@ class FDSManager extends Component {
         })
         .then(res => 
             {
-                console.log(res);
+                // console.log(res);
                 return res.json();
             })
         .then(res => {
+            console.log(res.num);
             this.setState(
                 { 
                     displayMonth: this.state.month,
@@ -62,7 +63,6 @@ class FDSManager extends Component {
                     // Here need to update value
 
                 });
-            console.log(res);
         })
     }; 
 

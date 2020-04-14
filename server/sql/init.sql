@@ -246,9 +246,8 @@ CREATE TABLE Reviews (
     foreign key (cid) references Customers
 );
 
--- trigger (for MAX_4hours in a shift) (add, update)
 CREATE OR REPLACE FUNCTION check_max_shift_hour()
-   RETURNS TRIGGER AS $$
+   RETURNS trigger AS $$
 BEGIN
    If NEW.end_time - NEW.start_time > 4 THEN
 RAISE exception 'Given start(%) and end time(%) are more than 4 hours.', NEW.start_time, NEW.end_time;
@@ -263,3 +262,4 @@ BEFORE UPDATE OR INSERT
 ON ShiftInfo
 FOR EACH ROW
 EXECUTE FUNCTION check_max_shift_hour();
+

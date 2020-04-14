@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^7.2.1",
     "bootstrap": "^4.4.1",
     "express": "^4.17.1",
+    "http-proxy-middleware": "^1.0.3",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",
     "react-calendar": "^3.0.0",
@@ -39,6 +40,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "proxy": "https://localhost:3001"
+  }
 }

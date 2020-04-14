@@ -19,10 +19,12 @@ const db = require("./database/index.js");
 // })
 
 let app = express();
-app.use(cors());
+//app.use(cors());
+//app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use("https://localhost:3001/api/Customer", require("./api/Customer"));
 // Register Login API
 app.use("/api/Login", require("./api/Login"));
 
@@ -56,15 +58,15 @@ app.use("/api/Login", require("./api/Login"));
 
 app.listen(PORT, () => console.log("Listening on port " + PORT));
 
-db.query(
-  "SELECT * FROM Accounts",
-  (value, output) => {
-    console.log(output);
-  },
+// db.query(
+//   "SELECT name FROM Restaurants",
+//   (value, output) => {
+//     console.log(output);
+//   },
 
-  (err, res) => {
-    console.log(res);
-  }
-);
+//   (err, res) => {
+//     console.log(res);
+//   }
+// );
 
 module.exports = app;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 import App from "../App";
-import CustomerMainPage from "../components/CustomerMainPage";
+import Customer from "../components/Customer";
 import RestaurantStaffMainPage from "../components/RestaurantStaffMainPage";
 import RestaurantSummaryPage from "../components/RestaurantSummaryPage";
 import Schedule from "../components/Schedule";
@@ -17,14 +17,22 @@ class Routes extends React.Component {
     return (
       <Switch>
         <Route exact path="/" component={App} />
-        <Route exact path="/CustomerMainPage" component={CustomerMainPage} />
+        <Route exact path="/Customer" component={Customer} />
         <Route exact path="/Customer/:handle" component={FoodItem} />
         <Route exact path="/Login" component={Login} />
         <Route exact path="/Profile" component={Profile} />
         <Route exact path="/FDSManager" component={FDSManager} />
 
-        <Route exact path="/RestaurantStaffMainPage" component={RestaurantStaffMainPage}/>
-        <Route exact path="/RestaurantSummaryPage" component={RestaurantSummaryPage}/>
+        <Route
+          exact
+          path="/RestaurantStaffMainPage"
+          component={RestaurantStaffMainPage}
+        />
+        <Route
+          exact
+          path="/RestaurantSummaryPage"
+          component={RestaurantSummaryPage}
+        />
 
         <Route exact path="/FTRiderMainPage" component={FTRiderMainPage} />
         {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}

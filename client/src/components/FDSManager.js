@@ -19,16 +19,17 @@ import {
 class FDSManager extends Component {
     constructor(props) {
         super(props);
+        let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
-            displayMonth: 'the Month',
-            displayYear: 'the Year',
-            year: '',
-            month: '',
+            displayMonth: currentDate.getMonth(),
+            displayYear: currentDate.getFullYear(),
+            year: currentDate.getFullYear(),
+            month: currentDate.getMonth(),
             num: 0,
             FDSManagerName: "Mr Eng"
         };
-
+        this.handleQuery()
 
     }
 
@@ -41,33 +42,28 @@ class FDSManager extends Component {
     };
 
     handleQuery = () => {
-        console.log('month %s, year %s', this.state.month, this.state.year);
         fetch('http://localhost:3001/FDSManager', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ month: this.state.month, year: this.state.year})
         })
-        .then(res => 
-            {
-                // console.log(res);
+        .then(res => {
                 return res.json();
             })
         .then(res => {
-            console.log(res.num);
             this.setState(
                 { 
                     displayMonth: this.state.month,
                     displayYear: this.state.year,
                     month: '',
                     year: '',
-                    // Here need to update value
-
+                    num: res.num
                 });
         })
     }; 
 
     render() {
-        console.log("hi from fdsmanager");
+        console.log("FDSManager active");
         return (
             <Tabs className='centered'>
                 <Navbar dark color="dark">

@@ -12,12 +12,12 @@ class RestaurantStaff {
 
   static addFood(name, price, food_limit, quantity, category, callback) {
     db.query(
-        "INSERT INTO Foods (name, price, food_limit, quantity, category) values ('$1', '$2', $3, '$4', '$5');",
-        name,
+        "INSERT INTO Foods (menu_id, name, price, food_limit, quantity, category) values (1, $1, $2, $3, $4, $5)",
+        [name,
         price,
         food_limit,
         quantity,
-        category,
+        category],
         (err, res) => {
             if (err.error) {
                 console.err("Could not add food item: ", err);
@@ -27,6 +27,15 @@ class RestaurantStaff {
         }
     );
   }
+
+  static deleteFood(fid, callback) {
+    db.query('DELETE FROM Foods WHERE fid = $1', [fid], (err, res) => {
+    if (err.error) {
+      return callback(err);
+    }
+    return callback(res);
+  });
+}
 }
 
 module.exports = RestaurantStaff;

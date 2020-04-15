@@ -7,16 +7,17 @@ import FormGroup from 'react-bootstrap/FormGroup'
 import { Col } from 'reactstrap';
 import { Table } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
+import axios from 'axios';
 
 class RestaurantStaffMainPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             foodItems: [],
-            apiResponse: "",
             restaurantName: "Mr. Eng Pte Ltd"
         }
         this.handleSubmit.bind(this);
+        this.handleDelete.bind(this);
     }
     
     getFoodItems() {
@@ -27,9 +28,6 @@ class RestaurantStaffMainPage extends Component {
     
     componentWillMount() {
         this.getFoodItems();
-        this.setState({
-            foodItems: this.state.foodItems,
-          });
     }
     
     handleSubmit = (event) => {
@@ -37,36 +35,47 @@ class RestaurantStaffMainPage extends Component {
         event.preventDefault();
         let newFood = {
             name: form.elements.foodName.value,
-            price:  parseFloat(form.elements.foodPrice.value).toFixed(2),
-            quantity:  Math.round(form.elements.foodQuantity.value),
-            category:  form.elements.foodCategory.value,
-            food_limit:  Math.round(form.elements.foodLimit.value)
+            price: '$' + parseFloat(form.elements.foodPrice.value).toFixed(2),
+            quantity: Math.round(form.elements.foodQuantity.value),
+            category: form.elements.foodCategory.value,
+            food_limit: Math.round(form.elements.foodLimit.value)
         }
-        // const requestOptions = {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify(newFood)
-        // };
-        // fetch('localhost:3001/api/new-food', requestOptions)
-        //     .then(response => response.json())
-        //     .then(data => this.setState({ postId: data.id }));
+        axios.post('http://localhost:3001/RestaurantStaff/addFood', newFood)
+        .then(() => console.log('Food Created'))
+        .catch(err => {
+            console.error(err);
+        });
         this.setState ({ 
             foodItems: [...this.state.foodItems, newFood]
         });
-        this.foodForm.reset()
+        this.foodForm.reset();
     }
 
     renderItem = (food, index) => {
         return(
-            <tr key={index}>
+            <tr key={food.fid}>
                 <td>{index + 1}</td>
                 <td>{food.name}</td>
-                <td><span>$</span>{food.price}</td>
+                <td><span></span>{food.price}</td>
                 <td>{food.quantity}</td>
                 <td>{food.category}</td>
                 <td>{food.food_limit}</td>
+                <td><Button onClick={() => this.handleDelete(food)}>Delete</Button></td>
             </tr>
         )
+    }
+
+    handleDelete = (food) => {
+        axios.post('http://localhost:3001/RestaurantStaff/deleteFood', food)
+        .then(() => console.log('Food Deleted'))
+        .catch(err => {
+            console.error(err);
+        });
+        let index = this.state.foodItems.indexOf(food)
+        this.state.foodItems.splice(index, 1);
+        this.setState ({ 
+            foodItems: this.state.foodItems
+        });
     }
 
     render() {
@@ -74,7 +83,6 @@ class RestaurantStaffMainPage extends Component {
             <div className="content">
                 <div className="container">
                     <div className="header">
-                    <p className="App-intro">;{this.state.apiResponse}</p>
                         <h1> {this.state.restaurantName} {' '}
                             <Link to='/RestaurantSummaryPage'>
                                 <Button variant={"primary"}>Summary Info</Button>
@@ -82,7 +90,7 @@ class RestaurantStaffMainPage extends Component {
                         </h1>
                         <br/>
                     </div>
-                    <div className="AddItem">
+                    <div>
                         <form ref={ form => this.foodForm = form} onSubmit = {this.handleSubmit}>
                             <FormGroup>
                                 <Row>
@@ -123,6 +131,7 @@ class RestaurantStaffMainPage extends Component {
                                 <th>Quantity</th>
                                 <th>Category</th>
                                 <th>Food Limit</th>
+                                <th>Delete</th>
                             </tr>
                         </thead>
                         <tbody>

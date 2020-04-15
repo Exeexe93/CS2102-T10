@@ -10,7 +10,7 @@ router.get("/", (req, res) => {
   });
 });
 
-router.post("/", (request, response) => {
+router.post("/addFood", (request, response) => {
     const name = request.body.name;
     const price = request.body.price;
     const food_limit = request.body.food_limit;
@@ -23,5 +23,14 @@ router.post("/", (request, response) => {
       return response.json(result);
     });
   });
+
+router.post("/deleteFood", (request, response) => {
+  RestaurantStaff.deleteFood(request.body.fid, (err, result) => {
+    if (err) {
+      return response.json(err);
+    }
+    return response.json(result);
+  });
+});
 
 module.exports = router;

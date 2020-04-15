@@ -176,7 +176,7 @@ CREATE TABLE Restaurants (
 
 CREATE TABLE Orders (
 	oid serial,
-	rid varchar(255) not null,
+	rid varchar(255),
 	rest_id integer not null,
 	payment_method text not null,
 	delivery_fee money not null,
@@ -194,7 +194,7 @@ CREATE TABLE Orders (
 
 CREATE TABLE Rates (
 	rating integer,
-	oid serial,
+	oid integer,
 	rid varchar(255),
 	primary key (oid, rid),
 	foreign key (oid) references Orders (oid),
@@ -471,6 +471,18 @@ insert into Foods (menu_id, name, price, food_limit, quantity, category) values 
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'best food');
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'best food');
 
+-- Rates
+insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');
+insert into Rates (rating, oid, rid) values (5, 2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223');
+insert into Rates (rating, oid, rid) values (2, 3, '3c30a803-6834-41a9-b81e-6d54b6d5512d');
+insert into Rates (rating, oid, rid) values (1, 4, '2534042c-6526-44b1-abd5-532d7b7b281a');
+insert into Rates (rating, oid, rid) values (4, 5, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
+insert into Rates (rating, oid, rid) values (2, 7, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
+insert into Rates (rating, oid, rid) values (3, 6, '0161cded-c664-4f1b-ad3f-7766dc48fecb');
+insert into Rates (rating, oid, rid) values (3, 8, '03667134-3ab1-41e2-bff4-e1e6e14d3035');
+insert into Rates (rating, oid, rid) values (2, 9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0');
+insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb');
+
 -- Consists
 insert into Consists (oid, fid, quantity, total_price) values (1, 1, 2, '$2.40');
 insert into Consists (oid, fid, quantity, total_price) values (1, 5, 2, '$4.20');
@@ -480,9 +492,12 @@ insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50'
 insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');
 insert into Consists (oid, fid, quantity, total_price) values (3, 6, 10, '$51.00');
+<<<<<<< HEAD
 
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '4000-1523-1652-4534');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1543-4894-1561-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
+=======
+>>>>>>> 040a1bd667b85275397469e7d3bd9527d588fa6b

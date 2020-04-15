@@ -20,53 +20,8 @@ class Profile extends Component {
       customerName: "",
       cid: "",
       rewardPoints: 0,
-      registeredCreditCard: [
-        "4000-1523-1652-4534",
-        "1543-4894-1561-1564",
-        "1565-3158-1564-1945",
-        "1596-1345-1894-1564",
-      ],
-      orderHistory: [
-        {
-          orderNum: "123856498",
-          restaurantName: "Cranston's Best Fish",
-          Foods: [
-            {
-              FoodName: "Fish",
-              FoodQuantity: "2",
-              FoodCost: "$20.00",
-            },
-            {
-              FoodName: "KingFisher",
-              FoodQuantity: "1",
-              FoodCost: "$12.50",
-            },
-          ],
-          Cost: "$52.50",
-        },
-        {
-          orderNum: "1598421",
-          restaurantName: "Kenny's Dare To Eat Burger",
-          Foods: [
-            {
-              FoodName: "Bomb till you cannot tank Burger",
-              FoodQuantity: "1",
-              FoodCost: "$30.00",
-            },
-            {
-              FoodName: "Eat till you drop Burger",
-              FoodQuantity: "1",
-              FoodCost: "$10.00",
-            },
-            {
-              FoodName: "Drink till you full",
-              FoodQuantity: "1",
-              FoodCost: "$8.00",
-            },
-          ],
-          Cost: "$48.00",
-        },
-      ],
+      registeredCreditCard: [],
+      orderHistory: [],
     };
   }
 
@@ -91,7 +46,6 @@ class Profile extends Component {
   };
 
   getOrderList = () => {
-    console.log(this.props.location.state.cid);
     var request = new Request("http://localhost:3001/Customer/Orders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
@@ -101,11 +55,29 @@ class Profile extends Component {
     fetch(request)
       .then((res) => res.json())
       .then((res) => {
-        // const rewardPoints = res[0].reward_points;
-        // this.setState({
-        //   rewardPoints,
-        // });
+        this.setState({
+          orderHistory: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getCreditCards = () => {
+    var request = new Request("http://localhost:3001/Customer/CreditCards", {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ cid: this.props.location.state.cid }),
+    });
+
+    fetch(request)
+      .then((res) => res.json())
+      .then((res) => {
         console.log(res);
+        this.setState({
+          registeredCreditCard: res,
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -119,6 +91,7 @@ class Profile extends Component {
     });
     this.getProfileInfo();
     this.getOrderList();
+    this.getCreditCards();
   }
 
   render() {
@@ -143,11 +116,11 @@ class Profile extends Component {
         <Tabs className="centered">
           <TabList
             id="tabs"
-            defaultIndex={1}
+            // defaultIndex={1}
             onSelect={(index) => console.log(index)}
           >
-            <Tab eventKey="post-order-history">Post Order History</Tab>
-            <Tab eventKey="pre-registered-credit-card">
+            <Tab eventKey="postOrderHistory">Post Order History</Tab>
+            <Tab eventKey="preRegisteredCreditCard">
               Pre-registered credit card
             </Tab>
           </TabList>
@@ -169,9 +142,9 @@ class Profile extends Component {
                     <Col className="order-list">{item.restaurantName}</Col>
                     <Col className="order-list"></Col>
                     <Col className="order-list"></Col>
-                    <Col className="order-list">{item.Cost}</Col>
+                    <Col className="order-list"></Col>
                   </Row>
-                  {item.Foods.map((food) => (
+                  {item.foods.map((food) => (
                     <Row>
                       <Col className="order-list"></Col>
                       <Col className="order-list"></Col>
@@ -180,6 +153,13 @@ class Profile extends Component {
                       <Col className="order-list">{food.FoodCost}</Col>
                     </Row>
                   ))}
+                  <Row>
+                    <Col className="order-list"></Col>
+                    <Col className="order-list"></Col>
+                    <Col className="order-list"></Col>
+                    <Col className="order-list">Total Cost</Col>
+                    <Col className="order-list">{item.cost}</Col>
+                  </Row>
                 </ListGroupItem>
               ))}
             </ListGroup>
@@ -188,7 +168,7 @@ class Profile extends Component {
             {this.state.registeredCreditCard.map((item) => (
               <div key={item}>
                 <GoCreditCard size="100px" className="credit-card" />
-                {item}
+                {item.card_number}
               </div>
             ))}
           </TabPanel>

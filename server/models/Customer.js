@@ -34,13 +34,38 @@ class Customer {
           console.log("Could not get orders data: ", err);
           return callback(err, res);
         }
-        console.log(res);
-        return callback(err, res);
+        let result = res;
+        let output = [];
+        let i = -1;
+        result.map((foodItem) => {
+          if (output.length == 0 || output[i].orderNum != foodItem.oid) {
+            i++;
+            output.push({
+              orderNum: foodItem.oid,
+              restaurantName: foodItem.restaurantname,
+              cost: foodItem.cost,
+              foods: [],
+            });
+          }
+          output[i].foods.push({
+            FoodName: foodItem.foodname,
+            FoodQuantity: foodItem.quantity,
+            FoodCost: foodItem.total_price,
+          });
+        });
+        return callback(err, output);
       }
     );
   }
-}
 
-// select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R on R.rest_id = O.rest_id where cid = '1b39d987-c6b0-4493-bb95-96e51af734b2';
+  static getCreditCards(cid, callback) {
+    db.query("SELECT card_number FROM CreditCards WHERE cid = $1 limit 5", [cid], (err, res) => {
+      if (err.error) {
+        return callback(err, res);
+      }
+      return callback(err, res);
+    });
+  }
+}
 
 module.exports = Customer;

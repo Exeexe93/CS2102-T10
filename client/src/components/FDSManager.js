@@ -20,12 +20,13 @@ class FDSManager extends Component {
     constructor(props) {
         super(props);
         let currentDate = new Date();
+        console.log("how many times im called");
         this.state = {
             // Change to the FDSManager name here
             displayMonth: currentDate.getMonth(),
             displayYear: currentDate.getFullYear(),
-            year: '',
-            month: '',
+            year: currentDate.getFullYear(),
+            month: currentDate.getMonth(),
             num: 0,
             orders: 0,
             FDSManagerName: "Mr Eng"
@@ -61,7 +62,6 @@ class FDSManager extends Component {
 
 
     handleQueryMonthOrders = () => {
-        console.log("before running method month %s year %s", this.state.month, this.state.year);
         fetch('http://localhost:3001/FDSManager/monthlyOrders', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -71,27 +71,23 @@ class FDSManager extends Component {
                 return res.json();
             })
         .then(res => {
-            console.log("month in function, %s", this.state.month);
             this.setState(
                 { 
                     orders: res.num
                 });
         })
-        console.log("after running method month %s year %s", this.state.month, this.state.year);
     }; 
 
 
     handleQuery = () => {
         this.handleQueryMonthNewCustomers();
         this.handleQueryMonthOrders();
-        this.setState(
-            {
-                displayMonth: this.state.month,
-                displayYear: this.state.year,
-                month: '',
-                year: ''
-            }
-        )
+        this.setState({
+            displayMonth: this.state.month,
+            displayYear: this.state.year,
+            month: '',
+            year: ''
+        })
     }
 
     render() {

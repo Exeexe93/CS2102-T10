@@ -172,7 +172,7 @@ CREATE TABLE Orders (
 	rid varchar(255) not null,
 	payment_method text not null,
 	delivery_fee money not null,
-	total_price real,
+	total_price money,
 	order_placed timestamp not null,
 	depart_for_rest timestamp,
 	arrive_at_rest timestamp,

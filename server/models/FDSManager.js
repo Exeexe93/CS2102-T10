@@ -27,6 +27,19 @@ class FDSManager {
         );
     }
 
+    static queryMonthlyOrderCost(month, year, callback) {
+        db.query(
+            'SELECT SUM(total_price) as price FROM Orders o1 WHERE (SELECT EXTRACT(MONTH FROM order_placed)) = $1 and (SELECT EXTRACT(YEAR FROM order_placed)) = $2;',
+            [month, year],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryMonthlyOrderCost");
+                }
+                callback(err, res[0]);
+            }
+        );
+    }
+
 }
 
 module.exports = FDSManager;

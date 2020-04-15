@@ -27,4 +27,16 @@ router.post('/monthlyOrders', (req, res) => {
     })
 });
 
+router.post('/monthlyOrdersCost', (req, res) => {
+    let month = req.body.month;
+    let year = req.body.year;
+    FDSManagerModel.queryMonthlyOrderCost(month, year, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post monthly orders cost");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})
+
 module.exports = router;

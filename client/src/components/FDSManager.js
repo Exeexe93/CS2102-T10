@@ -29,6 +29,7 @@ class FDSManager extends Component {
             month: currentDate.getMonth(),
             num: 0,
             orders: 0,
+            cost: 0.00,
             FDSManagerName: "Mr Eng"
         };
         this.handleQuery()
@@ -78,16 +79,36 @@ class FDSManager extends Component {
         })
     }; 
 
+    handleQueryMonthOrdersCost = () => {
+        fetch('http://localhost:3001/FDSManager/monthlyOrdersCost', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})
+        })
+        .then(res => {
+                return res.json();
+            })
+        .then(res => {
+            this.setState(
+                { 
+                    cost: res.price
+                });
+        })
+    }; 
+
 
     handleQuery = () => {
-        this.handleQueryMonthNewCustomers();
-        this.handleQueryMonthOrders();
-        this.setState({
-            displayMonth: this.state.month,
-            displayYear: this.state.year,
-            month: '',
-            year: ''
-        })
+        if (this.state.month && this.state.year) {
+            this.handleQueryMonthNewCustomers();
+            this.handleQueryMonthOrders();
+            this.handleQueryMonthOrdersCost();
+            this.setState({
+                displayMonth: this.state.month,
+                displayYear: this.state.year,
+                month: '',
+                year: ''
+            });
+        }
     }
 
     render() {
@@ -109,9 +130,10 @@ class FDSManager extends Component {
                     <Tab eventKey="customers">Customers</Tab>
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
                 </TabList>
-                <TabPanel>
-                    <InputGroup>
-                        <Input 
+                <TabPanel class="tab-panel">
+                    <h2>Monthly stats</h2>
+                    <div class="input-group">
+                        <input className="enter_button" 
                             type="text" 
                             name="Month" 
                             value={this.state.month}
@@ -119,25 +141,26 @@ class FDSManager extends Component {
                             onChange={this.handleInputQueryMonth}
                         />
 
-                        <Input 
+                        <input className="enter_button"
                             type="text" 
                             name="Year" 
                             value={this.state.year}
                             placeholder="Year"
                             onChange={this.handleInputQueryYear}
                         />
-                        <InputGroupAddon addonType="append">
-                            <Button color="primary" onClick={this.handleQuery}>
-                                Enter
-                            </Button>
-                        </InputGroupAddon>
-                    </InputGroup>
+                        <Button color="primary" onClick={this.handleQuery}>
+                            Enter
+                        </Button>
+                    </div>
                     <ListGroup key="listgroup">
                         <p>
-                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num}
+                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num ? this.state.num : 0}
                         </p>
                         <p>
-                            Number of orders in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.orders}  
+                            Number of orders in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.orders ? this.state.orders : 0}  
+                        </p>
+                        <p>
+                            Number of orders cost in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.cost ? this.state.cost : 0.00}  
                         </p>
                     </ListGroup>
                 </TabPanel>

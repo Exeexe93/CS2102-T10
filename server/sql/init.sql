@@ -226,8 +226,8 @@ CREATE TABLE Foods (
     menu_id serial,
     name varchar(255) not null,
     price money not null,
-    food_limit integer,
-    quantity integer,
+    food_limit integer not null,
+    quantity integer not null,
     category varchar(255) not null,
     foreign key (menu_id) references Menus on delete cascade
 );

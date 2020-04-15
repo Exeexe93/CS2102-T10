@@ -15,6 +15,7 @@ app.use(cookieParser());
 app.use("/users", require("./api/Users"));
 app.use("/RestaurantStaff", require("./api/Restaurantstaff.js"));
 app.use("/Customer", require("./api/Customer.js"));
+app.use("/FDSManager", require("./api/FDSManager.js"));
 app.use("/Login", require("./api/Login.js"));
 
 app.use(function (request, response, next) {

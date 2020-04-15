@@ -1,5 +1,5 @@
 var express = require("express");
-var Login = require("../../models/Login");
+var Login = require("../models/Login");
 
 const router = express.Router();
 
@@ -8,9 +8,10 @@ router.post("/", (request, response) => {
   const account_pass = request.body.account_pass;
   Login.checkLogin(account_id, account_pass, (err, result) => {
     if (err) {
-      return response.json(err);
+      console.log("Fail at Login API");
+      return response.status(404).json(err);
     }
-    return response.json(result);
+    return response.status(200).json(result);
   });
 });
 

@@ -11,32 +11,33 @@ class Customer extends Component {
     this.state = {
       restaurantList: [],
       filtered: [],
-      customerName: "Mr Cranston",
+      customerName: "Florida",
     };
 
     this.handleChange.bind(this);
   }
 
   getRestaurantList = () => {
-    fetch("http://localhost:3001/Customer")
-    .then(res => res.json())
-    .then((res) => {
-      var restaurantList = res.map((r) => r.name);
-      this.setState({
-        restaurantList,
+    fetch("http://localhost:3001/Customer/")
+      .then((res) => res.json())
+      .then((res) => {
+        var restaurantList = res.map((r) => r.name);
+        this.setState({
+          restaurantList,
+          filtered: restaurantList,
+        });
       });
-    })
   };
 
   componentDidMount() {
     this.getRestaurantList();
-    this.setState({
-      filtered: this.state.restaurantList,
-    });
   }
 
   handleProfile = () => {
-    this.props.history.push("/");
+    this.props.history.push({
+      pathname: "/Profile",
+      state: { customerName: this.state.customerName },
+    });
   };
 
   handleCart = () => {

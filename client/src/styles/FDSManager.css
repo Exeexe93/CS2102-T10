@@ -7,6 +7,13 @@ body {
     text-align: center;
 }
 
+.input-group {
+  justify-content: center;
+}
+
+.input-group > .enter_button {
+  text-align: center;
+}
 
 .react-tabs {
     -webkit-tap-highlight-color: transparent;
@@ -64,3 +71,4 @@ body {
   .react-tabs__tab-panel--selected {
     display: block;
   }
+

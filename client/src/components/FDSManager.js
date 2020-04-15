@@ -24,9 +24,10 @@ class FDSManager extends Component {
             // Change to the FDSManager name here
             displayMonth: currentDate.getMonth(),
             displayYear: currentDate.getFullYear(),
-            year: currentDate.getFullYear(),
-            month: currentDate.getMonth(),
+            year: '',
+            month: '',
             num: 0,
+            orders: 0,
             FDSManagerName: "Mr Eng"
         };
         this.handleQuery()
@@ -41,7 +42,7 @@ class FDSManager extends Component {
         this.setState({ year: e.target.value })
     };
 
-    handleQuery = () => {
+    handleQueryMonthNewCustomers = () => {
         fetch('http://localhost:3001/FDSManager', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -53,14 +54,45 @@ class FDSManager extends Component {
         .then(res => {
             this.setState(
                 { 
-                    displayMonth: this.state.month,
-                    displayYear: this.state.year,
-                    month: '',
-                    year: '',
                     num: res.num
                 });
         })
     }; 
+
+
+    handleQueryMonthOrders = () => {
+        console.log("before running method month %s year %s", this.state.month, this.state.year);
+        fetch('http://localhost:3001/FDSManager/monthlyOrders', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})
+        })
+        .then(res => {
+                return res.json();
+            })
+        .then(res => {
+            console.log("month in function, %s", this.state.month);
+            this.setState(
+                { 
+                    orders: res.num
+                });
+        })
+        console.log("after running method month %s year %s", this.state.month, this.state.year);
+    }; 
+
+
+    handleQuery = () => {
+        this.handleQueryMonthNewCustomers();
+        this.handleQueryMonthOrders();
+        this.setState(
+            {
+                displayMonth: this.state.month,
+                displayYear: this.state.year,
+                month: '',
+                year: ''
+            }
+        )
+    }
 
     render() {
         console.log("FDSManager active");
@@ -106,7 +138,10 @@ class FDSManager extends Component {
                     </InputGroup>
                     <ListGroup key="listgroup">
                         <p>
-                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num}  
+                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num}
+                        </p>
+                        <p>
+                            Number of orders in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.orders}  
                         </p>
                     </ListGroup>
                 </TabPanel>

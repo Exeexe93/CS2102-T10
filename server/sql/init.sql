@@ -172,7 +172,7 @@ CREATE TABLE Orders (
 	rid varchar(255),
 	payment_method text not null,
 	delivery_fee money not null,
-	total_price real,
+	total_price money,
 	order_placed timestamp not null,
 	depart_for_rest timestamp,
 	arrive_at_rest timestamp,
@@ -235,6 +235,8 @@ CREATE TABLE Foods (
 CREATE TABLE Consists (
 	oid serial references Orders(oid),
 	fid serial references Foods(fid),
+	quantity integer not null,
+	total_price money not null,
 	primary key(oid, fid)
 );
 
@@ -452,6 +454,11 @@ insert into Orders (oid, rid, payment_method, delivery_fee, total_price, order_p
 insert into Orders (oid, rid, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'credit card', '$5.00', 49.22, '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', null);
 insert into Orders (oid, rid, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'cash', '$5.00', 92.67, '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
 
+-- Places
+insert into Places (oid, cid) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2');
+insert into Places (oid, cid) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2');
+insert into Places (oid, cid) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2');
+
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'best food');
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'best food');
@@ -475,3 +482,13 @@ insert into Rates (rating, oid, rid) values (3, 6, '0161cded-c664-4f1b-ad3f-7766
 insert into Rates (rating, oid, rid) values (3, 8, '03667134-3ab1-41e2-bff4-e1e6e14d3035');
 insert into Rates (rating, oid, rid) values (2, 9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0');
 insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb');
+
+-- Consists
+insert into Consists (oid, fid, quantity, total_price) values (1, 1, 2, '$2.40');
+insert into Consists (oid, fid, quantity, total_price) values (1, 5, 2, '$4.20');
+insert into Consists (oid, fid, quantity, total_price) values (1, 3, 1, '$10.10');
+insert into Consists (oid, fid, quantity, total_price) values (2, 4, 1, '$5.10');
+insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50');
+insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
+insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');
+insert into Consists (oid, fid, quantity, total_price) values (3, 6, 10, '$51.00');

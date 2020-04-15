@@ -18,4 +18,11 @@ router.post("/Profile", function (req, res) {
   });
 });
 
+router.post("/Orders", function (req, res) {
+  const cid = req.body.cid;
+  Customer.getOrders(cid, (err, orders) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(orders);
+  });
+});
 module.exports = router;

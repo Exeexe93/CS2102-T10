@@ -12,6 +12,7 @@ class Customer extends Component {
       restaurantList: [],
       filtered: [],
       customerName: "Florida",
+      cid: "1b39d987-c6b0-4493-bb95-96e51af734b2",
     };
 
     this.handleChange.bind(this);
@@ -36,7 +37,7 @@ class Customer extends Component {
   handleProfile = () => {
     this.props.history.push({
       pathname: "/Profile",
-      state: { customerName: this.state.customerName },
+      state: { customerName: this.state.customerName, cid: this.state.cid },
     });
   };
 

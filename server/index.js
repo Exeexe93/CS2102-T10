@@ -31,6 +31,12 @@ app.use(function (request, response, next) {
   next();
 });
 
+const Customer = require("./models/Customer");
+Customer.getOrders("1b39d987-c6b0-4493-bb95-96e51af734b2", (err, orders) => {
+  if (err.error) console.log(err); //return res.status(404).json(err);
+  console.log(orders);
+});
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

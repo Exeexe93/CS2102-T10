@@ -18,6 +18,7 @@ class Profile extends Component {
     super(props);
     this.state = {
       customerName: "",
+      cid: "",
       rewardPoints: 0,
       registeredCreditCard: [
         "4000-1523-1652-4534",
@@ -89,11 +90,35 @@ class Profile extends Component {
       });
   };
 
+  getOrderList = () => {
+    console.log(this.props.location.state.cid);
+    var request = new Request("http://localhost:3001/Customer/Orders", {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ cid: this.props.location.state.cid }),
+    });
+
+    fetch(request)
+      .then((res) => res.json())
+      .then((res) => {
+        // const rewardPoints = res[0].reward_points;
+        // this.setState({
+        //   rewardPoints,
+        // });
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   componentDidMount() {
     this.setState({
       customerName: this.props.location.state.customerName,
+      cid: this.props.location.state.cid,
     });
     this.getProfileInfo();
+    this.getOrderList();
   }
 
   render() {

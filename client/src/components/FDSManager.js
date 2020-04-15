@@ -8,21 +8,62 @@ import {
     NavbarBrand,
     Col, 
     Jumbotron,
-    Row
+    Row,
+    InputGroup,
+    Input,
+    InputGroupAddon,
+    ListGroup,
+    Button
 } from 'reactstrap';
 
 class FDSManager extends Component {
     constructor(props) {
         super(props);
+        let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
+            displayMonth: currentDate.getMonth(),
+            displayYear: currentDate.getFullYear(),
+            year: currentDate.getFullYear(),
+            month: currentDate.getMonth(),
+            num: 0,
             FDSManagerName: "Mr Eng"
-        }
-
+        };
+        this.handleQuery()
 
     }
+
+    handleInputQueryMonth = (e) => {
+        this.setState({ month: e.target.value })
+    };
+
+    handleInputQueryYear = (e) => {
+        this.setState({ year: e.target.value })
+    };
+
+    handleQuery = () => {
+        fetch('http://localhost:3001/FDSManager', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})
+        })
+        .then(res => {
+                return res.json();
+            })
+        .then(res => {
+            this.setState(
+                { 
+                    displayMonth: this.state.month,
+                    displayYear: this.state.year,
+                    month: '',
+                    year: '',
+                    num: res.num
+                });
+        })
+    }; 
+
     render() {
-        console.log("hi from fdsmanage");
+        console.log("FDSManager active");
         return (
             <Tabs className='centered'>
                 <Navbar dark color="dark">
@@ -40,7 +81,35 @@ class FDSManager extends Component {
                     <Tab eventKey="customers">Customers</Tab>
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
                 </TabList>
-                <TabPanel>Text for Customers</TabPanel>
+                <TabPanel>
+                    <InputGroup>
+                        <Input 
+                            type="text" 
+                            name="Month" 
+                            value={this.state.month}
+                            placeholder="Month 1-12"
+                            onChange={this.handleInputQueryMonth}
+                        />
+
+                        <Input 
+                            type="text" 
+                            name="Year" 
+                            value={this.state.year}
+                            placeholder="Year"
+                            onChange={this.handleInputQueryYear}
+                        />
+                        <InputGroupAddon addonType="append">
+                            <Button color="primary" onClick={this.handleQuery}>
+                                Enter
+                            </Button>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <ListGroup key="listgroup">
+                        <p>
+                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num}  
+                        </p>
+                    </ListGroup>
+                </TabPanel>
                 <TabPanel>Text for Riders</TabPanel>
             </Tabs>
 

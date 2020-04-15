@@ -492,12 +492,9 @@ insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50'
 insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');
 insert into Consists (oid, fid, quantity, total_price) values (3, 6, 10, '$51.00');
-<<<<<<< HEAD
 
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '4000-1523-1652-4534');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1543-4894-1561-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
-=======
->>>>>>> 040a1bd667b85275397469e7d3bd9527d588fa6b

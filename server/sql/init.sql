@@ -232,11 +232,11 @@ CREATE TABLE Foods (
     foreign key (menu_id) references Menus on delete cascade
 );
 
-CREATE TABLE Consists {
+CREATE TABLE Consists (
 	oid serial references Orders(oid),
 	fid serial references Foods(fid),
 	primary key(oid, fid)
-}
+)
 
 CREATE TABLE Places (
 	oid serial references Orders(oid),

@@ -7,7 +7,7 @@ import {
   Row,
   Jumbotron,
   ListGroup,
-  ListGroupItem
+  ListGroupItem,
 } from "reactstrap";
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";
@@ -17,13 +17,13 @@ class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      customerName: "Mr Cranston",
-      rewardPoints: 4,
+      customerName: "",
+      rewardPoints: 0,
       registeredCreditCard: [
         "4000-1523-1652-4534",
         "1543-4894-1561-1564",
         "1565-3158-1564-1945",
-        "1596-1345-1894-1564"
+        "1596-1345-1894-1564",
       ],
       orderHistory: [
         {
@@ -33,15 +33,15 @@ class Profile extends Component {
             {
               FoodName: "Fish",
               FoodQuantity: "2",
-              FoodCost: "$20.00"
+              FoodCost: "$20.00",
             },
             {
               FoodName: "KingFisher",
               FoodQuantity: "1",
-              FoodCost: "$12.50"
-            }
+              FoodCost: "$12.50",
+            },
           ],
-          Cost: "$52.50"
+          Cost: "$52.50",
         },
         {
           orderNum: "1598421",
@@ -50,30 +50,57 @@ class Profile extends Component {
             {
               FoodName: "Bomb till you cannot tank Burger",
               FoodQuantity: "1",
-              FoodCost: "$30.00"
+              FoodCost: "$30.00",
             },
             {
               FoodName: "Eat till you drop Burger",
               FoodQuantity: "1",
-              FoodCost: "$10.00"
+              FoodCost: "$10.00",
             },
             {
               FoodName: "Drink till you full",
               FoodQuantity: "1",
-              FoodCost: "$8.00"
-            }
+              FoodCost: "$8.00",
+            },
           ],
-          Cost: "$48.00"
-        }
-      ]
+          Cost: "$48.00",
+        },
+      ],
     };
+  }
+
+  getProfileInfo = () => {
+    var request = new Request("http://localhost:3001/Customer/Profile", {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify({ name: this.props.location.state.customerName }),
+    });
+
+    fetch(request)
+      .then((res) => res.json())
+      .then((res) => {
+        const rewardPoints = res[0].reward_points;
+        this.setState({
+          rewardPoints,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  componentDidMount() {
+    this.setState({
+      customerName: this.props.location.state.customerName,
+    });
+    this.getProfileInfo();
   }
 
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Profile">Profile</NavbarBrand>
+          <NavbarBrand>Profile</NavbarBrand>
         </Navbar>
 
         <Col>
@@ -92,7 +119,7 @@ class Profile extends Component {
           <TabList
             id="tabs"
             defaultIndex={1}
-            onSelect={index => console.log(index)}
+            onSelect={(index) => console.log(index)}
           >
             <Tab eventKey="post-order-history">Post Order History</Tab>
             <Tab eventKey="pre-registered-credit-card">
@@ -119,7 +146,7 @@ class Profile extends Component {
                     <Col className="order-list"></Col>
                     <Col className="order-list">{item.Cost}</Col>
                   </Row>
-                  {item.Foods.map(food => (
+                  {item.Foods.map((food) => (
                     <Row>
                       <Col className="order-list"></Col>
                       <Col className="order-list"></Col>
@@ -133,7 +160,7 @@ class Profile extends Component {
             </ListGroup>
           </TabPanel>
           <TabPanel>
-            {this.state.registeredCreditCard.map(item => (
+            {this.state.registeredCreditCard.map((item) => (
               <div key={item}>
                 <GoCreditCard size="100px" className="credit-card" />
                 {item}

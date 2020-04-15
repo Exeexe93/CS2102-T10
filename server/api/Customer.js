@@ -25,4 +25,13 @@ router.post("/Orders", function (req, res) {
     return res.status(200).json(orders);
   });
 });
+
+router.post("/CreditCards", function (req, res) {
+  const cid = req.body.cid;
+  Customer.getCreditCards(cid, (err, cards) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(cards);
+  });
+});
+
 module.exports = router;

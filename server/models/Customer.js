@@ -57,6 +57,15 @@ class Customer {
       }
     );
   }
+
+  static getCreditCards(cid, callback) {
+    db.query("SELECT card_number FROM CreditCards WHERE cid = $1 limit 5", [cid], (err, res) => {
+      if (err.error) {
+        return callback(err, res);
+      }
+      return callback(err, res);
+    });
+  }
 }
 
 module.exports = Customer;

@@ -15,24 +15,24 @@ class FoodItem extends Component {
           foodName: "Chicken Wing",
           limit: 7,
           quantity: 0,
-          amount: []
+          amount: [],
         },
         {
           foodName: "Fries",
           limit: 2,
           quantity: 0,
-          amount: []
+          amount: [],
         },
         {
           foodName: "Coke",
           limit: 3,
           quantity: 0,
-          amount: []
-        }
+          amount: [],
+        },
       ],
       filtered: [],
       restaurantName: this.props.location.state.restaurantName,
-      customerName: this.props.location.state.customerName
+      customerName: this.props.location.state.customerName,
     };
 
     this.handleChange.bind(this);
@@ -40,7 +40,7 @@ class FoodItem extends Component {
 
   componentDidMount() {
     this.setState({
-      filtered: this.state.foodItem
+      filtered: this.state.foodItem,
     });
 
     this.generateQuantity();
@@ -59,7 +59,7 @@ class FoodItem extends Component {
     let currentList = this.state.foodItem;
 
     if (e.target.value !== "") {
-      newList = currentList.filter(item => {
+      newList = currentList.filter((item) => {
         const lowercaseItem = item.foodName.toLowerCase();
         const filter = e.target.value.toLowerCase();
         return lowercaseItem.includes(filter);
@@ -68,7 +68,7 @@ class FoodItem extends Component {
       newList = currentList;
     }
     this.setState({
-      filtered: newList
+      filtered: newList,
     });
   }
 
@@ -76,7 +76,7 @@ class FoodItem extends Component {
     let currentList = this.state.foodItem;
     currentList[index].quantity = parseInt(quantity.target.value);
     this.setState({
-      foodItem: currentList
+      foodItem: currentList,
     });
   };
 
@@ -92,7 +92,7 @@ class FoodItem extends Component {
     }
     this.setState({
       foodItem: currentList,
-      values: values
+      values: values,
     });
   };
 
@@ -105,7 +105,7 @@ class FoodItem extends Component {
       <div>
         <Navbar dark color="dark">
           <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
-          <div calssName="icon-container">
+          <div className="icon-container">
             <GiShoppingCart
               size="3em"
               color="black"
@@ -129,7 +129,7 @@ class FoodItem extends Component {
             <input
               type="text"
               className="input"
-              onChange={e => this.handleChange(e)}
+              onChange={(e) => this.handleChange(e)}
               placeholder="Search..."
             />
           </div>
@@ -147,9 +147,9 @@ class FoodItem extends Component {
               <ListGroup.Item>
                 <Form.Control
                   as="select"
-                  onChange={value => this.handleQuantity(value, index)}
+                  onChange={(value) => this.handleQuantity(value, index)}
                 >
-                  {item.amount.map(num => {
+                  {item.amount.map((num) => {
                     return <option value={num.value}>{num.value}</option>;
                   })}
                 </Form.Control>

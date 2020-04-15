@@ -15,16 +15,16 @@ app.use(cookieParser());
 app.use("/users", require("./api/users"));
 app.use("/RestaurantStaff", require("./api/restaurantstaff.js"));
 app.use("/Customer", require("./api/customer.js"));
-app.use("/Login", require("./api/Login"));
 app.use("/FDSManager", require("./api/FDSManager.js"));
+app.use("/Login", require("./api/Login.js"));
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};

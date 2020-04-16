@@ -51,9 +51,9 @@ CREATE TABLE Customers (
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
-	card_number integer,
-	primary key (cid, card_number),
-	foreign key (cid) references Customers on delete cascade
+	card_number varchar(255),
+	primary key (cid, card_number)
+	--foreign key (cid) references Customers on delete cascade
 );
 
 CREATE TABLE DeliveryLocations (
@@ -441,7 +441,6 @@ insert into Menus (menu_id, rest_id) values (8, 8);
 insert into Menus (menu_id, rest_id) values (9, 9);
 insert into Menus (menu_id, rest_id) values (10, 10);
 
-
 -- Orders
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (1, '3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'credit card', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', null);
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (3, '3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'credit card', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', null);
@@ -458,6 +457,7 @@ insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price
 insert into Places (oid, cid) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2');
 insert into Places (oid, cid) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2');
 insert into Places (oid, cid) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2');
+insert into Places (oid, cid) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe');
 
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'best food');
@@ -492,3 +492,10 @@ insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50'
 insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');
 insert into Consists (oid, fid, quantity, total_price) values (3, 6, 10, '$51.00');
+
+-- CreditCards
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '4000-1523-1652-4534');
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1543-4894-1561-1564');
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');

@@ -233,8 +233,8 @@ CREATE TABLE Foods (
 );
 
 CREATE TABLE Consists (
-	oid serial references Orders(oid),
-	fid serial references Foods(fid),
+	oid serial references Orders(oid) on DELETE CASCADE,
+	fid serial references Foods(fid) on DELETE CASCADE,
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)

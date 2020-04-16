@@ -62,8 +62,6 @@ class App extends Component {
           <Link to="/Login">Login</Link>
           <br />
           <Link to="/FDSManager">FDSManager</Link>
-          <br />
-          <Link to="Profile">Profile</Link>
         </div>
       </div>
     );

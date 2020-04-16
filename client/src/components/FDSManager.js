@@ -9,9 +9,6 @@ import {
     Col, 
     Jumbotron,
     Row,
-    InputGroup,
-    Input,
-    InputGroupAddon,
     ListGroup,
     Button
 } from 'reactstrap';
@@ -96,9 +93,13 @@ class FDSManager extends Component {
         })
     }; 
 
+    validInput = (month, year) => {
+        return !isNaN(month) && !isNaN(year);
+    }
+
 
     handleQuery = () => {
-        if (this.state.month && this.state.year) {
+        if (this.state.month && this.state.year && this.validInput(this.state.month, this.state.year)) {
             this.handleQueryMonthNewCustomers();
             this.handleQueryMonthOrders();
             this.handleQueryMonthOrdersCost();
@@ -108,7 +109,7 @@ class FDSManager extends Component {
                 month: '',
                 year: ''
             });
-        }
+        } 
     }
 
     render() {

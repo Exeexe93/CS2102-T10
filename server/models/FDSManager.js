@@ -40,6 +40,21 @@ class FDSManager {
         );
     }
 
+    static queryCustomersStats(month, year, callback) {
+        db.query(
+            'select count(*) as num, MAX(c1.cid) as cid, MAX(c1.name) as cust_name, SUM(o1.total_price) as total_price from places as p1 join Customers as c1 using(cid) join Orders as o1 using (oid) WHERE (SELECT EXTRACT(MONTH FROM order_placed)) = $1 and (SELECT EXTRACT(YEAR FROM order_placed)) = $2 group by c1.cid',
+            [month, year],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryCustomersStats");
+                }
+                console.log(res);
+                callback(err, res);
+            }
+
+        )
+    }
+
 }
 
 module.exports = FDSManager;

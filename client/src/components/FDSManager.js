@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import '../styles/FDSManager.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
+import { Table } from "react-bootstrap";
+
 import {
     Navbar,
     NavbarBrand,
@@ -17,13 +19,12 @@ class FDSManager extends Component {
     constructor(props) {
         super(props);
         let currentDate = new Date();
-        console.log("how many times im called");
         this.state = {
             // Change to the FDSManager name here
-            displayMonth: currentDate.getMonth(),
+            displayMonth: currentDate.getMonth() + 1,
             displayYear: currentDate.getFullYear(),
             year: currentDate.getFullYear(),
-            month: currentDate.getMonth(),
+            month: currentDate.getMonth() + 1,
             num: 0,
             orders: 0,
             cost: 0.00,
@@ -115,6 +116,17 @@ class FDSManager extends Component {
         return !isNaN(month) && !isNaN(year);
     }
 
+    renderItems = (customers, index) => {
+        return (
+            <tr>
+                <td>{index + 1}</td>
+                <td>{customers.cust_name}</td>
+                <td>{customers.num}</td>
+                <td>{customers.total_price}</td>
+            </tr>
+        )
+    }
+
 
     handleQuery = () => {
         if (this.state.month && this.state.year && this.validInput(this.state.month, this.state.year)) {
@@ -172,16 +184,46 @@ class FDSManager extends Component {
                             Enter
                         </Button>
                     </div>
-                    <ListGroup key="listgroup">
-                        <p>
-                          Number of new customers in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.num ? this.state.num : 0}
-                        </p>
-                        <p>
-                            Number of orders in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.orders ? this.state.orders : 0}  
-                        </p>
-                        <p>
-                            Number of orders cost in Year:{this.state.displayYear} Month:{this.state.displayMonth} = {this.state.cost ? this.state.cost : 0.00}  
-                        </p>
+                    <ListGroup key="listgroup" className="container">
+                        <h3>Overall Summary</h3>
+                        <Table>
+                            <thead>
+                                <th>Report for Month</th>
+                                <th>Report for Year</th>
+                            </thead>
+                            <tbody>
+                                <td>{this.state.displayMonth}</td>
+                                <td>{this.state.displayYear}</td>
+                            </tbody>
+                        </Table>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>New Customer</th>
+                                    <th>Number of Orders in this month</th>
+                                    <th>Total amount collected from all orders in this month</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <td>{this.state.num ? this.state.num : 0}</td>
+                                <td>{this.state.orders ? this.state.orders : 0}</td>
+                                <td>{this.state.cost ? this.state.cost : 0}</td>
+                            </tbody>
+                        </Table>
+                        <h3>Specific Customer Summary</h3>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Customer Name</th>
+                                    <th>Total Placed Orders</th>
+                                    <th>Total Amount spent</th>
+                                </tr>   
+                            </thead>
+                            <tbody>
+                                {this.state.customerStats.map(this.renderItems)}
+                            </tbody>
+                        </Table>
                     </ListGroup>
                 </TabPanel>
                 <TabPanel>Text for Riders</TabPanel>

@@ -235,8 +235,8 @@ CREATE TABLE Foods (
 );
 
 CREATE TABLE Consists (
-	oid serial references Orders(oid),
-	fid serial references Foods(fid),
+	oid serial references Orders(oid) on DELETE CASCADE,
+	fid serial references Foods(fid) on DELETE CASCADE,
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
@@ -460,6 +460,8 @@ insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price
 insert into Places (oid, cid) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2');
 insert into Places (oid, cid) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2');
 insert into Places (oid, cid) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2');
+insert into Places (oid, cid) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe');
+
 
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'best food');

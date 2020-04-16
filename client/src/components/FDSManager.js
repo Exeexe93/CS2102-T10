@@ -27,6 +27,7 @@ class FDSManager extends Component {
             num: 0,
             orders: 0,
             cost: 0.00,
+            customerStats : [],
             FDSManagerName: "Mr Eng"
         };
         this.handleQuery()
@@ -93,6 +94,23 @@ class FDSManager extends Component {
         })
     }; 
 
+    handleQueryMonthCustomersStats = () => {
+        fetch('http://localhost:3001/FDSManager/monthlyCustomersStats', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})
+        })
+        .then(res => {
+                return res.json();
+            })
+        .then(res => {
+            this.setState({
+                customerStats: res
+            })
+        })
+    }; 
+
+
     validInput = (month, year) => {
         return !isNaN(month) && !isNaN(year);
     }
@@ -103,6 +121,7 @@ class FDSManager extends Component {
             this.handleQueryMonthNewCustomers();
             this.handleQueryMonthOrders();
             this.handleQueryMonthOrdersCost();
+            this.handleQueryMonthCustomersStats();
             this.setState({
                 displayMonth: this.state.month,
                 displayYear: this.state.year,

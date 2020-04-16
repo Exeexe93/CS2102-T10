@@ -23,12 +23,12 @@ class FTRiderMainPage extends Component {
       id: this.props.location.id,
       name: "",
       orders: [],
-      rating: 0,
+      avg_rating: 0,
     };
   }
 
   getName = () => {
-    fetch("http://localhost:3001/FTRider/getName/", {
+    fetch("http://localhost:3001/FTRider/getName", {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ rid: this.state.id }),
@@ -38,19 +38,27 @@ class FTRiderMainPage extends Component {
         this.setState({
           name: res[0].name,
         });
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
 
-  getRating = () => {
-    // fetch("http://localhost:3001/FTRider")
-    //   .then((res) => res.json())
-    //   .then((res) => {
-    //     console.log(res);
-    //     let rating = res[0].rating;
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+  getAvgRating = () => {
+    fetch("http://localhost:3001/FTRider", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({
+          avg_rating: res[0].avg_rating,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   getPendingOrders = () => {
@@ -101,7 +109,7 @@ class FTRiderMainPage extends Component {
 
   componentDidMount() {
     this.getName();
-    // this.getRating();
+    this.getAvgRating();
     this.getPendingOrders();
   }
 
@@ -140,7 +148,9 @@ class FTRiderMainPage extends Component {
               <span> Salary this week/month</span>
             </button>
 
-            <p className="centered-text">Your Rating: {this.state.rating}</p>
+            <p className="centered-text">
+              Your Average Rating: {this.state.avg_rating}
+            </p>
 
             <button onClick={this.handleViewSchedule}>
               <FaRegCalendarAlt />

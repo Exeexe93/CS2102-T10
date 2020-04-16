@@ -24,7 +24,6 @@ class FTRider {
           console.log("Could not check average rating of FT Rider: ", err);
           return callback(err, res);
         }
-        console.log(res);
         newAverageRating = res[0].avg_rating;
       }
     );
@@ -37,7 +36,7 @@ class FTRider {
           console.log("Could not update average rating of FT Rider: ", err);
           return callback(err, res);
         }
-        return callback(err, [{ rating: newAverageRating }]);
+        return callback(err, [{ avg_rating: newAverageRating }]);
       }
     );
   }

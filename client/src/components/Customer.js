@@ -99,15 +99,15 @@ class Customer extends Component {
             </div>
 
             <div className="section">
-              {this.state.filtered.map((item) => (
-                <div key={item}>
+              {this.state.filtered.map((item, index) => (
+                <div key={index}>
                   <Link
                     className="restItem"
                     to={{
                       pathname: "/Customer/" + item,
                       state: {
                         customerName: this.state.customerName,
-                        restaurant: { item },
+                        restaurantName: item,
                       },
                     }}
                   >

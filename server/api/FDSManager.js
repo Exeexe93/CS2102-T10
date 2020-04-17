@@ -51,4 +51,15 @@ router.post('/monthlyCustomersStats', (req, res) => {
     })
 })
 
+router.post('/monthlyRidersStats', (req, res) => {
+    let month = req.body.month;
+    let year = req.body.year;
+    FDSManagerModel.queryRidersStats(month, year, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post monthly Riders stats");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})
 module.exports = router;

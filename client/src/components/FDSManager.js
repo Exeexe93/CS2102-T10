@@ -21,18 +21,17 @@ class FDSManager extends Component {
         let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
-            displayMonth: currentDate.getMonth() + 1,
-            displayYear: currentDate.getFullYear(),
-            year: currentDate.getFullYear(),
-            month: currentDate.getMonth() + 1,
+            displayMonth: '',
+            displayYear: '',
+            year: '',
+            month: '',
             num: 0,
             orders: 0,
             cost: 0.00,
             customerStats : [],
+            ridersStats : [],
             FDSManagerName: "Mr Eng"
         };
-        this.handleQuery()
-
     }
 
     handleInputQueryMonth = (e) => {
@@ -109,24 +108,54 @@ class FDSManager extends Component {
                 customerStats: res
             })
         })
-    }; 
+    };
+    
+    handleQueryMonthlyRidersStats = () => {
+        fetch('http://localhost:3001/FDSManager/monthlyRidersStats', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({ month: this.state.month, year: this.state.year})            
+        })
+        .then(res => {
+            return res.json();
+        })
+        .then(res => {
+            console.log(res);
+            this.setState({
+                ridersStats: res
+            })
+        })
 
+    }
 
     validInput = (month, year) => {
         return !isNaN(month) && !isNaN(year);
     }
 
-    renderItems = (customers, index) => {
+    renderCustomerStats = (customers, index) => {
         return (
             <tr>
-                <td>{index + 1}</td>
-                <td>{customers.cust_name}</td>
-                <td>{customers.num}</td>
-                <td>{customers.total_price}</td>
+                <td key={index}>{index + 1}</td>
+                <td key={index + customers.name}>{customers.cust_name}</td>
+                <td key={index + customers.num}>{customers.num}</td>
+                <td key={index + customers.total_price}>{customers.total_price}</td>
             </tr>
         )
     }
 
+    renderRidersStats = (riders, index) => {
+        let customers = this.state.customers;
+        return (
+            <tr>
+                <td key={index + riders.name}>{riders.name ? riders.name : "abcdef"}</td>
+                <td key={index + riders.num_orders}>{riders.num_orders}</td>
+                <td key={index}>hours work</td>
+                <td key={index + riders.salary}>{riders.salary}</td>
+                <td key={index}> average delivery time </td>
+                <td key={index}> average rating received </td>
+            </tr>
+        )
+    }
 
     handleQuery = () => {
         if (this.state.month && this.state.year && this.validInput(this.state.month, this.state.year)) {
@@ -134,6 +163,7 @@ class FDSManager extends Component {
             this.handleQueryMonthOrders();
             this.handleQueryMonthOrdersCost();
             this.handleQueryMonthCustomersStats();
+            this.handleQueryMonthlyRidersStats();
             this.setState({
                 displayMonth: this.state.month,
                 displayYear: this.state.year,
@@ -155,6 +185,25 @@ class FDSManager extends Component {
                         <Jumbotron>
                             <h1 className="display-3">Welcome { this.state.FDSManagerName }</h1>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
+                            <div class="input-group">
+                            <input className="enter_button" 
+                                type="text" 
+                                name="Month" 
+                                value={this.state.month}
+                                placeholder="Month 1-12"
+                                onChange={this.handleInputQueryMonth}
+                            />
+                            <input className="enter_button"
+                                type="text" 
+                                name="Year" 
+                                value={this.state.year}
+                                placeholder="Year"
+                                onChange={this.handleInputQueryYear}
+                            />
+                            <Button color="primary" onClick={this.handleQuery}>
+                                Enter
+                            </Button>
+                    </div>
                         </Jumbotron>
                     </Col>
                 </Row>
@@ -163,27 +212,7 @@ class FDSManager extends Component {
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
                 </TabList>
                 <TabPanel class="tab-panel">
-                    <h2>Monthly stats</h2>
-                    <div class="input-group">
-                        <input className="enter_button" 
-                            type="text" 
-                            name="Month" 
-                            value={this.state.month}
-                            placeholder="Month 1-12"
-                            onChange={this.handleInputQueryMonth}
-                        />
-
-                        <input className="enter_button"
-                            type="text" 
-                            name="Year" 
-                            value={this.state.year}
-                            placeholder="Year"
-                            onChange={this.handleInputQueryYear}
-                        />
-                        <Button color="primary" onClick={this.handleQuery}>
-                            Enter
-                        </Button>
-                    </div>
+                    <h2>Monthly Statistics</h2>
                     <ListGroup key="listgroup" className="container">
                         <h3>Overall Summary</h3>
                         <Table>
@@ -192,8 +221,8 @@ class FDSManager extends Component {
                                 <th>Report for Year</th>
                             </thead>
                             <tbody>
-                                <td>{this.state.displayMonth}</td>
-                                <td>{this.state.displayYear}</td>
+                                <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
                             </tbody>
                         </Table>
                         <Table striped bordered hover>
@@ -221,12 +250,29 @@ class FDSManager extends Component {
                                 </tr>   
                             </thead>
                             <tbody>
-                                {this.state.customerStats.map(this.renderItems)}
+                                {this.state.customerStats.map(this.renderCustomerStats)}
                             </tbody>
                         </Table>
                     </ListGroup>
                 </TabPanel>
-                <TabPanel>Text for Riders</TabPanel>
+                <TabPanel class="tab-panel" className="container">
+                    <h2>Monthly Statistics</h2>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th key="rider_name">Rider name</th>
+                                <th key="num_orders">Total delivered orders</th>
+                                <th key="hours_worked">Total hours worked</th>
+                                <th key="salary_earned">Total salary earned</th>
+                                <th key="avg_delivery">Average delivery time</th>
+                                <th key="avg_rating">Average rating received</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {this.state.ridersStats.map(this.renderRidersStats)}
+                        </tbody>
+                    </Table>
+                </TabPanel>
             </Tabs>
 
         );

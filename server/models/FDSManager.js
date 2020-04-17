@@ -54,6 +54,20 @@ class FDSManager {
         )
     }
 
+    static queryRidersStats(month, year, callback) {
+        db.query(
+            'select count(*) as num_orders, sum(amount) as salary, name, rid, SUM(O.total_price) as total_price from Riders join Orders as O using (rid) join Salaries using (rid) where (SELECT EXTRACT(MONTH FROM Salaries.start_date)) = $1 and (SELECT EXTRACT(YEAR FROM Salaries.start_date)) = $2 group by rid;',
+            [month, year],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryRidersStats");
+                }
+                callback(err, res);
+            }
+
+        )
+    }
+
 }
 
 module.exports = FDSManager;

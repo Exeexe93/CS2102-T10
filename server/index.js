@@ -20,6 +20,7 @@ app.use("/Customer", require("./api/Customer.js"));
 app.use("/FDSManager", require("./api/FDSManager.js"));
 app.use("/Login", require("./api/Login.js"));
 app.use("/FTRider", require("./api/FTRider.js"));
+app.use("/PTRider", require("./api/PTRider.js"));
 
 app.use(function (request, response, next) {
   response.header("Access-Control-Allow-Origin", "*");
@@ -30,7 +31,6 @@ app.use(function (request, response, next) {
   );
   next();
 });
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

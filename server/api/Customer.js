@@ -42,7 +42,6 @@ router.post("/AddCreditCard", function (req, res) {
 });
 
 router.post("/DeleteCreditCard", function (req, res) {
-  console.log(req.body.card_number);
   Customer.deleteCreditCard(req.body.card_number, (err, result) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(result);

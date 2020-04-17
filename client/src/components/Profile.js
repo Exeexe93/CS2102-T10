@@ -43,7 +43,7 @@ class Profile extends Component {
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -62,7 +62,7 @@ class Profile extends Component {
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -138,7 +138,6 @@ class Profile extends Component {
     axios
       .post("http://localhost:3001/Customer/DeleteCreditCard", card)
       .then((res) => {
-        console.log(res.data);
         if (res.data.length == 0) {
           creditcards.splice(index, 1);
           this.setState({

@@ -6,7 +6,7 @@ import {
   NavbarBrand,
   Nav,
   NavLink,
-  Jumbotron
+  Jumbotron,
 } from "reactstrap";
 
 import PendingOrders from "./PendingOrders";
@@ -19,10 +19,80 @@ class PTRiderMainPage extends Component {
     super(props);
     this.state = {
       isFTRider: false,
-      name: this.props.location.name,
-      orders: this.props.location.orders
+      id: this.props.location.id,
+      name: "",
+      orders: [],
+      avg_rating: 0,
     };
   }
+
+  getName = () => {
+    fetch("http://localhost:3001/PTRider/getName", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({
+          name: res[0].name,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getAvgRating = () => {
+    fetch("http://localhost:3001/PTRider", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        // Query returns null value if not found
+        if (res[0].avg_rating === null) {
+          this.setState({
+            avg_rating: "Not Available",
+          });
+        } else {
+          this.setState({
+            avg_rating: res[0].avg_rating,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getPendingOrders = () => {
+    fetch("http://localhost:3001/PTRider/getPendingOrders")
+      .then((res) => {
+        return res
+          ? res.json()
+          : [
+              {
+                order_number: "",
+                cname: "",
+                delivery_location: "",
+                restaurant_name: "",
+                restaurant_location: "",
+              },
+            ];
+      })
+      .then((res) => {
+        this.setState({
+          orders: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   handleViewSalary = () => {
     // this.props.history.push("/PTriderMainPage/salary");
@@ -31,15 +101,21 @@ class PTRiderMainPage extends Component {
   handleViewSchedule = () => {
     this.props.history.push({
       pathname: "PTRiderMainPage/schedule",
-      isFTRider: this.state.isFTRider
+      isFTRider: this.state.isFTRider,
     });
   };
 
   handleHomeNavigation = () => {
     this.props.history.push({
-      pathname: "/"
+      pathname: "/",
     });
   };
+
+  componentDidMount() {
+    this.getName();
+    this.getAvgRating();
+    this.getPendingOrders();
+  }
 
   render() {
     return (
@@ -76,7 +152,9 @@ class PTRiderMainPage extends Component {
               <span> Salary this week/month</span>
             </button>
 
-            <p className="centered">Your Rating: </p>
+            <p className="centered">
+              Your Average Rating: {this.state.avg_rating}
+            </p>
 
             <button onClick={this.handleViewSchedule}>
               <FaRegCalendarAlt />
@@ -85,7 +163,10 @@ class PTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
-        <PendingOrders orders={this.state.orders} />
+        <PendingOrders
+          key={this.state.orders.length}
+          orders={this.state.orders}
+        />
       </Container>
     );
   }

@@ -48,7 +48,6 @@ class FDSManager {
                 if (err.error) {
                     console.log("Error occurred at FDSManagerModel#queryCustomersStats");
                 }
-                console.log(res);
                 callback(err, res);
             }
 

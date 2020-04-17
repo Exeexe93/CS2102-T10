@@ -47,8 +47,6 @@ router.post('/monthlyCustomersStats', (req, res) => {
             console.log("Error occurred at FDSManager api post monthly Customer stats");
             return res.json(err);
         }
-        console.log("api result");
-        console.log(result);
         return res.json(result);
     })
 })

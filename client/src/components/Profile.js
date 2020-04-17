@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import "../styles/Profile.css";
 import {
   Navbar,
@@ -9,9 +9,11 @@ import {
   ListGroup,
   ListGroupItem,
 } from "reactstrap";
+import { FormGroup, Form, Button } from "react-bootstrap";
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import axios from "axios";
 
 class Profile extends Component {
   constructor(props) {
@@ -26,7 +28,7 @@ class Profile extends Component {
   }
 
   getProfileInfo = () => {
-    var request = new Request("http://localhost:3001/Customer/Profile", {
+    var request = new Request("http://localhost:3001/Customer/GetProfile", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
       body: JSON.stringify({ name: this.props.location.state.customerName }),
@@ -41,12 +43,12 @@ class Profile extends Component {
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
   getOrderList = () => {
-    var request = new Request("http://localhost:3001/Customer/Orders", {
+    var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
       body: JSON.stringify({ cid: this.props.location.state.cid }),
@@ -60,12 +62,12 @@ class Profile extends Component {
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
   getCreditCards = () => {
-    var request = new Request("http://localhost:3001/Customer/CreditCards", {
+    var request = new Request("http://localhost:3001/Customer/GetCreditCards", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
       body: JSON.stringify({ cid: this.props.location.state.cid }),
@@ -74,13 +76,12 @@ class Profile extends Component {
     fetch(request)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         this.setState({
           registeredCreditCard: res,
         });
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
@@ -93,6 +94,59 @@ class Profile extends Component {
     this.getOrderList();
     this.getCreditCards();
   }
+
+  addCreditCard = (event) => {
+    const form = event.target;
+    event.preventDefault();
+    if (/\d{4}\-\d{4}\-\d{4}\-\d{4}$/.test(form.elements.card_number.value)) {
+      let creditcard = {
+        cid: this.state.cid,
+        card_number: form.elements.card_number.value,
+      };
+
+      var request = new Request(
+        "http://localhost:3001/Customer/AddCreditCard",
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(creditcard),
+        }
+      );
+
+      fetch(request)
+        .then((res) => res.json())
+        .then((res) => {
+          if (res.length == 0) {
+            this.setState({
+              registeredCreditCard: [
+                { card_number: creditcard.card_number },
+                ...this.state.registeredCreditCard,
+              ],
+            });
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      this.creditcardform.reset();
+    }
+  };
+
+  handleDelete = (index) => {
+    let creditcards = this.state.registeredCreditCard;
+    let card = creditcards[index];
+    axios
+      .post("http://localhost:3001/Customer/DeleteCreditCard", card)
+      .then((res) => {
+        if (res.data.length == 0) {
+          creditcards.splice(index, 1);
+          this.setState({
+            registeredCreditCard: [...creditcards],
+          });
+        }
+      })
+      .catch((err) => console.error(err));
+  };
 
   render() {
     return (
@@ -117,7 +171,6 @@ class Profile extends Component {
           <TabList
             id="tabs"
             // defaultIndex={1}
-            onSelect={(index) => console.log(index)}
           >
             <Tab eventKey="postOrderHistory">Post Order History</Tab>
             <Tab eventKey="preRegisteredCreditCard">
@@ -125,6 +178,7 @@ class Profile extends Component {
             </Tab>
           </TabList>
           <TabPanel>
+            <h2 className="title"> Order History </h2>
             <ListGroup>
               <ListGroupItem key={"title"}>
                 <Row>
@@ -136,7 +190,7 @@ class Profile extends Component {
                 </Row>
               </ListGroupItem>
               {this.state.orderHistory.map((item, index) => (
-                <ListGroupItem key={item}>
+                <ListGroupItem key={index}>
                   <Row>
                     <Col className="order-list">{item.orderNum}</Col>
                     <Col className="order-list">{item.restaurantName}</Col>
@@ -165,10 +219,44 @@ class Profile extends Component {
             </ListGroup>
           </TabPanel>
           <TabPanel>
-            {this.state.registeredCreditCard.map((item) => (
-              <div key={item}>
+            <h2 className="title"> Credit cards </h2>
+            <div className="container">
+              <Form
+                ref={(form) => (this.creditcardform = form)}
+                action="/"
+                onSubmit={this.addCreditCard}
+              >
+                <Row>
+                  <FormGroup>
+                    <Col>
+                      <Form.Label>Credit Cards Number: </Form.Label>
+                      <Form.Control
+                        name="card_number"
+                        required
+                        type="text"
+                        placeholder="XXXX-XXXX-XXXX-XXXX"
+                        pattern="\d{4}-\d{4}-\d{4}-\d{4}$"
+                      />
+                    </Col>
+                  </FormGroup>
+                  <div>
+                    <Button className="submit-button" type="submit" size="sm">
+                      Add Credit Card
+                    </Button>
+                  </div>
+                </Row>
+              </Form>
+            </div>
+            {this.state.registeredCreditCard.map((item, index) => (
+              <div key={index}>
                 <GoCreditCard size="100px" className="credit-card" />
                 {item.card_number}
+                <Button
+                  className="deleteButton"
+                  onClick={() => this.handleDelete(index)}
+                >
+                  Delete
+                </Button>
               </div>
             ))}
           </TabPanel>

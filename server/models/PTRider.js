@@ -29,22 +29,25 @@ class PTRider {
         if (res.length === 0) {
           console.log("Unable to calculate average rating of PT Rider");
           return callback(err, [{ avg_rating: null }]);
+        } else {
+          newAverageRating = res[0].avg_rating;
         }
-        newAverageRating = res[0].avg_rating;
       }
     );
 
-    db.query(
-      "UPDATE PTRiders SET avg_rating = $2::Real WHERE rid = $1",
-      [rid, newAverageRating],
-      (err, res) => {
-        if (err.error) {
-          console.log("Could not update average rating of PT Rider: ", err);
-          return callback(err, res);
+    if (newAverageRating !== undefined) {
+      db.query(
+        "UPDATE PTRiders SET avg_rating = $2::Real WHERE rid = $1",
+        [rid, newAverageRating],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not update average rating of PT Rider: ", err);
+            return callback(err, res);
+          }
+          return callback(err, [{ avg_rating: newAverageRating }]);
         }
-        return callback(err, [{ avg_rating: newAverageRating }]);
-      }
-    );
+      );
+    }
   }
 
   static getName(rid, callback) {

@@ -62,6 +62,17 @@ class App extends Component {
           <Link to="/Login">Login</Link>
           <br />
           <Link to="/FDSManager">FDSManager</Link>
+          <br />
+          <Link to="Profile">Profile</Link>
+          <br />
+          <Link
+            to={{
+              pathname: "/FTRiderMainPage",
+              id: "06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb",
+            }}
+          >
+            FTRider
+          </Link>
         </div>
       </div>
     );

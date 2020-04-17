@@ -170,6 +170,7 @@ CREATE TABLE FDSManagers (
 CREATE TABLE Restaurants (
 	rest_id serial,
 	name varchar(255) not null,
+	address varchar(255) not null,
     order_threshold money not null,
     primary key(rest_id) 
 );
@@ -189,6 +190,7 @@ CREATE TABLE Orders (
 	promo_used integer,
 	primary key (oid),
 	foreign key (rid) references Riders,
+	foreign key (rest_id) references Restaurants(rest_id),
 	foreign key (promo_used) references Promos(promo_id)
 );
 
@@ -406,16 +408,16 @@ insert into PTRiders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63',
 insert into PTRiders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
 
 -- Restaurants
-insert into Restaurants (name, order_threshold) values ('Exeexe-Restaurant', '$11.47');
-insert into Restaurants (name, order_threshold) values ('Simonis and Sons', '$12.24');
-insert into Restaurants (name, order_threshold) values ('Vandervort, Rice and Lehner', '$12.62');
-insert into Restaurants (name, order_threshold) values ('Bergnaum LLC', '$14.06');
-insert into Restaurants (name, order_threshold) values ('Abbott-Harris', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Streich-Predovic', '$11.94');
-insert into Restaurants (name, order_threshold) values ('Streich, Brekke and Bednar', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Blick, Boyer and Schroeder', '$11.84');
-insert into Restaurants (name, order_threshold) values ('Kirlin-Jacobson', '$10.36');
-insert into Restaurants (name, order_threshold) values ('Ziemann-Halvorson', '$10.20');
+insert into Restaurants (name, order_threshold, address) values ('Exeexe-Restaurant', '$11.47', '3 Center Plaza');
+insert into Restaurants (name, order_threshold, address) values ('Simonis and Sons', '$12.24', '249 Washington Junction');
+insert into Restaurants (name, order_threshold, address) values ('Vandervort, Rice and Lehner', '$12.62', '6918 Oxford Terrace');
+insert into Restaurants (name, order_threshold, address) values ('Bergnaum LLC', '$14.06', '80667 Loeprich Park');
+insert into Restaurants (name, order_threshold, address) values ('Abbott-Harris', '$11.18', '2 Mariners Cove Way');
+insert into Restaurants (name, order_threshold, address) values ('Streich-Predovic', '$11.94', '17 Dapin Road');
+insert into Restaurants (name, order_threshold, address) values ('Streich, Brekke and Bednar', '$11.18', '82 Acker Crossing');
+insert into Restaurants (name, order_threshold, address) values ('Blick, Boyer and Schroeder', '$11.84', '0 Esker Lane');
+insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobson', '$10.36', '0 Sugar Circle');
+insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '368 Maryland Way');
 
 -- Restaurant staffs
 insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
@@ -499,3 +501,15 @@ insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e5
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
+
+-- DeliveryLocations
+insert into DeliveryLocations (address, cid) values ('3 Norway Maple Point', '1b39d987-c6b0-4493-bb95-96e51af734b2');
+insert into DeliveryLocations (address, cid) values ('2 Scofield Crossing', 'e954e29a-40c7-42f0-8567-39ecf6705ffe');
+insert into DeliveryLocations (address, cid) values ('94 Mesta Place', 'c5b9026c-77a9-4977-9c30-5656e6b463c9');
+insert into DeliveryLocations (address, cid) values ('56 Bluestem Junction', '15f6f4f8-42db-428a-949c-98fee850eefa');
+insert into DeliveryLocations (address, cid) values ('22400 Anniversary Circle', '2fa0d23c-c53d-484a-90af-88dfce9e4d90');
+insert into DeliveryLocations (address, cid) values ('9 Springs Circle', '20f57096-5a09-4f4a-aa42-d32306752ddd');
+insert into DeliveryLocations (address, cid) values ('1 Dakota Point', 'a805a76a-b8d6-4422-98e9-4f83ab58b1e8');
+insert into DeliveryLocations (address, cid) values ('56287 Valley Edge Road', '2dfd8ff6-9a23-47ac-b192-560f2ce98424');
+insert into DeliveryLocations (address, cid) values ('3 Sullivan Pass', '327b2555-f8d2-4f01-966e-e468b4cea5b0');
+insert into DeliveryLocations (address, cid) values ('61 Butternut Center', '3911899e-8fb4-4ad0-85d3-8b1d4b334a40');

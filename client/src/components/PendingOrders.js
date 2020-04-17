@@ -7,7 +7,7 @@ class PendingOrders extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      orders: this.props.orders
+      orders: this.props.orders,
     };
   }
 
@@ -16,8 +16,8 @@ class PendingOrders extends Component {
       <div className="pending-order-container">
         <h1>Pending Jobs</h1>
         <div>
-          {this.state.orders.map(order => (
-            <Order orderInfo={order} />
+          {this.state.orders.map((order, index) => (
+            <Order key={index} orderInfo={order} />
           ))}
         </div>
       </div>

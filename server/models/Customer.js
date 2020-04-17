@@ -59,12 +59,42 @@ class Customer {
   }
 
   static getCreditCards(cid, callback) {
-    db.query("SELECT card_number FROM CreditCards WHERE cid = $1 limit 5", [cid], (err, res) => {
-      if (err.error) {
+    db.query(
+      "SELECT card_number FROM CreditCards WHERE cid = $1",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
         return callback(err, res);
       }
-      return callback(err, res);
-    });
+    );
+  }
+
+  static addCreditCard(cid, card_number, callback) {
+    db.query(
+      "insert into CreditCards (cid, card_number) values ($1, $2)",
+      [cid, card_number],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static deleteCreditCard(card_number, callback) {
+    db.query(
+      "DELETE FROM CreditCards WHERE card_number = $1",
+      [card_number],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
   }
 }
 

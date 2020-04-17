@@ -67,3 +67,27 @@
 .order-list {
   text-align: center;
 }
+
+.submit-button {
+  min-height: 54%;
+  min-width: 120%;
+  position: relative;
+  margin-top: 32px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.title {
+  margin-top: 30px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.deleteButton {
+  margin-left: 15px;
+}

@@ -6,7 +6,7 @@ import {
   NavbarBrand,
   Nav,
   NavLink,
-  Jumbotron
+  Jumbotron,
 } from "reactstrap";
 import "../styles/FTRiderMainPage.css";
 
@@ -20,10 +20,71 @@ class FTRiderMainPage extends Component {
     super(props);
     this.state = {
       isFTRider: true,
-      name: this.props.location.name,
-      orders: this.props.location.orders
+      id: this.props.location.id,
+      name: "",
+      orders: [],
+      avg_rating: 0,
     };
   }
+
+  getName = () => {
+    fetch("http://localhost:3001/FTRider/getName", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({
+          name: res[0].name,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getAvgRating = () => {
+    fetch("http://localhost:3001/FTRider", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        this.setState({
+          avg_rating: res[0].avg_rating,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  getPendingOrders = () => {
+    fetch("http://localhost:3001/FTRider/getPendingOrders")
+      .then((res) => {
+        return res
+          ? res.json()
+          : [
+              {
+                order_number: "",
+                cname: "",
+                delivery_location: "",
+                restaurant_name: "",
+                restaurant_location: "",
+              },
+            ];
+      })
+      .then((res) => {
+        this.setState({
+          orders: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   handleViewSalary = () => {
     // if (this.state.isFTRider) {
@@ -36,15 +97,21 @@ class FTRiderMainPage extends Component {
   handleViewSchedule = () => {
     this.props.history.push({
       pathname: "/FTRiderMainPage/schedule",
-      isFTRider: this.state.isFTRider
+      isFTRider: this.state.isFTRider,
     });
   };
 
   handleHomeNavigation = () => {
     this.props.history.push({
-      pathname: "/"
+      pathname: "/",
     });
   };
+
+  componentDidMount() {
+    this.getName();
+    this.getAvgRating();
+    this.getPendingOrders();
+  }
 
   render() {
     return (
@@ -81,7 +148,9 @@ class FTRiderMainPage extends Component {
               <span> Salary this week/month</span>
             </button>
 
-            <p className="centered-text">Your Rating: </p>
+            <p className="centered-text">
+              Your Average Rating: {this.state.avg_rating}
+            </p>
 
             <button onClick={this.handleViewSchedule}>
               <FaRegCalendarAlt />
@@ -90,7 +159,10 @@ class FTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
-        <PendingOrders orders={this.state.orders} />
+        <PendingOrders
+          key={this.state.orders.length}
+          orders={this.state.orders}
+        />
       </Container>
     );
   }

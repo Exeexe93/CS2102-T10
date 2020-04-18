@@ -8,10 +8,6 @@ DROP TABLE IF EXISTS Riders CASCADE;
 DROP TABLE IF EXISTS FTRiders CASCADE;
 DROP TABLE IF EXISTS PTRiders CASCADE;
 
-DROP TABLE IF EXISTS DWS CASCADE;
-DROP TABLE IF EXISTS ShiftInfo CASCADE;
-DROP TABLE IF EXISTS Describes CASCADE;
-DROP TABLE IF EXISTS Includes CASCADE;
 DROP TABLE IF EXISTS WWS CASCADE;
 DROP TABLE IF EXISTS MWS CASCADE;
 DROP TABLE IF EXISTS Contains CASCADE;
@@ -102,40 +98,28 @@ CREATE TABLE PTRiders (
     primary key (rid)
 );
 
-CREATE TABLE DWS (
-	actual_date date primary key
-);
-
 CREATE TABLE Shift (
 	shift_id serial primary key,
-	rid varchar(255) references Riders(rid) on delete cascade
-);
-
-CREATE TABLE ShiftInfo (
-	id serial primary key,
-    start_time time,
-	end_time time
-);
-
-CREATE TABLE Describes (
-	shift_id serial references Shift(shift_id) on delete cascade,
-id serial references ShiftInfo(id) on delete cascade,
-	primary key (id, shift_id)
-);
-
-CREATE TABLE Includes (
-	shift_id serial references Shift(shift_id) on delete cascade, 
-	actual_date date references DWS(actual_date) on delete cascade,
-	primary key (shift_id, actual_date)
+	work_hour integer not null,
+	start_time time not null,
+	end_time time not null
 );
 
 CREATE TABLE WWS (
-	wws_id serial primary key
+	wws_id serial primary key,
+	day_1 date,
+	day_2 date,
+	day_3 date,
+	day_4 date,
+	day_5 date,
+	day_6 date,
+	day_7 date 
 );
 
 CREATE TABLE Contains (
 	wws_id serial references WWS(wws_id) on delete cascade,
-	actual_date date references DWS(actual_date) on delete cascade,
+	actual_date date not null,
+	shift_id integer references Shift(shift_id) on delete cascade,
 	primary key (wws_id, actual_date)
 );
 
@@ -265,10 +249,10 @@ RAISE exception 'Given start(%) and end time(%) are more than 4 hours.', NEW.sta
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS max_shift_interval ON ShiftInfo;
+DROP TRIGGER IF EXISTS max_shift_interval ON Shift;
 CREATE TRIGGER max_shift_interval
 BEFORE UPDATE OR INSERT
-ON ShiftInfo
+ON Shift
 FOR EACH ROW
 EXECUTE FUNCTION check_max_shift_hour();
 
@@ -428,124 +412,60 @@ insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-960
 insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
 insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
 
--- DWS
-insert into DWS (actual_date) values ('03/01/2020');
-insert into DWS (actual_date) values ('03/02/2020');
-insert into DWS (actual_date) values ('03/03/2020');
-insert into DWS (actual_date) values ('03/04/2020');
-insert into DWS (actual_date) values ('03/05/2020');
-insert into DWS (actual_date) values ('03/06/2020');
-insert into DWS (actual_date) values ('03/07/2020');
-insert into DWS (actual_date) values ('03/08/2020');
-insert into DWS (actual_date) values ('03/09/2020');
-insert into DWS (actual_date) values ('03/10/2020');
-insert into DWS (actual_date) values ('03/11/2020');
-insert into DWS (actual_date) values ('03/12/2020');
-insert into DWS (actual_date) values ('03/13/2020');
-insert into DWS (actual_date) values ('03/14/2020');
-insert into DWS (actual_date) values ('03/15/2020');
-insert into DWS (actual_date) values ('03/16/2020');
-insert into DWS (actual_date) values ('03/17/2020');
-insert into DWS (actual_date) values ('03/18/2020');
-insert into DWS (actual_date) values ('03/19/2020');
-insert into DWS (actual_date) values ('03/20/2020');
-insert into DWS (actual_date) values ('03/21/2020');
-insert into DWS (actual_date) values ('03/22/2020');
-insert into DWS (actual_date) values ('03/23/2020');
-insert into DWS (actual_date) values ('03/24/2020');
-insert into DWS (actual_date) values ('03/25/2020');
-insert into DWS (actual_date) values ('03/26/2020');
-insert into DWS (actual_date) values ('03/27/2020');
-insert into DWS (actual_date) values ('03/28/2020');
-insert into DWS (actual_date) values ('03/29/2020');
-insert into DWS (actual_date) values ('03/30/2020');
-insert into DWS (actual_date) values ('03/31/2020');
-
 -- WWS
-insert into WWS (wws_id) values(1);
-insert into WWS (wws_id) values(2);
-insert into WWS (wws_id) values(3);
-insert into WWS (wws_id) values(4);
+-- insert into WWS (wws_id) values(1);
+-- insert into WWS (wws_id) values(2);
+-- insert into WWS (wws_id) values(3);
+-- insert into WWS (wws_id) values(4);
 
 -- MWS
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (1, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (2, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (3, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (4, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (5, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (6, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (7, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (8, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (9, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (10, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (11, 1, 2, 3, 4);
-insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (12, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (1, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (2, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (3, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (4, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (5, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (6, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (7, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (8, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (9, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (10, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (11, 1, 2, 3, 4);
+-- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (12, 1, 2, 3, 4);
 
 -- PTWorks
-insert into PTWorks (rid, wws_id) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1);
-insert into PTWorks (rid, wws_id) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 2);
-insert into PTWorks (rid, wws_id) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 3);
-insert into PTWorks (rid, wws_id) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 4);
-insert into PTWorks (rid, wws_id) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 1);
-insert into PTWorks (rid, wws_id) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 2);
-insert into PTWorks (rid, wws_id) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 3);
-insert into PTWorks (rid, wws_id) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 4);
-insert into PTWorks (rid, wws_id) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 1); 
+-- insert into PTWorks (rid, wws_id) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1);
+-- insert into PTWorks (rid, wws_id) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 2);
+-- insert into PTWorks (rid, wws_id) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 3);
+-- insert into PTWorks (rid, wws_id) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 4);
+-- insert into PTWorks (rid, wws_id) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 1);
+-- insert into PTWorks (rid, wws_id) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 2);
+-- insert into PTWorks (rid, wws_id) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 3);
+-- insert into PTWorks (rid, wws_id) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 4);
+-- insert into PTWorks (rid, wws_id) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 1); 
 
 -- FTWorks
-insert into FTWorks (rid, mws_id) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1);
-insert into FTWorks (rid, mws_id) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 2);
-insert into FTWorks (rid, mws_id) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3);
-insert into FTWorks (rid, mws_id) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 4);
-insert into FTWorks (rid, mws_id) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5);
-insert into FTWorks (rid, mws_id) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 6);
-insert into FTWorks (rid, mws_id) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 7);
-insert into FTWorks (rid, mws_id) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 8);
-insert into FTWorks (rid, mws_id) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 9);
-insert into FTWorks (rid, mws_id) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 10);
-insert into FTWorks (rid, mws_id) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 11);
-insert into FTWorks (rid, mws_id) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 12);
-insert into FTWorks (rid, mws_id) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 1);
-insert into FTWorks (rid, mws_id) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 4);
-insert into FTWorks (rid, mws_id) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 5);
-insert into FTWorks (rid, mws_id) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 6);
-insert into FTWorks (rid, mws_id) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 7);
-insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
-insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
-insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
+-- insert into FTWorks (rid, mws_id) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1);
+-- insert into FTWorks (rid, mws_id) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 2);
+-- insert into FTWorks (rid, mws_id) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3);
+-- insert into FTWorks (rid, mws_id) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 4);
+-- insert into FTWorks (rid, mws_id) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5);
+-- insert into FTWorks (rid, mws_id) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 6);
+-- insert into FTWorks (rid, mws_id) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 7);
+-- insert into FTWorks (rid, mws_id) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 8);
+-- insert into FTWorks (rid, mws_id) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 9);
+-- insert into FTWorks (rid, mws_id) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 10);
+-- insert into FTWorks (rid, mws_id) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 11);
+-- insert into FTWorks (rid, mws_id) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 12);
+-- insert into FTWorks (rid, mws_id) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 1);
+-- insert into FTWorks (rid, mws_id) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 4);
+-- insert into FTWorks (rid, mws_id) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 5);
+-- insert into FTWorks (rid, mws_id) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 6);
+-- insert into FTWorks (rid, mws_id) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 7);
+-- insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
+-- insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
+-- insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
 
 -- Contains
-insert into Contains (wws_id, actual_date) values (1, '03/01/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/02/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/03/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/04/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/05/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/06/2020');
-insert into Contains (wws_id, actual_date) values (1, '03/07/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/08/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/09/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/10/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/11/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/12/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/13/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/14/2020');
-insert into Contains (wws_id, actual_date) values (2, '03/15/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/16/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/17/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/18/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/19/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/20/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/21/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/22/2020');
-insert into Contains (wws_id, actual_date) values (3, '03/23/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/24/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/25/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/26/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/27/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/28/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/29/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/30/2020');
-insert into Contains (wws_id, actual_date) values (4, '03/31/2020');
 
 -- Salaries
 insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36');

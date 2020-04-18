@@ -73,6 +73,15 @@ class App extends Component {
           >
             FTRider
           </Link>
+          <br />
+          <Link
+            to={{
+              pathname: "/PTRiderMainPage",
+              id: "e6115a43-b3b7-4b45-9014-5f2ac0f913e2",
+            }}
+          >
+            PTRider
+          </Link>
         </div>
       </div>
     );

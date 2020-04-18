@@ -52,9 +52,16 @@ class FTRiderMainPage extends Component {
     })
       .then((res) => res.json())
       .then((res) => {
-        this.setState({
-          avg_rating: res[0].avg_rating,
-        });
+        // Query returns null value if not found
+        if (res[0].avg_rating === null) {
+          this.setState({
+            avg_rating: "Not Available",
+          });
+        } else {
+          this.setState({
+            avg_rating: res[0].avg_rating,
+          });
+        }
       })
       .catch((err) => {
         console.log(err);

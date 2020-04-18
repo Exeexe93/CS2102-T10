@@ -1,12 +1,12 @@
 const db = require("../database/index.js");
 
-class FTRider {
+class PTRider {
   static getPendingOrders(callback) {
     db.query(
       "SELECT O.oid AS order_number, C.name AS cname, DL.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN Restaurants R using(rest_id) INNER JOIN Places P using(oid) INNER JOIN Customers C using(cid) INNER JOIN DeliveryLocations DL using(cid) WHERE O.rid IS NULL",
       (err, res) => {
         if (err.error) {
-          console.log("Could not obtain pending orders: ", err);
+          console.log("Could not obtain pending orders:", err);
           return callback(err, res);
         }
         return callback(err, res);
@@ -21,12 +21,13 @@ class FTRider {
       [rid],
       (err, res) => {
         if (err.error) {
-          console.log("Could not check average rating of FT Rider: ", err);
+          console.log("Could not check average rating of PT Rider: ", err);
           return callback(err, res);
         }
+
         // Unable to obtain average value (e.g. no orders completed)
         if (res.length === 0) {
-          console.log("Unable to calculate average rating of FT Rider");
+          console.log("Unable to calculate average rating of PT Rider");
           return callback(err, [{ avg_rating: null }]);
         } else {
           newAverageRating = res[0].avg_rating;
@@ -34,14 +35,13 @@ class FTRider {
       }
     );
 
-    // If first query was successful
     if (newAverageRating !== undefined) {
       db.query(
-        "UPDATE FTRiders SET avg_rating = $2::Real WHERE rid = $1",
+        "UPDATE PTRiders SET avg_rating = $2::Real WHERE rid = $1",
         [rid, newAverageRating],
         (err, res) => {
           if (err.error) {
-            console.log("Could not update average rating of FT Rider: ", err);
+            console.log("Could not update average rating of PT Rider: ", err);
             return callback(err, res);
           }
           return callback(err, [{ avg_rating: newAverageRating }]);
@@ -51,9 +51,9 @@ class FTRider {
   }
 
   static getName(rid, callback) {
-    db.query("SELECT name FROM FTRiders WHERE rid = $1", [rid], (err, res) => {
+    db.query("SELECT name FROM PTRiders WHERE rid = $1", [rid], (err, res) => {
       if (err.error) {
-        console.log("Could not obtain name of FT Rider: ", err);
+        console.log("Could not obtain name of PT Rider: ", err);
         return callback(err, res);
       }
       return callback(err, res);
@@ -61,4 +61,4 @@ class FTRider {
   }
 }
 
-module.exports = FTRider;
+module.exports = PTRider;

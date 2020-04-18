@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart } from "react-icons/gi";
-import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button } from "react-bootstrap";
@@ -14,6 +13,7 @@ class FoodItem extends Component {
       foodItem: [],
       filtered: [],
       restaurantName: this.props.location.state.restaurantName,
+      cid: this.props.location.state.cid,
       customerName: this.props.location.state.customerName,
     };
 
@@ -21,17 +21,17 @@ class FoodItem extends Component {
   }
 
   sortingFoodItem = (first, second) => {
-    if (first.category == second.category) {
+    if (first.category === second.category) {
       return 0;
-    } else if (first.category == "Main Dish") {
+    } else if (first.category === "Main Dish") {
       return -1;
-    } else if (second.category == "Main Dish") {
+    } else if (second.category === "Main Dish") {
       return 1;
-    } else if (first.category == "Dessert") {
+    } else if (first.category === "Dessert") {
       return 1;
-    } else if (second.category == "Dessert") {
+    } else if (second.category === "Dessert") {
       return -1;
-    } else if (first.category == "Side Dish") {
+    } else if (first.category === "Side Dish") {
       return -1;
     } else {
       return 1;
@@ -68,7 +68,10 @@ class FoodItem extends Component {
   };
 
   handleCart = () => {
-    this.props.history.push("/Login");
+    this.props.history.push({
+      pathname: "/Cart",
+      cid: this.state.cid,
+    });
   };
 
   handleChange(e) {

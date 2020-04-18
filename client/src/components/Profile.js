@@ -1,4 +1,5 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
+import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
 import {
   Navbar,
@@ -21,17 +22,21 @@ class Profile extends Component {
     this.state = {
       customerName: "",
       cid: "",
+      updateState: true,
       rewardPoints: 0,
       registeredCreditCard: [],
       orderHistory: [],
     };
   }
 
-  getProfileInfo = () => {
+  getProfileInfo = (customerName) => {
+    // getProfileInfo = () => {
     var request = new Request("http://localhost:3001/Customer/GetProfile", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ name: this.props.location.state.customerName }),
+      //body: JSON.stringify({ name: this.props.location.state.customerName }),
+      body: JSON.stringify({ name: customerName }),
+      // body: JSON.stringify({ name: this.state.customerName }),
     });
 
     fetch(request)
@@ -47,11 +52,14 @@ class Profile extends Component {
       });
   };
 
-  getOrderList = () => {
+  getOrderList = (cid) => {
+    // getOrderList = () => {
     var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ cid: this.props.location.state.cid }),
+      //body: JSON.stringify({ cid: this.props.location.state.cid }),
+      body: JSON.stringify({ cid: cid }),
+      // body: JSON.stringify({ cid: this.state.cid }),
     });
 
     fetch(request)
@@ -66,11 +74,13 @@ class Profile extends Component {
       });
   };
 
-  getCreditCards = () => {
+  getCreditCards = (cid) => {
     var request = new Request("http://localhost:3001/Customer/GetCreditCards", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ cid: this.props.location.state.cid }),
+      // body: JSON.stringify({ cid: this.props.location.state.cid }),
+      // body: JSON.stringify({ cid: this.state.cid }),
+      body: JSON.stringify({ cid: cid }),
     });
 
     fetch(request)
@@ -85,15 +95,11 @@ class Profile extends Component {
       });
   };
 
-  componentDidMount() {
-    this.setState({
-      customerName: this.props.location.state.customerName,
-      cid: this.props.location.state.cid,
-    });
-    this.getProfileInfo();
-    this.getOrderList();
-    this.getCreditCards();
-  }
+  // componentDidMount() {
+  //   this.getProfileInfo();
+  //   this.getOrderList();
+  //   this.getCreditCards();
+  // }
 
   addCreditCard = (event) => {
     const form = event.target;
@@ -148,9 +154,28 @@ class Profile extends Component {
       .catch((err) => console.error(err));
   };
 
+  initaliseState = (cid, customerName, updateState) => {
+    this.setState({
+      cid,
+      customerName,
+      updateState,
+    });
+  };
+
   render() {
     return (
       <div>
+        <AccountContext.Consumer>
+          {(context) => {
+            if (this.state.updateState) {
+              this.initaliseState(context.state.cid, context.state.name, false);
+              this.getProfileInfo(context.state.name);
+              this.getOrderList(context.state.cid);
+              this.getCreditCards(context.state.cid);
+            }
+          }}
+        </AccountContext.Consumer>
+
         <Navbar dark color="dark">
           <NavbarBrand>Profile</NavbarBrand>
         </Navbar>

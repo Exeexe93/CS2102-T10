@@ -1,7 +1,13 @@
 .order-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
   margin-bottom: 5em;
+  margin-top: 5em;
 }
 
-.order-list-container h1 {
+.order-list-title {
   text-align: center;
+  width: 100%;
 }

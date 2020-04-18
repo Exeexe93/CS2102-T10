@@ -14,11 +14,11 @@ class OrderList extends Component {
   render() {
     return (
       <div className="order-list-container">
-        <h1>{this.state.title}</h1>
+        <h1 className="order-list-title">{this.state.title}</h1>
         <div>
-          {this.state.orders.map((order, index) => (
-            <Order key={index} orderInfo={order} />
-          ))}
+          {this.state.orders.map((order, index) => {
+            return <Order key={index} orderInfo={order} />;
+          })}
         </div>
       </div>
     );

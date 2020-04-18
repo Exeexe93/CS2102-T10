@@ -23,6 +23,7 @@ class FTRiderMainPage extends Component {
       id: this.props.location.id,
       name: "",
       orders: [],
+      completed_orders: [],
       avg_rating: 0,
     };
   }
@@ -93,6 +94,35 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  getCompletedOrders = () => {
+    fetch("http://localhost:3001/FTRider/getCompletedOrders", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => {
+        return res
+          ? res.json()
+          : [
+              {
+                order_number: "",
+                cname: "",
+                delivery_location: "",
+                restaurant_name: "",
+                restaurant_location: "",
+              },
+            ];
+      })
+      .then((res) => {
+        this.setState({
+          completed_orders: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   handleViewSalary = () => {
     // if (this.state.isFTRider) {
     //   this.props.history.push("/FTriderMainPage/salary");
@@ -118,6 +148,7 @@ class FTRiderMainPage extends Component {
     this.getName();
     this.getAvgRating();
     this.getPendingOrders();
+    this.getCompletedOrders();
   }
 
   render() {
@@ -167,9 +198,15 @@ class FTRiderMainPage extends Component {
         </Jumbotron>
 
         <OrderList
-          key={this.state.orders.length}
+          key={"pending-orders-" + this.state.orders.length}
           orders={this.state.orders}
           title={"Pending Orders"}
+        />
+
+        <OrderList
+          key={"completed-orders-" + this.state.completed_orders.length}
+          orders={this.state.completed_orders}
+          title={"Completed Orders"}
         />
       </Container>
     );

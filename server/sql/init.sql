@@ -522,16 +522,16 @@ insert into Places (oid, cid, address) values (3, '1b39d987-c6b0-4493-bb95-96e51
 insert into Places (oid, cid, address) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763');
 
 -- Foods
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'best food');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'best food');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
 
 -- Rates
 insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

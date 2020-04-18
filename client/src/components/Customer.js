@@ -3,7 +3,8 @@ import "../styles/Customer.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
-import { Navbar, Nav, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { AccountContext } from "./AccountProvider.js";
 
 class Customer extends Component {
   constructor(props) {
@@ -18,6 +19,8 @@ class Customer extends Component {
     this.handleChange.bind(this);
   }
 
+  static contextType = AccountContext;
+
   getRestaurantList = () => {
     fetch("http://localhost:3001/Customer/")
       .then((res) => res.json())
@@ -31,6 +34,8 @@ class Customer extends Component {
   };
 
   componentDidMount() {
+    let state = this.context;
+    state.setCidAndName(this.state.cid, this.state.customerName);
     this.getRestaurantList();
   }
 
@@ -42,7 +47,10 @@ class Customer extends Component {
   };
 
   handleCart = () => {
-    this.props.history.push("/Login");
+    this.props.history.push({
+      pathname: "/Cart",
+      cid: this.state.cid,
+    });
   };
 
   handleChange(e) {
@@ -99,15 +107,16 @@ class Customer extends Component {
             </div>
 
             <div className="section">
-              {this.state.filtered.map((item) => (
-                <div key={item}>
+              {this.state.filtered.map((item, index) => (
+                <div key={index}>
                   <Link
                     className="restItem"
                     to={{
                       pathname: "/Customer/" + item,
                       state: {
                         customerName: this.state.customerName,
-                        restaurant: { item },
+                        cid: this.state.cid,
+                        restaurantName: item,
                       },
                     }}
                   >
@@ -122,5 +131,5 @@ class Customer extends Component {
     );
   }
 }
-
+Customer.contextType = AccountContext;
 export default Customer;

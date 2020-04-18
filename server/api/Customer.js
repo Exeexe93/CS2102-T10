@@ -48,4 +48,11 @@ router.post("/DeleteCreditCard", function (req, res) {
   });
 });
 
+router.post("/GetRestaurantFoods", function (req, res) {
+  Customer.getRestaurantFoods(req.body.restaurantName, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 module.exports = router;

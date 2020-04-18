@@ -96,6 +96,19 @@ class Customer {
       }
     );
   }
+
+  static getRestaurantFoods(restaurantName, callback) {
+    db.query(
+      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit FROM Restaurants as R left join Menus using (rest_id) left join Foods as F using (menu_id) WHERE R.name = $1",
+      [restaurantName],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
 }
 
 module.exports = Customer;

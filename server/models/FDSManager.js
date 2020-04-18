@@ -56,7 +56,10 @@ class FDSManager {
 
     static queryRidersStats(month, year, callback) {
         db.query(
-            'select count(*) as num_orders, sum(amount) as salary, name, rid, SUM(O.total_price) as total_price from Riders join Orders as O using (rid) join Salaries using (rid) where (SELECT EXTRACT(MONTH FROM Salaries.start_date)) = $1 and (SELECT EXTRACT(YEAR FROM Salaries.start_date)) = $2 group by rid;',
+            'select max(delivery_duration) as delivery_duration, max(num_ratings) as num_ratings, max(rating) as avg_rating, count(*) as num_orders, max(salary) as salary, name, rid, SUM(O.total_price) as total_price ' + 
+	        'from Riders join Orders as O using (rid) join (select sum(amount) as salary, rid, start_date from Salaries join Riders using (rid) group by rid, start_date) as RidersSalary using (rid) join (select round(avg(rating), 2) as rating, rid, count(*) as num_ratings, ' +
+	        '(SELECT age(MAX(deliver_to_cust), MAX(order_placed))) as delivery_duration from Rates join Orders using (rid, oid) group by rid) as RateOrders using (rid) where (SELECT EXTRACT(MONTH FROM RidersSalary.start_date)) = $1 ' + 
+            'and (SELECT EXTRACT(YEAR FROM RidersSalary.start_date)) = $2 group by rid;',
             [month, year],
             (err, res) => {
                 if (err.error) {

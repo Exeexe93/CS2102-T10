@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
-DROP TABLE IF EXISTS DeliveryLocations CASCADE;
 DROP TABLE IF EXISTS Promos CASCADE;
 DROP TABLE IF EXISTS CustomerPromo CASCADE;
 DROP TABLE IF EXISTS Riders CASCADE;
@@ -50,13 +49,6 @@ CREATE TABLE CreditCards (
 	card_number varchar(255),
 	primary key (cid, card_number)
 	--foreign key (cid) references Customers on delete cascade
-);
-
-CREATE TABLE DeliveryLocations (
-    address varchar(255),
-    cid varchar(255) references Accounts(account_id) on delete cascade,
-    primary key (cid, address),
-    foreign key (cid) references Customers on delete cascade
 );
 
 -- Promotion --
@@ -188,7 +180,7 @@ CREATE TABLE Salaries (
 	sid serial primary key,
 	rid varchar(255) references Riders,
 	start_date date not null,
-   	 end_date date not null,
+   	end_date date not null,
 	amount money not null
 );
 
@@ -226,6 +218,7 @@ CREATE TABLE Consists (
 CREATE TABLE Places (
 	oid serial references Orders(oid),
 	cid varchar(255) references Customers(cid),
+	address varchar(255) not null,
 	primary key(oid, cid)
 );
 
@@ -511,9 +504,9 @@ insert into Menus (menu_id, rest_id) values (9, 9);
 insert into Menus (menu_id, rest_id) values (10, 10);
 
 -- Orders
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (1, '3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'credit card', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (3, '3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'credit card', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'credit card', '$5.00', '$5.10', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:00:00', null);
+insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (1, '3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'credit card', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null);
+insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (3, '3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'credit card', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null);
+insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'credit card', '$5.00', '$5.10', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', null);
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (4, '2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'cash', '$5.00', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', null);
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (5, '0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'credit card', '$5.00', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', null);
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (7, '0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'credit card', '$5.00', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
@@ -523,10 +516,10 @@ insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price
 insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'cash', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
 
 -- Places
-insert into Places (oid, cid) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2');
-insert into Places (oid, cid) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2');
-insert into Places (oid, cid) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2');
-insert into Places (oid, cid) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe');
+insert into Places (oid, cid, address) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760');
+insert into Places (oid, cid, address) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 761 Yishun Ring rd #08-18 S760761');
+insert into Places (oid, cid, address) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 762 Yishun Ring rd #08-18 S760762');
+insert into Places (oid, cid, address) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763');
 
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'best food');

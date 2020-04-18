@@ -11,6 +11,7 @@ import PTRiderMainPage from "../components/PTRiderMainPage";
 import FDSManager from "../components/FDSManager";
 import Profile from "../components/Profile";
 import FoodItem from "../components/FoodItem";
+import Cart from "../components/Cart";
 
 class Routes extends React.Component {
   render() {
@@ -21,6 +22,7 @@ class Routes extends React.Component {
         <Route exact path="/Customer/:handle" component={FoodItem} />
         <Route exact path="/Login" component={Login} />
         <Route exact path="/Profile" component={Profile} />
+        <Route exact path="/Cart" component={Cart} />
         <Route exact path="/FDSManager" component={FDSManager} />
 
         <Route

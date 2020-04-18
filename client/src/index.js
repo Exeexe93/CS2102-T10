@@ -1,15 +1,18 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import Routes from './routes/Routes'
-import * as serviceWorker from './serviceWorker';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import Routes from "./routes/Routes";
+import * as serviceWorker from "./serviceWorker";
+import { BrowserRouter } from "react-router-dom";
+import { AccountProvider } from "./components/AccountProvider";
 import "bootstrap/dist/css/bootstrap.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 ReactDOM.render(
   <BrowserRouter>
-    <Routes />
+    <AccountProvider>
+      <Routes />
+    </AccountProvider>
   </BrowserRouter>,
   document.getElementById("root")
 );

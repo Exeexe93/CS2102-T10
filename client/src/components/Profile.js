@@ -1,4 +1,5 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
+import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
 import {
   Navbar,
@@ -27,11 +28,13 @@ class Profile extends Component {
     };
   }
 
-  getProfileInfo = () => {
+  static contextType = AccountContext;
+
+  getProfileInfo = (customerName) => {
     var request = new Request("http://localhost:3001/Customer/GetProfile", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ name: this.props.location.state.customerName }),
+      body: JSON.stringify({ name: customerName }),
     });
 
     fetch(request)
@@ -47,11 +50,11 @@ class Profile extends Component {
       });
   };
 
-  getOrderList = () => {
+  getOrderList = (cid) => {
     var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ cid: this.props.location.state.cid }),
+      body: JSON.stringify({ cid: cid }),
     });
 
     fetch(request)
@@ -66,11 +69,11 @@ class Profile extends Component {
       });
   };
 
-  getCreditCards = () => {
+  getCreditCards = (cid) => {
     var request = new Request("http://localhost:3001/Customer/GetCreditCards", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ cid: this.props.location.state.cid }),
+      body: JSON.stringify({ cid: cid }),
     });
 
     fetch(request)
@@ -86,13 +89,14 @@ class Profile extends Component {
   };
 
   componentDidMount() {
+    let value = this.context;
+    this.getProfileInfo(value.state.name);
+    this.getOrderList(value.state.cid);
+    this.getCreditCards(value.state.cid);
     this.setState({
-      customerName: this.props.location.state.customerName,
-      cid: this.props.location.state.cid,
+      cid: value.state.cid,
+      customerName: value.state.name,
     });
-    this.getProfileInfo();
-    this.getOrderList();
-    this.getCreditCards();
   }
 
   addCreditCard = (event) => {
@@ -168,10 +172,7 @@ class Profile extends Component {
         </Col>
 
         <Tabs className="centered">
-          <TabList
-            id="tabs"
-            // defaultIndex={1}
-          >
+          <TabList id="tabs">
             <Tab eventKey="postOrderHistory">Post Order History</Tab>
             <Tab eventKey="preRegisteredCreditCard">
               Pre-registered credit card
@@ -217,6 +218,7 @@ class Profile extends Component {
                 </ListGroupItem>
               ))}
             </ListGroup>
+            <div className="footer"></div>
           </TabPanel>
           <TabPanel>
             <h2 className="title"> Credit cards </h2>
@@ -259,6 +261,7 @@ class Profile extends Component {
                 </Button>
               </div>
             ))}
+            <div className="footer"></div>
           </TabPanel>
         </Tabs>
       </div>

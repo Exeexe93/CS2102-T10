@@ -43,3 +43,33 @@ body {
   width: 120px;
   height: 50px;
 }
+
+.listName {
+  width: 180px;
+  text-align: center;
+}
+
+.listPrice {
+  width: 100px;
+  text-align: center;
+}
+
+.listLimit {
+  width: 100px;
+  text-align: center;
+}
+
+.listQuantity {
+  width: 100px;
+  text-align: center;
+}
+
+.listQuantityLeft {
+  width: 100px;
+  text-align: center;
+}
+
+.listCategory {
+  width: 120px;
+  text-align: center;
+}

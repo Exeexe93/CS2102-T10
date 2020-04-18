@@ -1,49 +1,66 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart } from "react-icons/gi";
-import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button } from "react-bootstrap";
+import axios from "axios";
 
 class FoodItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      foodItem: [
-        {
-          foodName: "Chicken Wing",
-          limit: 7,
-          quantity: 0,
-          amount: [],
-        },
-        {
-          foodName: "Fries",
-          limit: 2,
-          quantity: 0,
-          amount: [],
-        },
-        {
-          foodName: "Coke",
-          limit: 3,
-          quantity: 0,
-          amount: [],
-        },
-      ],
+      foodItem: [],
       filtered: [],
       restaurantName: this.props.location.state.restaurantName,
+      cid: this.props.location.state.cid,
       customerName: this.props.location.state.customerName,
     };
 
     this.handleChange.bind(this);
   }
 
-  componentDidMount() {
-    this.setState({
-      filtered: this.state.foodItem,
-    });
+  sortingFoodItem = (first, second) => {
+    if (first.category === second.category) {
+      return 0;
+    } else if (first.category === "Main Dish") {
+      return -1;
+    } else if (second.category === "Main Dish") {
+      return 1;
+    } else if (first.category === "Dessert") {
+      return 1;
+    } else if (second.category === "Dessert") {
+      return -1;
+    } else if (first.category === "Side Dish") {
+      return -1;
+    } else {
+      return 1;
+    }
+  };
 
-    this.generateQuantity();
+  updateFoods = () => {
+    axios
+      .post("http://localhost:3001/Customer/GetRestaurantFoods", {
+        restaurantName: this.props.location.state.restaurantName,
+      })
+      .then((res) => {
+        let result = res.data;
+        let foodItem = [];
+        result.map((food) => {
+          foodItem.push({ ...food, amount: [] });
+        });
+        foodItem.sort((a, b) => this.sortingFoodItem(a, b));
+        this.setState({
+          foodItem,
+          filtered: foodItem,
+        });
+        this.generateQuantity();
+      })
+      .catch((err) => console.error(err));
+  };
+
+  componentDidMount() {
+    this.updateFoods();
   }
 
   handleProfile = () => {
@@ -51,7 +68,10 @@ class FoodItem extends Component {
   };
 
   handleCart = () => {
-    this.props.history.push("/Login");
+    this.props.history.push({
+      pathname: "/Cart",
+      cid: this.state.cid,
+    });
   };
 
   handleChange(e) {
@@ -74,7 +94,7 @@ class FoodItem extends Component {
 
   handleQuantity = (quantity, index) => {
     let currentList = this.state.foodItem;
-    currentList[index].quantity = parseInt(quantity.target.value);
+    currentList[index].actualQuantity = parseInt(quantity.target.value);
     this.setState({
       foodItem: currentList,
     });
@@ -86,8 +106,14 @@ class FoodItem extends Component {
     var item, i;
     for (item in currentList) {
       values.push({ value: 0 });
-      for (i = 0; i <= currentList[item].limit; i++) {
-        currentList[item].amount.push({ value: i });
+      if (currentList[item].limit <= currentList[item].quantity) {
+        for (i = 0; i <= currentList[item].limit; i++) {
+          currentList[item].amount.push({ value: i });
+        }
+      } else {
+        for (i = 0; i <= currentList[item].quantity; i++) {
+          currentList[item].amount.push({ value: i });
+        }
       }
     }
     this.setState({
@@ -137,24 +163,44 @@ class FoodItem extends Component {
         <div className="separator"></div>
         <ListGroup className="foodList">
           <ListGroup horizontal>
-            <ListGroup.Item>Food Name</ListGroup.Item>
-            <ListGroup.Item>Quantity</ListGroup.Item>
-            <ListGroup.Item>Limit</ListGroup.Item>
+            <ListGroup.Item className="listName">Food Name</ListGroup.Item>
+            <ListGroup.Item className="listPrice">Price</ListGroup.Item>
+            <ListGroup.Item className="listQuantityLeft">
+              Quantity Left
+            </ListGroup.Item>
+            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
+            <ListGroup.Item className="listLimit">Limit</ListGroup.Item>
+            <ListGroup.Item className="listCategory">Category</ListGroup.Item>
           </ListGroup>
           {this.state.filtered.map((item, index) => (
-            <ListGroup horizontal>
-              <ListGroup.Item>{item.foodName}</ListGroup.Item>
-              <ListGroup.Item>
+            <ListGroup key={index} horizontal>
+              <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
+              <ListGroup.Item className="listPrice">
+                {item.price}
+              </ListGroup.Item>
+              <ListGroup.Item className="listQuantityLeft">
+                {item.quantity}
+              </ListGroup.Item>
+              <ListGroup.Item className="listQuantity">
                 <Form.Control
                   as="select"
                   onChange={(value) => this.handleQuantity(value, index)}
                 >
-                  {item.amount.map((num) => {
-                    return <option value={num.value}>{num.value}</option>;
+                  {item.amount.map((num, index) => {
+                    return (
+                      <option key={index} value={num.value}>
+                        {num.value}
+                      </option>
+                    );
                   })}
                 </Form.Control>
               </ListGroup.Item>
-              <ListGroup.Item>{item.limit}</ListGroup.Item>
+              <ListGroup.Item className="listLimit">
+                {item.food_limit}
+              </ListGroup.Item>
+              <ListGroup.Item className="listCategory">
+                {item.category}
+              </ListGroup.Item>
             </ListGroup>
           ))}
           <div className="separator"></div>

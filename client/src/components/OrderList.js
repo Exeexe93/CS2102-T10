@@ -1,20 +1,20 @@
 import React, { Component } from "react";
 import Order from "./Order";
-import "../styles/PendingOrders.css";
+import "../styles/OrderList.css";
 
-class PendingOrders extends Component {
-  // A list of orders needs to be passed in via props
+class OrderList extends Component {
   constructor(props) {
     super(props);
     this.state = {
       orders: this.props.orders,
+      title: this.props.title,
     };
   }
 
   render() {
     return (
-      <div className="pending-order-container">
-        <h1>Pending Jobs</h1>
+      <div className="order-list-container">
+        <h1>{this.state.title}</h1>
         <div>
           {this.state.orders.map((order, index) => (
             <Order key={index} orderInfo={order} />
@@ -25,4 +25,4 @@ class PendingOrders extends Component {
   }
 }
 
-export default PendingOrders;
+export default OrderList;

@@ -9,10 +9,10 @@ import {
   Jumbotron,
 } from "reactstrap";
 
-import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
+import OrderList from "./OrderList";
 
 class PTRiderMainPage extends Component {
   constructor(props) {
@@ -163,9 +163,10 @@ class PTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
-        <PendingOrders
+        <OrderList
           key={this.state.orders.length}
           orders={this.state.orders}
+          title={"Pending Orders"}
         />
       </Container>
     );

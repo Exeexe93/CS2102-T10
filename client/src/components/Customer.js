@@ -10,7 +10,6 @@ class Customer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      updateState: true,
       restaurantList: [],
       filtered: [],
       customerName: "Florida",
@@ -19,6 +18,8 @@ class Customer extends Component {
 
     this.handleChange.bind(this);
   }
+
+  static contextType = AccountContext;
 
   getRestaurantList = () => {
     fetch("http://localhost:3001/Customer/")
@@ -33,6 +34,8 @@ class Customer extends Component {
   };
 
   componentDidMount() {
+    let state = this.context;
+    state.setCidAndName(this.state.cid, this.state.customerName);
     this.getRestaurantList();
   }
 
@@ -68,24 +71,9 @@ class Customer extends Component {
     });
   }
 
-  initialiseState = (updateState) => {
-    this.setState({
-      updateState,
-    });
-    console.log("updateState: " + this.state.updateState);
-  };
-
   render() {
     return (
       <div>
-        <AccountContext.Consumer>
-          {(context) => {
-            if (this.state.updateState) {
-              this.updatedState(false);
-              context.setCidAndName(this.state.cid, this.state.customerName);
-            }
-          }}
-        </AccountContext.Consumer>
         <Navbar dark color="dark">
           <NavbarBrand href="/Customer">Main Page</NavbarBrand>
           <div className="icon-container">
@@ -143,5 +131,5 @@ class Customer extends Component {
     );
   }
 }
-
+Customer.contextType = AccountContext;
 export default Customer;

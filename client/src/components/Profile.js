@@ -22,21 +22,19 @@ class Profile extends Component {
     this.state = {
       customerName: "",
       cid: "",
-      updateState: true,
       rewardPoints: 0,
       registeredCreditCard: [],
       orderHistory: [],
     };
   }
 
+  static contextType = AccountContext;
+
   getProfileInfo = (customerName) => {
-    // getProfileInfo = () => {
     var request = new Request("http://localhost:3001/Customer/GetProfile", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      //body: JSON.stringify({ name: this.props.location.state.customerName }),
       body: JSON.stringify({ name: customerName }),
-      // body: JSON.stringify({ name: this.state.customerName }),
     });
 
     fetch(request)
@@ -53,13 +51,10 @@ class Profile extends Component {
   };
 
   getOrderList = (cid) => {
-    // getOrderList = () => {
     var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      //body: JSON.stringify({ cid: this.props.location.state.cid }),
       body: JSON.stringify({ cid: cid }),
-      // body: JSON.stringify({ cid: this.state.cid }),
     });
 
     fetch(request)
@@ -78,8 +73,6 @@ class Profile extends Component {
     var request = new Request("http://localhost:3001/Customer/GetCreditCards", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
-      // body: JSON.stringify({ cid: this.props.location.state.cid }),
-      // body: JSON.stringify({ cid: this.state.cid }),
       body: JSON.stringify({ cid: cid }),
     });
 
@@ -95,11 +88,16 @@ class Profile extends Component {
       });
   };
 
-  // componentDidMount() {
-  //   this.getProfileInfo();
-  //   this.getOrderList();
-  //   this.getCreditCards();
-  // }
+  componentDidMount() {
+    let value = this.context;
+    this.getProfileInfo(value.state.name);
+    this.getOrderList(value.state.cid);
+    this.getCreditCards(value.state.cid);
+    this.setState({
+      cid: value.state.cid,
+      customerName: value.state.name,
+    });
+  }
 
   addCreditCard = (event) => {
     const form = event.target;
@@ -154,28 +152,9 @@ class Profile extends Component {
       .catch((err) => console.error(err));
   };
 
-  initaliseState = (cid, customerName, updateState) => {
-    this.setState({
-      cid,
-      customerName,
-      updateState,
-    });
-  };
-
   render() {
     return (
       <div>
-        <AccountContext.Consumer>
-          {(context) => {
-            if (this.state.updateState) {
-              this.initaliseState(context.state.cid, context.state.name, false);
-              this.getProfileInfo(context.state.name);
-              this.getOrderList(context.state.cid);
-              this.getCreditCards(context.state.cid);
-            }
-          }}
-        </AccountContext.Consumer>
-
         <Navbar dark color="dark">
           <NavbarBrand>Profile</NavbarBrand>
         </Navbar>
@@ -193,10 +172,7 @@ class Profile extends Component {
         </Col>
 
         <Tabs className="centered">
-          <TabList
-            id="tabs"
-            // defaultIndex={1}
-          >
+          <TabList id="tabs">
             <Tab eventKey="postOrderHistory">Post Order History</Tab>
             <Tab eventKey="preRegisteredCreditCard">
               Pre-registered credit card
@@ -242,6 +218,7 @@ class Profile extends Component {
                 </ListGroupItem>
               ))}
             </ListGroup>
+            <div className="footer"></div>
           </TabPanel>
           <TabPanel>
             <h2 className="title"> Credit cards </h2>
@@ -284,6 +261,7 @@ class Profile extends Component {
                 </Button>
               </div>
             ))}
+            <div className="footer"></div>
           </TabPanel>
         </Tabs>
       </div>

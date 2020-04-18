@@ -145,16 +145,40 @@ class FDSManager extends Component {
 
     renderRidersStats = (riders, index) => {
         let customers = this.state.customers;
+        console.log("i'm at render rider");
+        console.log(riders);
         return (
-            <tr>
+            <tr key={index}>
                 <td key={index + riders.name}>{riders.name ? riders.name : "abcdef"}</td>
                 <td key={index + riders.num_orders}>{riders.num_orders}</td>
                 <td key={index}>hours work</td>
                 <td key={index + riders.salary}>{riders.salary}</td>
-                <td key={index}> average delivery time </td>
-                <td key={index}> average rating received </td>
+                <td key={index}>{this.extractDuration(riders.delivery_duration)}</td>
+                <td key={index}>{riders.num_ratings}</td>
+                <td key={index}>{riders.avg_rating}</td>
             </tr>
         )
+    }
+
+    extractDuration = (duration) => {
+        let returnString = ''
+        if (duration.hours) {
+            returnString += duration.hours 
+            returnString += duration.hours > 1 
+                ? " hours " 
+                : " hour "
+            
+        }
+        if (duration.minutes) {
+            returnString += "" + duration.minutes
+            returnString += duration.minutes > 1 
+                ? " minutes " 
+                : " minute "
+            
+        }
+        console.log(duration.minutes);
+        console.log(returnString);
+        return returnString;
     }
 
     handleQuery = () => {
@@ -265,6 +289,7 @@ class FDSManager extends Component {
                                 <th key="hours_worked">Total hours worked</th>
                                 <th key="salary_earned">Total salary earned</th>
                                 <th key="avg_delivery">Average delivery time</th>
+                                <th key="total_rating_received">Total rating received</th>
                                 <th key="avg_rating">Average rating received</th>
                             </tr>
                         </thead>

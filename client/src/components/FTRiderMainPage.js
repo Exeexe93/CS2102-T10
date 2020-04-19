@@ -14,6 +14,7 @@ import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
+import CompletedOrderList from "./CompletedOrderList";
 
 class FTRiderMainPage extends Component {
   constructor(props) {
@@ -203,7 +204,7 @@ class FTRiderMainPage extends Component {
           title={"Pending Orders"}
         />
 
-        <OrderList
+        <CompletedOrderList
           key={"completed-orders-" + this.state.completed_orders.length}
           orders={this.state.completed_orders}
           title={"Completed Orders"}

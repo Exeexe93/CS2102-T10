@@ -2,7 +2,7 @@ const db = require("../database/index.js");
 
 class Customer {
   static getRestaurantList(callback) {
-    db.query("SELECT name FROM Restaurants", (err, res) => {
+    db.query("SELECT rest_id, name FROM Restaurants", (err, res) => {
       if (err.error) {
         return callback(err, res);
       }
@@ -99,12 +99,45 @@ class Customer {
 
   static getRestaurantFoods(restaurantName, callback) {
     db.query(
-      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit FROM Restaurants as R left join Menus using (rest_id) left join Foods as F using (menu_id) WHERE R.name = $1",
+      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Menus using (rest_id) left join Foods as F using (menu_id) WHERE R.name = $1",
       [restaurantName],
       (err, res) => {
         if (err.error) {
           return callback(err, res);
         }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static addOrder(rest_id, status, callback) {
+    db.query(
+      "INSERT INTO Orders (rest_id, order_status) VALUES ($1, $2)",
+      [rest_id, status],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+      }
+    );
+
+    db.query("SELECT MAX(oid) FROM ORDERS", (err, res) => {
+      if (err.error) {
+        return callback(err, res);
+      }
+      return callback(err, { num: res[0].max });
+    });
+  }
+
+  static addFood(oid, fid, quantity, total_price, callback) {
+    db.query(
+      "INSERT INTO Consists (oid, fid, quantity, total_price) VALUES ($1, $2, $3, $4)",
+      [oid, fid, quantity, total_price],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        console.log(res);
         return callback(err, res);
       }
     );

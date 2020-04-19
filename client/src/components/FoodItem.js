@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson } from "react-icons/md";
@@ -14,6 +14,7 @@ class FoodItem extends Component {
       filtered: [],
       restaurantName: this.props.location.state.restaurantName,
       cid: this.props.location.state.cid,
+      rest_id: this.props.location.state.rest_id,
       customerName: this.props.location.state.customerName,
     };
 
@@ -47,7 +48,7 @@ class FoodItem extends Component {
         let result = res.data;
         let foodItem = [];
         result.map((food) => {
-          foodItem.push({ ...food, amount: [] });
+          foodItem.push({ ...food, amount: [], actualQuantity: 0 });
         });
         foodItem.sort((a, b) => this.sortingFoodItem(a, b));
         this.setState({
@@ -106,8 +107,8 @@ class FoodItem extends Component {
     var item, i;
     for (item in currentList) {
       values.push({ value: 0 });
-      if (currentList[item].limit <= currentList[item].quantity) {
-        for (i = 0; i <= currentList[item].limit; i++) {
+      if (currentList[item].food_limit <= currentList[item].quantity) {
+        for (i = 0; i <= currentList[item].food_limit; i++) {
           currentList[item].amount.push({ value: i });
         }
       } else {
@@ -122,8 +123,58 @@ class FoodItem extends Component {
     });
   };
 
-  submit = () => {
-    // Link to the receipt part send the foodItem to there.
+  addOrder = (event) => {
+    event.preventDefault();
+    this.insertEmptyOrder().then((res) => {
+      let orderNumber = res;
+      this.state.foodItem.map((item) => {
+        if (item.actualQuantity > 0) {
+          this.addFood(item, orderNumber);
+        }
+      });
+    });
+  };
+
+  insertEmptyOrder = () => {
+    let order = {
+      rest_id: this.state.rest_id,
+      order_status: "cart",
+    };
+    return axios
+      .post("http://localhost:3001/Customer/AddOrder", order)
+      .then((res) => {
+        return res.data.num;
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  addFood = (item, orderNumber) => {
+    let total_price = this.calculateCost(item.price, item.actualQuantity);
+    let food = {
+      oid: orderNumber,
+      fid: item.fid,
+      quantity: item.actualQuantity,
+      total_price: total_price,
+    };
+    axios
+      .post("http://localhost:3001/Customer/AddFood", food)
+      .then(() => console.log("Add " + item.name))
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  calculateCost = (cost, quantity) => {
+    const costInNum = parseFloat(cost.slice(1));
+    const total_price = costInNum * quantity;
+    var formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    return formatter.format(total_price);
   };
 
   render() {
@@ -182,18 +233,20 @@ class FoodItem extends Component {
                 {item.quantity}
               </ListGroup.Item>
               <ListGroup.Item className="listQuantity">
-                <Form.Control
-                  as="select"
-                  onChange={(value) => this.handleQuantity(value, index)}
-                >
-                  {item.amount.map((num, index) => {
-                    return (
-                      <option key={index} value={num.value}>
-                        {num.value}
-                      </option>
-                    );
-                  })}
-                </Form.Control>
+                <Form.Group controlId={item.name}>
+                  <Form.Control
+                    as="select"
+                    onChange={(value) => this.handleQuantity(value, index)}
+                  >
+                    {item.amount.map((num, index) => {
+                      return (
+                        <option key={index} value={num.value}>
+                          {num.value}
+                        </option>
+                      );
+                    })}
+                  </Form.Control>
+                </Form.Group>
               </ListGroup.Item>
               <ListGroup.Item className="listLimit">
                 {item.food_limit}
@@ -204,7 +257,11 @@ class FoodItem extends Component {
             </ListGroup>
           ))}
           <div className="separator"></div>
-          <Button type="button" className="submitButton" onClick={this.submit}>
+          <Button
+            type="button"
+            className="submitButton"
+            onClick={this.addOrder}
+          >
             Submit
           </Button>
         </ListGroup>

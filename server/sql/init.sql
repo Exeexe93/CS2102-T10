@@ -153,10 +153,11 @@ CREATE TABLE Orders (
 	oid serial,
 	rid varchar(255),
 	rest_id integer not null,
-	payment_method text not null,
-	delivery_fee money not null,
-	total_price money not null,
-	order_placed timestamp not null,
+	order_status varchar(50) not null,
+	payment_method text,
+	delivery_fee money,
+	total_price money,
+	order_placed timestamp,
 	depart_for_rest timestamp,
 	arrive_at_rest timestamp,
 	depart_for_delivery timestamp,
@@ -208,8 +209,8 @@ CREATE TABLE Foods (
 );
 
 CREATE TABLE Consists (
-	oid serial references Orders(oid) on delete cascade,
-	fid serial references Foods(fid) on delete cascade,
+	oid integer references Orders(oid) on delete cascade,
+	fid integer references Foods(fid) on delete cascade,
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
@@ -218,7 +219,7 @@ CREATE TABLE Consists (
 CREATE TABLE Places (
 	oid serial references Orders(oid),
 	cid varchar(255) references Customers(cid),
-	address varchar(255) not null,
+	address varchar(255),
 	primary key(oid, cid)
 );
 
@@ -248,6 +249,9 @@ BEFORE UPDATE OR INSERT
 ON Shift
 FOR EACH ROW
 EXECUTE FUNCTION check_max_shift_hour();
+
+-- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
+-- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
 -- Data insertions
 -- Accounts
@@ -503,17 +507,17 @@ insert into Menus (menu_id, rest_id) values (8, 8);
 insert into Menus (menu_id, rest_id) values (9, 9);
 insert into Menus (menu_id, rest_id) values (10, 10);
 
--- Orders
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (1, '3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'credit card', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (3, '3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'credit card', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'credit card', '$5.00', '$5.10', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (4, '2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'cash', '$5.00', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (5, '0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'credit card', '$5.00', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (7, '0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'credit card', '$5.00', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (6, '0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'credit card', '$5.00', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (8, '03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'credit card', '$5.00', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'credit card', '$5.00', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', null);
-insert into Orders (oid, rid, rest_id, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values (10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'cash', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
+-- Orderscart 
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid','credit card', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid','credit card', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid','credit card', '$5.00', '$5.10', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid','cash', '$5.00', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid','credit card', '$5.00', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid','credit card', '$5.00', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid','credit card', '$5.00', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid','credit card', '$5.00', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid','credit card', '$5.00', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', null);
+insert into Orders (rid, rest_id, order_status, payment_method, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid','cash', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
 
 -- Places
 insert into Places (oid, cid, address) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760');

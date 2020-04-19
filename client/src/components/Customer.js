@@ -25,7 +25,7 @@ class Customer extends Component {
     fetch("http://localhost:3001/Customer/")
       .then((res) => res.json())
       .then((res) => {
-        var restaurantList = res.map((r) => r.name);
+        var restaurantList = res;
         this.setState({
           restaurantList,
           filtered: restaurantList,
@@ -112,15 +112,16 @@ class Customer extends Component {
                   <Link
                     className="restItem"
                     to={{
-                      pathname: "/Customer/" + item,
+                      pathname: "/Customer/" + item.name,
                       state: {
                         customerName: this.state.customerName,
                         cid: this.state.cid,
-                        restaurantName: item,
+                        rest_id: item.rest_id,
+                        restaurantName: item.name,
                       },
                     }}
                   >
-                    {item}
+                    {item.name}
                   </Link>
                 </div>
               ))}

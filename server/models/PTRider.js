@@ -3,7 +3,7 @@ const db = require("../database/index.js");
 class PTRider {
   static getPendingOrders(callback) {
     db.query(
-      "SELECT O.oid AS order_number, C.name AS cname, DL.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN Restaurants R using(rest_id) INNER JOIN Places P using(oid) INNER JOIN Customers C using(cid) INNER JOIN DeliveryLocations DL using(cid) WHERE O.rid IS NULL",
+      "SELECT O.oid AS order_number, C.name AS cname, P.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN Restaurants R using(rest_id) INNER JOIN Places P using(oid) INNER JOIN Customers C using(cid) WHERE O.rid IS NULL",
       (err, res) => {
         if (err.error) {
           console.log("Could not obtain pending orders:", err);
@@ -58,6 +58,20 @@ class PTRider {
       }
       return callback(err, res);
     });
+  }
+
+  static getCompletedOrders(rid, callback) {
+    db.query(
+      "SELECT O.oid AS order_number, C.name AS cname, P.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN PTRiders PTR using (rid) INNER JOIN Places P using (oid) INNER JOIN Customers C using (cid) INNER JOIN Restaurants R using (rest_id) WHERE O.rid = $1 AND O.deliver_to_cust IS NOT NULL",
+      [rid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain completed orders");
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
   }
 }
 

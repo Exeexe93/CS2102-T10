@@ -55,4 +55,24 @@ router.post("/GetRestaurantFoods", function (req, res) {
   });
 });
 
+router.post("/AddOrder", function (req, res) {
+  Customer.addOrder(req.body.rest_id, req.body.order_status, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/AddFood", function (req, res) {
+  Customer.addFood(
+    req.body.oid,
+    req.body.fid,
+    req.body.quantity,
+    req.body.total_price,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
 module.exports = router;

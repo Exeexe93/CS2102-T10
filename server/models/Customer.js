@@ -111,6 +111,7 @@ class Customer {
   }
 
   static addOrder(rest_id, status, callback) {
+    var oid = 0;
     db.query(
       "INSERT INTO Orders (rest_id, order_status) VALUES ($1, $2)",
       [rest_id, status],
@@ -125,8 +126,13 @@ class Customer {
       if (err.error) {
         return callback(err, res);
       }
-      return callback(err, { num: res[0].max });
+      oid = res[0].max;
+
+      db.query("INSERT INTO Places ()");
+      // return callback(err, { num: res[0].max });
     });
+
+    console.log(oid);
   }
 
   static addFood(oid, fid, quantity, total_price, callback) {

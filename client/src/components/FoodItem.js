@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson } from "react-icons/md";

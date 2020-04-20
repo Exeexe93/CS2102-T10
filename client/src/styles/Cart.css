@@ -1,0 +1,41 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3em;
+}
+
+.searchContainer {
+  display: flex;
+}
+
+.input {
+  width: 500px;
+  height: 70px;
+  font-size: 28px;
+
+  text-align: center;
+}
+
+.section {
+  margin-top: 1cm;
+}
+
+.body {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-centered {
+  text-align: center;
+}
+
+.orderListing {
+  width: 80%;
+}

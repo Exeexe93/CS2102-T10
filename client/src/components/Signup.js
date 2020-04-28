@@ -49,6 +49,20 @@ class Signup extends Component {
       });
   };
 
+  checkAccountId = () => {
+    return fetch("http://localhost:3001/Signup/checkAvailableAccountId", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account_id: this.state.accountId }),
+    })
+      .then((res) => {
+        return res ? res.json() : [{ is_account_id_available: false }];
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   handleHomeNavigation = () => {
     this.props.history.push({
       pathname: "/",
@@ -59,8 +73,18 @@ class Signup extends Component {
     e.preventDefault();
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
-    this.setState({
-      isSamePassword: password === confirmPassword,
+    const isSamePassword = password === confirmPassword;
+    // Check for valid account id (available for creation)
+    this.checkAccountId();
+    this.checkAccountId().then((res) => {
+      const isValidAccountId = res[0].is_account_id_available;
+      // TODO CHECK ACCOUNT TYPE
+      if (isSamePassword) {
+      } else {
+        this.setState({
+          isSamePassword: false,
+        });
+      }
     });
   };
 

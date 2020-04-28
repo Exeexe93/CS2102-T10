@@ -79,14 +79,15 @@ class Signup extends Component {
     this.checkAccountId();
     this.checkAccountId().then((res) => {
       const isValidAccountId = res[0].is_account_id_available;
+      const hasAccountType = this.state.accountType !== null;
 
-      if (isSamePassword && isValidAccountId) {
+      if (isSamePassword && isValidAccountId && hasAccountType) {
         // TODO CHECK ACCOUNT TYPE
         // TODO CREATE ACCOUNT
       } else {
         this.setState({
           isValidAccountId: isValidAccountId,
-          isSamePassword: false,
+          isSamePassword: isSamePassword,
         });
       }
     });

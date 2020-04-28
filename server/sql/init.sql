@@ -531,7 +531,7 @@ insert into Places (oid, cid, address, area, payment_method) values (6, 'c5b9026
 insert into Places (oid, cid, address, area, payment_method) values (7, 'a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Blk 766 Yishun Ring rd #08-18 S760766', 'North', 'credit-card');
 insert into Places (oid, cid, address, area, payment_method) values (8, '2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Blk 767 Yishun Ring rd #08-18 S760767', 'North', 'credit-card');
 insert into Places (oid, cid, address, area, payment_method) values (9, '327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Blk 768 Yishun Ring rd #08-18 S760768', 'North', 'credit-card');
-insert into Places (oid, cid, address, area, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Yishun Ring rd #08-18 S760769', 'North', 'credit-card');
+insert into Places (oid, cid, address, area, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'Central', 'credit-card');
 
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');

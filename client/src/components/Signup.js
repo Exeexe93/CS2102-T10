@@ -24,9 +24,30 @@ class Signup extends Component {
       accountType: null,
       dropdownOpen: false,
       dropDownValue: "Select Account Type ",
+      dropdownRestaurantListOpen: false,
+      dropdownRestaurantListValue: "Select Restaurant ",
       isSamePassword: true,
+      restaurantList: [],
+      chosenRestaurant: null,
     };
   }
+
+  getRestaurants = () => {
+    fetch("http://localhost:3001/Signup/getRestaurants")
+      .then((res) => {
+        return res
+          ? res.json()
+          : [{ rname: "No restaurants are currently hiring", rest_id: null }];
+      })
+      .then((res) => {
+        this.setState({
+          restaurantList: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   handleHomeNavigation = () => {
     this.props.history.push({
@@ -41,17 +62,19 @@ class Signup extends Component {
     this.setState({
       isSamePassword: password === confirmPassword,
     });
-    console.log(e.target.accountId.value);
-    console.log(e.target.password.value);
-    console.log(e.target.confirmPassword.value);
   };
 
   handleSelectAccountType = (e) => {
     const type = e.currentTarget.textContent;
     this.setState({
-      dropDownValue: "Account Type: " + type,
+      dropDownValue: "Account Type: " + type + " ",
       accountType: type,
     });
+  };
+
+  handleSelectRestaurant = (e) => {
+    const restaurant = e.currentTarget.textContent;
+    this.setState({ chosenRestaurant: restaurant });
   };
 
   handleChangeAccountId = (e) => {
@@ -71,6 +94,16 @@ class Signup extends Component {
       dropdownOpen: !this.state.dropdownOpen,
     });
   };
+
+  toggleRestaurantDropdown = () => {
+    this.setState({
+      dropdownRestaurantListOpen: !this.state.dropdownRestaurantListOpen,
+    });
+  };
+
+  componentDidMount() {
+    this.getRestaurants();
+  }
 
   render() {
     return (
@@ -126,7 +159,7 @@ class Signup extends Component {
               </Dropdown>
             </div>
 
-            <div>
+            <div className="signup-field">
               <label>Account ID</label>
               <input
                 type="text"
@@ -137,7 +170,7 @@ class Signup extends Component {
               ></input>
             </div>
 
-            <div>
+            <div className="signup-field">
               <label>Password</label>
               <input
                 type="password"
@@ -148,7 +181,7 @@ class Signup extends Component {
               ></input>
             </div>
 
-            <div>
+            <div className="signup-field">
               <label>Confirm Password</label>
               <input
                 type="password"
@@ -158,8 +191,39 @@ class Signup extends Component {
                 required
               ></input>
             </div>
+
+            <div>
+              {this.state.accountType === "Restaurant Staff" && (
+                <div>
+                  <Dropdown
+                    direction="right"
+                    isOpen={this.state.dropdownRestaurantListOpen}
+                    toggle={this.toggleRestaurantDropdown}
+                  >
+                    <DropdownToggle caret>
+                      {this.state.dropdownRestaurantListValue}>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.state.restaurantList.map((restaurant, index) => {
+                        return (
+                          <DropdownItem
+                            key={index}
+                            onClick={this.handleSelectRestaurant}
+                          >
+                            {restaurant.rname}
+                          </DropdownItem>
+                        );
+                      })}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+              )}
+            </div>
+
             {!this.state.isSamePassword && (
-              <p>Your password and confirmation password do not match.</p>
+              <p className="invalid-field">
+                Your password and confirmation password do not match.
+              </p>
             )}
             <button>Submit</button>
           </Form>

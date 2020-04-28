@@ -21,6 +21,7 @@ app.use("/FDSManager", require("./api/FDSManager.js"));
 app.use("/Login", require("./api/Login.js"));
 app.use("/FTRider", require("./api/FTRider.js"));
 app.use("/PTRider", require("./api/PTRider.js"));
+app.use("/Signup", require("./api/Signup.js"));
 
 app.use(function (request, response, next) {
   response.header("Access-Control-Allow-Origin", "*");

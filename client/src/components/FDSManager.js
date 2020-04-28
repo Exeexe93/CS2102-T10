@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import '../styles/FDSManager.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-dropdown/style.css';
 
-import { Table } from "react-bootstrap";
+import { Table, DropdownButton } from "react-bootstrap";
 
 import {
     Navbar,
@@ -12,7 +13,12 @@ import {
     Jumbotron,
     Row,
     ListGroup,
-    Button
+    Button,
+    Input,
+    Dropdown,
+    DropdownToggle,
+    DropdownMenu,
+    DropdownItem
 } from 'reactstrap';
 
 class FDSManager extends Component {
@@ -25,6 +31,7 @@ class FDSManager extends Component {
             displayYear: '',
             year: '',
             month: '',
+            day: [],
             num: 0,
             orders: 0,
             cost: 0.00,
@@ -197,6 +204,30 @@ class FDSManager extends Component {
         } 
     }
 
+    handleButton = () => {
+        if (this.state.day.length == 0) {
+            let daysInMonth = 0
+            console.log("from handlebutton")
+            this.state.displayMonth && this.state.displayYear 
+                ? daysInMonth = new Date(this.state.displayYear, this.state.displayMonth, 0).getDate() 
+                : daysInMonth = 0
+            let i;
+            for (i = 1; i <= daysInMonth; i++) {
+                this.state.day.push(i);
+            }
+            console.log(this.state.day)
+            return this.state.day;
+        }
+    }
+
+    renderDayDropdown = (day, index) => {
+        console.log("not running")
+        console.log(day);
+        return (
+            <div key={index}>{day}</div>
+        )
+    }
+
     render() {
         console.log("FDSManager active");
         return (
@@ -234,6 +265,7 @@ class FDSManager extends Component {
                 <TabList id="tabs" defaultIndex={1} onSelect={index => console.log(index)}>
                     <Tab eventKey="customers">Customers</Tab>
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
+                    <Tab eventKey="location" title="Location">Location</Tab>
                 </TabList>
                 <TabPanel class="tab-panel">
                     <h2>Monthly Statistics</h2>
@@ -281,6 +313,16 @@ class FDSManager extends Component {
                 </TabPanel>
                 <TabPanel class="tab-panel" className="container">
                     <h2>Monthly Statistics</h2>
+                    <Table>
+                            <thead>
+                                <th>Report for Month</th>
+                                <th>Report for Year</th>
+                            </thead>
+                            <tbody>
+                                <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                            </tbody>
+                    </Table>
                     <Table striped bordered hover>
                         <thead>
                             <tr>
@@ -295,6 +337,23 @@ class FDSManager extends Component {
                         </thead>
                         <tbody>
                             {this.state.ridersStats.map(this.renderRidersStats)}
+                        </tbody>
+                    </Table>
+                </TabPanel>
+                <TabPanel class="tab-panel" className="container">
+                    <div className="col-2 text-left">
+                        <select></select>
+                    </div>
+                    <Table id="location">
+                        <thead>
+                            <th>Report for Day</th>
+                            <th>Report for Month</th>
+                            <th>Report for Year</th>
+                        </thead>
+                        <tbody>
+                            <td>{this.state.displayDay ? this.state.displayDay : 0}</td>
+                            <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                            <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
                         </tbody>
                     </Table>
                 </TabPanel>

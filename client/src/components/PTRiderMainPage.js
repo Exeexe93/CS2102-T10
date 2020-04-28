@@ -151,7 +151,7 @@ class PTRiderMainPage extends Component {
 
   render() {
     return (
-      <Container fluid className="container-fluid">
+      <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Part Time Rider</NavbarBrand>
           <Nav className="mr-auto">
@@ -206,7 +206,7 @@ class PTRiderMainPage extends Component {
           orders={this.state.completed_orders}
           title={"Completed Orders"}
         />
-      </Container>
+      </div>
     );
   }
 }

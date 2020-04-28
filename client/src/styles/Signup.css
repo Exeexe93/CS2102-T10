@@ -1,0 +1,14 @@
+.signup-container {
+  text-align: center;
+}
+
+.signup-title {
+  margin-bottom: 1em;
+  margin-top: 0.5em;
+}
+
+.signup-form-container {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}

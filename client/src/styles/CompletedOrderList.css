@@ -1,0 +1,13 @@
+.completed-order-list-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5em;
+  margin-top: 5em;
+}
+
+.completed-order-list-title {
+  text-align: center;
+  width: 100%;
+}

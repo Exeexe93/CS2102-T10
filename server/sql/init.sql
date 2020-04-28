@@ -146,6 +146,7 @@ CREATE TABLE Restaurants (
 	rest_id serial,
 	name varchar(255) not null,
     order_threshold money not null,
+	address varchar(255) not null,
     primary key(rest_id) 
 );
 
@@ -387,16 +388,16 @@ insert into PTRiders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63',
 insert into PTRiders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
 
 -- Restaurants
-insert into Restaurants (name, order_threshold) values ('Exeexe-Restaurant', '$11.47');
-insert into Restaurants (name, order_threshold) values ('Simonis and Sons', '$12.24');
-insert into Restaurants (name, order_threshold) values ('Vandervort, Rice and Lehner', '$12.62');
-insert into Restaurants (name, order_threshold) values ('Bergnaum LLC', '$14.06');
-insert into Restaurants (name, order_threshold) values ('Abbott-Harris', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Streich-Predovic', '$11.94');
-insert into Restaurants (name, order_threshold) values ('Streich, Brekke and Bednar', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Blick, Boyer and Schroeder', '$11.84');
-insert into Restaurants (name, order_threshold) values ('Kirlin-Jacobson', '$10.36');
-insert into Restaurants (name, order_threshold) values ('Ziemann-Halvorson', '$10.20');
+insert into Restaurants (name, order_threshold, address) values ('Exeexe-Restaurant', '$11.47', '10 Dempsey Rd, #01-23, S247700');
+insert into Restaurants (name, order_threshold, address) values ('Simonis and Sons', '$12.24', '#01-07 Alexis Condominium, 356 Alexandra Rd, S159948');
+insert into Restaurants (name, order_threshold, address) values ('Vandervort, Rice and Lehner', '$12.62', '1 Cuscaden Rd, Level 2 Regent Singapore, Cuscaden Rd, S249715');
+insert into Restaurants (name, order_threshold, address) values ('Bergnaum LLC', '$14.06', '260 Upper Bukit Timah Rd, #01-01, S588190');
+insert into Restaurants (name, order_threshold, address) values ('Abbott-Harris', '$11.18', '374 Bukit Batok Street 31, HDB, S650374');
+insert into Restaurants (name, order_threshold, address) values ('Streich-Predovic', '$11.94', '#01-01 Orchard Rendezvous Hotel, 1 Tanglin Rd, S247905');
+insert into Restaurants (name, order_threshold, address) values ('Streich, Brekke and Bednar', '$11.18', '118 Commonwealth Cres, #01-29, S140118');
+insert into Restaurants (name, order_threshold, address) values ('Blick, Boyer and Schroeder', '$11.84', 'Faber Peak Singapore, Level 2, 109 Mount Faber Road, 099203');
+insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobson', '$10.36', '421 River Valley Rd, S248320');
+insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
 insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);

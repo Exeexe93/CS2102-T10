@@ -29,6 +29,7 @@ class Signup extends Component {
       isSamePassword: true,
       restaurantList: [],
       chosenRestaurant: null,
+      isValidAccountId: true,
     };
   }
 
@@ -78,10 +79,13 @@ class Signup extends Component {
     this.checkAccountId();
     this.checkAccountId().then((res) => {
       const isValidAccountId = res[0].is_account_id_available;
-      // TODO CHECK ACCOUNT TYPE
-      if (isSamePassword) {
+
+      if (isSamePassword && isValidAccountId) {
+        // TODO CHECK ACCOUNT TYPE
+        // TODO CREATE ACCOUNT
       } else {
         this.setState({
+          isValidAccountId: isValidAccountId,
           isSamePassword: false,
         });
       }
@@ -248,6 +252,10 @@ class Signup extends Component {
               <p className="invalid-field">
                 Your password and confirmation password do not match.
               </p>
+            )}
+
+            {!this.state.isValidAccountId && (
+              <p className="invalid-field">Your account id is not available.</p>
             )}
             <button>Submit</button>
           </Form>

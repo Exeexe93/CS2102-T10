@@ -14,17 +14,46 @@ class Schedule extends Component {
 
     this.state = {
       scheduleComponent: this.props.location.isFTRider ? (
-        <FTSelectSchedule />
+        <FTSelectSchedule handleSubmit={this.handleFTSubmit} />
       ) : (
-        <PTSelectSchedule />
+        <PTSelectSchedule handleSubmit={this.handlePTSubmit} />
       ),
+      date: new Date(),
     };
   }
+
+  handleFTSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(this.state.date);
+
+    const selected = document.querySelectorAll(
+      'input[name="ft-shift"]:checked'
+    );
+    selected.forEach((selectedRadio) => {
+      console.log(selectedRadio.value);
+    });
+  };
+
+  handlePTSubmit = (e) => {
+    e.preventDefault();
+
+    console.log(this.state.date);
+
+    const checkboxes = document.querySelectorAll('input[name="time"]:checked');
+    checkboxes.forEach((checkbox) => {
+      console.log(checkbox.value);
+    });
+  };
 
   handleHomeNavigation = () => {
     this.props.history.push({
       pathname: "/",
     });
+  };
+
+  onDateSelection = (date) => {
+    this.setState({ date });
   };
 
   render() {
@@ -45,7 +74,11 @@ class Schedule extends Component {
         </Navbar>
 
         <div className="centered-container">
-          <Calendar className="react-calendar" />
+          <Calendar
+            className="react-calendar"
+            onClickDay={this.onDateSelection}
+            defaultValue={this.state.date}
+          />
         </div>
 
         {this.state.scheduleComponent}

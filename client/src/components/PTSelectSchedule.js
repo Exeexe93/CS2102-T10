@@ -5,14 +5,6 @@ import "../styles/PTSelectSchedule.css";
 class PTSelectSchedule extends Component {
   state = {};
 
-  handlePTSubmit = (e) => {
-    e.preventDefault();
-    const checkboxes = document.querySelectorAll('input[name="time"]:checked');
-    checkboxes.forEach((checkbox) => {
-      console.log(checkbox.value);
-    });
-  };
-
   render() {
     const checkboxContent = [
       { value: "10am", text: "10am to 11am" },
@@ -33,7 +25,7 @@ class PTSelectSchedule extends Component {
       <div className="PT-schedule-container">
         <h2>Select your preferred schedule!</h2>
 
-        <Form className="pt-schedule-form" onSubmit={this.handlePTSubmit}>
+        <Form className="pt-schedule-form" onSubmit={this.props.handleSubmit}>
           {checkboxContent.map((content, index) => (
             <div>
               <Label check>

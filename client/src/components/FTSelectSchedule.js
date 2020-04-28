@@ -4,10 +4,11 @@ import "../styles/FTSelectSchedule.css";
 
 class FTSelectSchedule extends Component {
   state = {};
+
   render() {
     return (
       <div>
-        <Form className="ft-schedule-form">
+        <Form className="ft-schedule-form" onSubmit={this.props.handleSubmit}>
           <FormGroup check>
             <Label check>
               <Input
@@ -51,6 +52,8 @@ class FTSelectSchedule extends Component {
               Shift 4: 1pm to 5pm and 6pm to 10pm
             </Label>
           </FormGroup>
+
+          <button>Submit</button>
         </Form>
       </div>
     );

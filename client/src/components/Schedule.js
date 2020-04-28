@@ -17,13 +17,13 @@ class Schedule extends Component {
         <FTSelectSchedule />
       ) : (
         <PTSelectSchedule />
-      )
+      ),
     };
   }
 
   handleHomeNavigation = () => {
     this.props.history.push({
-      pathname: "/"
+      pathname: "/",
     });
   };
 
@@ -49,10 +49,6 @@ class Schedule extends Component {
         </div>
 
         {this.state.scheduleComponent}
-
-        <div className="centered submit-button">
-          <button>Submit</button>
-        </div>
       </Container>
     );
   }

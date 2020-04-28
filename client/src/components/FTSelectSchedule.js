@@ -4,10 +4,21 @@ import "../styles/FTSelectSchedule.css";
 
 class FTSelectSchedule extends Component {
   state = {};
+
+  handleFTSubmit = (e) => {
+    e.preventDefault();
+    const selected = document.querySelectorAll(
+      'input[name="ft-shift"]:checked'
+    );
+    selected.forEach((selectedRadio) => {
+      console.log(selectedRadio.value);
+    });
+  };
+
   render() {
     return (
       <div>
-        <Form className="ft-schedule-form">
+        <Form className="ft-schedule-form" onSubmit={this.handleFTSubmit}>
           <FormGroup check>
             <Label check>
               <Input
@@ -51,6 +62,8 @@ class FTSelectSchedule extends Component {
               Shift 4: 1pm to 5pm and 6pm to 10pm
             </Label>
           </FormGroup>
+
+          <button>Submit</button>
         </Form>
       </div>
     );

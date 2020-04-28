@@ -1,14 +1,45 @@
+.invalid-field {
+  color: red;
+}
+
 .signup-container {
   text-align: center;
+  font-family: Helvetica, Arial;
 }
 
 .signup-title {
-  margin-bottom: 1em;
-  margin-top: 0.5em;
+  padding-bottom: 0.8em;
+  padding-top: 1em;
+  margin-bottom: 0em;
 }
 
 .signup-form-container {
   display: flex;
   justify-content: center;
   align-content: center;
+  padding-top: 1em;
+  padding-bottom: 1em;
+}
+
+.signup-form div {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+  align-items: center;
+}
+
+.signup-form button {
+  padding: 0.5em;
+  font-weight: bold;
+}
+
+.signup-field {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  padding-right: 1em;
+  padding-left: 1em;
+}
+
+.signup-field label {
+  margin-right: 1em;
 }

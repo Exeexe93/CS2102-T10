@@ -71,6 +71,20 @@ class FDSManager {
         )
     }
 
+    static queryDailyLocationStats(area, day, month, year, callback) {
+        db.query(
+            'select count(*) as num_orders, (SELECT EXTRACT(HOUR FROM o.order_placed)) as hour, p.area from Orders o join Places p using (oid) where (SELECT EXTRACT(DAY FROM o.order_placed)) = ($2)::double precision and (SELECT EXTRACT(MONTH from o.order_placed)) = ($3)::double precision and (SELECT EXTRACT(Year from o.order_placed)) = ($4)::double precision and p.area = $1 group by (p.area, (SELECT EXTRACT(HOUR FROM o.order_placed)))',
+            [area, day, month, year],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryDailyLocationStats:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
+
 }
 
 module.exports = FDSManager;

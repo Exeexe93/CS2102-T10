@@ -62,4 +62,18 @@ router.post('/monthlyRidersStats', (req, res) => {
         return res.json(result);
     })
 })
+
+router.post('/dailyLocationStats', (req, res) => {
+    let area = req.body.area;
+    let day = req.body.day;
+    let month = req.body.month;
+    let year = req.body.year;
+    FDSManagerModel.queryDailyLocationStats(area, day, month, year, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post dailyLocationStats");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})
 module.exports = router;

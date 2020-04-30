@@ -19,6 +19,7 @@ class Signup extends Component {
 
     this.state = {
       accountId: "",
+      name: "",
       password: "",
       confirmPassword: "",
       accountType: null,
@@ -50,18 +51,55 @@ class Signup extends Component {
       });
   };
 
-  checkAccountId = () => {
-    return fetch("http://localhost:3001/Signup/checkAvailableAccountId", {
+  isValidAccountId = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3001/Signup/checkAvailableAccountId",
+        {
+          method: "post",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ account_id: this.state.accountId }),
+        }
+      );
+      const res = response
+        ? response.json()
+        : [{ is_account_id_available: false }];
+
+      return res[0].is_account_id_available;
+    } catch (err) {
+      console.log(err);
+    }
+    // return fetch("http://localhost:3001/Signup/checkAvailableAccountId", {
+    //   method: "post",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({ account_id: this.state.accountId }),
+    // })
+    //   .then((res) => {
+    //     return res ? res.json() : [{ is_account_id_available: false }];
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+  };
+
+  createAccount = (
+    account_id,
+    name,
+    account_password,
+    account_type,
+    selected_restaurant = null
+  ) => {
+    fetch("http://localhost:3001/Signup/createAccount", {
       method: "post",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ account_id: this.state.accountId }),
-    })
-      .then((res) => {
-        return res ? res.json() : [{ is_account_id_available: false }];
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      body: JSON.stringify({
+        account_id: account_id,
+        name: name,
+        account_password: account_password,
+        account_type: account_type,
+        selected_restaurant: selected_restaurant,
+      }),
+    });
   };
 
   handleHomeNavigation = () => {
@@ -76,25 +114,67 @@ class Signup extends Component {
     const confirmPassword = e.target.confirmPassword.value;
     const isSamePassword = password === confirmPassword;
     // Check for valid account id (available for creation)
-    this.checkAccountId();
-    this.checkAccountId().then((res) => {
-      const isValidAccountId = res[0].is_account_id_available;
+    if (isValidAccountId) {
       const hasAccountType = this.state.accountType !== null;
-
-      if (isSamePassword && isValidAccountId && hasAccountType) {
-        // TODO CHECK ACCOUNT TYPE
-        // TODO CREATE ACCOUNT
+      const hasSelectedRestaurant = this.state.chosenRestaurant !== null;
+      if (isSamePassword && hasAccountType) {
+        this.createAccountType();
       } else {
         this.setState({
           isValidAccountId: isValidAccountId,
           isSamePassword: isSamePassword,
         });
       }
-    });
+    }
+  };
+
+  createAccountType = () => {
+    switch (this.state.accountType) {
+      case "Restaurant Staff":
+        if (hasSelectedRestaurant) {
+          this.createAccount(
+            this.state.accountId,
+            this.state.name,
+            this.state.password,
+            this.state.accountType,
+            this.state.chosenRestaurant
+          );
+        }
+        break;
+      case "Customer":
+      case "Full Time Rider":
+      case "Part Time Rider":
+      case "Manager":
+        this.createAccount(
+          this.state.accountId,
+          this.state.name,
+          this.state.password,
+          this.state.accountType
+        );
+        break;
+      default:
+        break;
+    }
   };
 
   handleSelectAccountType = (e) => {
-    const type = e.currentTarget.textContent;
+    let type = e.currentTarget.textContent;
+    switch (type) {
+      case "Restaurant Staff":
+        type = "RestaurantStaff";
+        break;
+      case "Full Time Rider":
+        type = "FTRider";
+        break;
+      case "Part Time Rider":
+        type = "PTRider";
+        break;
+      case "Manager":
+        type = "FDSManager";
+        break;
+      default:
+        break;
+    }
     this.setState({
       dropDownValue: "Account Type: " + type + " ",
       accountType: type,
@@ -103,7 +183,14 @@ class Signup extends Component {
 
   handleSelectRestaurant = (e) => {
     const restaurant = e.currentTarget.textContent;
-    this.setState({ chosenRestaurant: restaurant });
+    this.setState({
+      chosenRestaurant: restaurant,
+      dropdownRestaurantListValue: "Working at Restaurant: " + restaurant + " ",
+    });
+  };
+
+  handleChangeName = (e) => {
+    this.setState({ name: e.target.value });
   };
 
   handleChangeAccountId = (e) => {
@@ -195,6 +282,17 @@ class Signup extends Component {
                 name="accountId"
                 value={this.state.accountId}
                 onChange={this.handleChangeAccountId}
+                required
+              ></input>
+            </div>
+
+            <div className="signup-field">
+              <label>Name</label>
+              <input
+                type="text"
+                name="name"
+                value={this.state.name}
+                onChange={this.handleChangeName}
                 required
               ></input>
             </div>

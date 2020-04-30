@@ -29,7 +29,7 @@ class Signup extends Component {
       dropdownRestaurantListValue: "Select Restaurant ",
       isSamePassword: true,
       restaurantList: [],
-      chosenRestaurant: null,
+      chosenRestaurantId: null,
       isValidAccountId: true,
       promptChooseRestaurant: false,
     };
@@ -71,7 +71,7 @@ class Signup extends Component {
     name,
     account_password,
     account_type,
-    selected_restaurant = null
+    selected_restaurant_id = null
   ) => {
     fetch("http://localhost:3001/Signup/createAccount", {
       method: "post",
@@ -81,7 +81,7 @@ class Signup extends Component {
         name: name,
         account_password: account_password,
         account_type: account_type,
-        selected_restaurant: selected_restaurant,
+        selected_restaurant_id: selected_restaurant_id,
       }),
     });
   };
@@ -117,7 +117,7 @@ class Signup extends Component {
   };
 
   createAccountType = () => {
-    const hasSelectedRestaurant = this.state.chosenRestaurant !== null;
+    const hasSelectedRestaurant = this.state.chosenRestaurantId !== null;
     switch (this.state.accountType) {
       case "RestaurantStaff":
         if (hasSelectedRestaurant) {
@@ -126,7 +126,7 @@ class Signup extends Component {
             this.state.name,
             this.state.password,
             this.state.accountType,
-            this.state.chosenRestaurant
+            this.state.chosenRestaurantId
           );
         } else {
           this.setState({ promptChooseRestaurant: true });
@@ -177,8 +177,10 @@ class Signup extends Component {
 
   handleSelectRestaurant = (e) => {
     const restaurant = e.currentTarget.textContent;
+    const restaurantId = e.target.value;
+
     this.setState({
-      chosenRestaurant: restaurant,
+      chosenRestaurantId: restaurantId,
       dropdownRestaurantListValue: "Working at Restaurant: " + restaurant + " ",
     });
   };
@@ -329,6 +331,7 @@ class Signup extends Component {
                         return (
                           <DropdownItem
                             key={index}
+                            value={restaurant.rest_id}
                             onClick={this.handleSelectRestaurant}
                           >
                             {restaurant.rname}

@@ -3,7 +3,7 @@ const db = require("../database/index.js");
 class Signup {
   static getRestaurants(callback) {
     db.query(
-      "SELECT name AS rname, rest_id AS restId FROM Restaurants;",
+      "SELECT name AS rname, rest_id AS rest_id FROM Restaurants;",
       (err, res) => {
         if (err.error) {
           console.log("Could not obtain all restaurants: ", err);
@@ -33,7 +33,7 @@ class Signup {
     name,
     account_password,
     account_type,
-    selected_restaurant,
+    selected_restaurant_id,
     callback
   ) {
     db.query(
@@ -128,7 +128,7 @@ class Signup {
     if (account_type === "RestaurantStaff") {
       db.query(
         "INSERT INTO RestaurantStaffs (staff_id, rest_id) VALUES ($1, $2)",
-        [account_id, selected_restaurant],
+        [account_id, selected_restaurant_id],
         (err, res) => {
           if (err.error) {
             console.log("Could not create new Restaurant Staff Account: ", err);

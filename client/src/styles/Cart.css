@@ -1,0 +1,72 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3em;
+}
+
+.searchContainer {
+  display: flex;
+}
+
+.input {
+  width: 500px;
+  height: 70px;
+  font-size: 28px;
+
+  text-align: center;
+}
+
+.section {
+  margin-top: 1cm;
+}
+
+.body {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-centered {
+  text-align: center;
+}
+
+.orderListing {
+  width: 80%;
+}
+
+.order {
+  width: 1200px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+}
+
+.confirm_button {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.creditcards {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.paymentOption {
+  text-align: center;
+  align-items: center;
+  text-justify: center;
+}
+
+.addButton {
+  margin-top: 35px;
+}

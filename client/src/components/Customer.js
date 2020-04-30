@@ -59,7 +59,7 @@ class Customer extends Component {
 
     if (e.target.value !== "") {
       newList = currentList.filter((item) => {
-        const lowercaseItem = item.toLowerCase();
+        const lowercaseItem = item.name.toLowerCase();
         const filter = e.target.value.toLowerCase();
         return lowercaseItem.includes(filter);
       });

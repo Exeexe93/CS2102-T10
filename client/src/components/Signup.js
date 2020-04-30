@@ -86,6 +86,12 @@ class Signup extends Component {
     });
   };
 
+  navigateToLoginPage = () => {
+    this.props.history.push({
+      pathname: "/Login",
+    });
+  };
+
   handleHomeNavigation = () => {
     this.props.history.push({
       pathname: "/",
@@ -104,6 +110,8 @@ class Signup extends Component {
         const hasAccountType = this.state.accountType !== null;
         if (isSamePassword && hasAccountType) {
           this.createAccountType();
+          // Redirect to login page
+          this.navigateToLoginPage();
         } else {
           this.setState({
             isValidAccountId: isValidAccountId,

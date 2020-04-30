@@ -1,3 +1,6 @@
+-- Set the timestamp to this format
+-- ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
+
 DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
@@ -26,8 +29,6 @@ DROP TABLE IF EXISTS Consists CASCADE;
 DROP TABLE IF EXISTS Places CASCADE;
 DROP TABLE IF EXISTS Reviews CASCADE;
 
-
-
 CREATE TABLE Accounts (
 	account_id varchar(255) primary key,
 	account_pass varchar(50) not null,
@@ -40,13 +41,13 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
 	name varchar(255) not null,
-	reward_points integer,
+	reward_points double precision,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
-	card_number varchar(255),
+	card_number varchar(255) unique not null,
 	primary key (cid, card_number)
 	--foreign key (cid) references Customers on delete cascade
 );
@@ -217,10 +218,11 @@ CREATE TABLE Consists (
 );
 
 CREATE TABLE Places (
-	oid integer references Orders(oid),
+	oid serial references Orders(oid) on delete cascade,
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
-	payment_method varchar(255),
+	payment_method varchar(50),
+	card_number varchar(255) references CreditCards(card_number),
 	primary key(oid, cid)
 );
 

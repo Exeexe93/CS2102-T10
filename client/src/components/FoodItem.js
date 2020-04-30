@@ -1,6 +1,6 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import "../styles/FoodItem.css";
-import { GiShoppingCart } from "react-icons/gi";
+import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
 import { MdPerson } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button } from "react-bootstrap";
@@ -10,8 +10,10 @@ class FoodItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      message: "",
       foodItem: [],
       filtered: [],
+      orders: [],
       restaurantName: this.props.location.state.restaurantName,
       cid: this.props.location.state.cid,
       rest_id: this.props.location.state.rest_id,
@@ -20,6 +22,8 @@ class FoodItem extends Component {
 
     this.handleChange.bind(this);
   }
+
+  // Need to get the restaurant order threshold in order to allows the user to place orders.
 
   sortingFoodItem = (first, second) => {
     if (first.category === second.category) {
@@ -39,25 +43,28 @@ class FoodItem extends Component {
     }
   };
 
-  updateFoods = () => {
-    axios
-      .post("http://localhost:3001/Customer/GetRestaurantFoods", {
-        restaurantName: this.props.location.state.restaurantName,
-      })
-      .then((res) => {
-        let result = res.data;
-        let foodItem = [];
-        result.map((food) => {
-          foodItem.push({ ...food, amount: [], actualQuantity: 0 });
-        });
-        foodItem.sort((a, b) => this.sortingFoodItem(a, b));
-        this.setState({
-          foodItem,
-          filtered: foodItem,
-        });
-        this.generateQuantity();
-      })
-      .catch((err) => console.error(err));
+  updateFoods = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3001/Customer/GetRestaurantFoods",
+        {
+          restaurantName: this.props.location.state.restaurantName,
+        }
+      );
+      let result = res.data;
+      let foodItem = [];
+      result.map((food) => {
+        foodItem.push({ ...food, amount: [], actualQuantity: 0 });
+      });
+      foodItem.sort((a, b) => this.sortingFoodItem(a, b));
+      this.setState({
+        foodItem,
+        filtered: foodItem,
+      });
+      this.generateQuantity();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   componentDidMount() {
@@ -69,10 +76,7 @@ class FoodItem extends Component {
   };
 
   handleCart = () => {
-    this.props.history.push({
-      pathname: "/Cart",
-      cid: this.state.cid,
-    });
+    this.props.history.push("/Cart");
   };
 
   handleChange(e) {
@@ -81,7 +85,7 @@ class FoodItem extends Component {
 
     if (e.target.value !== "") {
       newList = currentList.filter((item) => {
-        const lowercaseItem = item.foodName.toLowerCase();
+        const lowercaseItem = item.name.toLowerCase();
         const filter = e.target.value.toLowerCase();
         return lowercaseItem.includes(filter);
       });
@@ -123,34 +127,100 @@ class FoodItem extends Component {
     });
   };
 
-  addOrder = (event) => {
-    event.preventDefault();
-    this.insertEmptyOrder().then((res) => {
-      let orderNumber = res;
-      this.state.foodItem.map((item) => {
-        if (item.actualQuantity > 0) {
-          this.addFood(item, orderNumber);
+  updateOrderIfExists = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/CheckOrderExists",
+        {
+          cid: this.state.cid,
+          rest_id: this.state.rest_id,
         }
+      );
+
+      if (response.data.length !== 0) {
+        var cartItems = response.data;
+        console.log(cartItems);
+
+        this.state.foodItem.map((item, index) => {
+          if (item.actualQuantity > 0) {
+            let isFound = false;
+            cartItems.map((cartItem) => {
+              if (item.fid === cartItem.fid) {
+                // Update oid, fid, quantity, total_price to be continued
+                this.updateFood(
+                  cartItem.oid,
+                  cartItem.fid,
+                  parseInt(cartItem.quantity) + item.actualQuantity,
+                  this.addCost(
+                    cartItem.total_price,
+                    this.calculateCost(item.price, item.actualQuantity)
+                  )
+                );
+                isFound = true;
+              }
+            });
+            if (!isFound && item.actualQuantity > 0) {
+              this.addFood(item, cartItems[0].oid, index);
+            }
+          }
+        });
+        console.log("exists");
+      } else {
+        const orderNumber = await this.insertEmptyOrder();
+        await this.placeOrder(orderNumber, this.state.cid);
+        this.state.foodItem.map(async (item, index) => {
+          if (item.actualQuantity > 0) {
+            await this.addFood(item, orderNumber, index);
+          }
+        });
+      }
+
+      this.setState({
+        message: "Order has been added into the cart!",
       });
-    });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  insertEmptyOrder = () => {
+  addOrder = (event) => {
+    event.preventDefault();
+    // Check whether there are other order that has not paid which same restaurant as current
+    this.updateOrderIfExists();
+  };
+
+  insertEmptyOrder = async (oid, fid, quantity, price) => {
     let order = {
       rest_id: this.state.rest_id,
       order_status: "cart",
     };
-    return axios
-      .post("http://localhost:3001/Customer/AddOrder", order)
-      .then((res) => {
-        return res.data.num;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/AddOrder",
+        order
+      );
+      console.log(response);
+      return response.data.num;
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  addFood = (item, orderNumber) => {
+  placeOrder = async (oid, cid) => {
+    let details = {
+      oid: oid,
+      cid: cid,
+    };
+    try {
+      await axios.post("http://localhost:3001/Customer/PlaceOrder", details);
+      console.log("Place order");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  addFood = async (item, orderNumber, index) => {
     let total_price = this.calculateCost(item.price, item.actualQuantity);
     let food = {
       oid: orderNumber,
@@ -158,16 +228,49 @@ class FoodItem extends Component {
       quantity: item.actualQuantity,
       total_price: total_price,
     };
-    axios
-      .post("http://localhost:3001/Customer/AddFood", food)
-      .then(() => console.log("Add " + item.name))
-      .catch((err) => {
-        console.error(err);
+    try {
+      await axios.post("http://localhost:3001/Customer/AddFood", food);
+      var foodItem = this.state.foodItem;
+      foodItem[index].actualQuantity = 0;
+      this.setState({
+        foodItem,
       });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  updateFood = async (oid, fid, quantity, total_price) => {
+    try {
+      await axios.post("http://localhost:3001/Customer/UpdateFood", {
+        oid: oid,
+        fid: fid,
+        quantity: quantity,
+        total_price: total_price,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  removeDollarSign(value) {
+    return value.slice(1);
+  }
+
+  addCost = (total_price, priceToBeAdded) => {
+    var result = parseFloat(this.removeDollarSign(total_price));
+    var price = parseFloat(this.removeDollarSign(priceToBeAdded));
+    result += price;
+    var formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    return formatter.format(result);
   };
 
   calculateCost = (cost, quantity) => {
-    const costInNum = parseFloat(cost.slice(1));
+    const costInNum = parseFloat(this.removeDollarSign(cost));
     const total_price = costInNum * quantity;
     var formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -211,16 +314,17 @@ class FoodItem extends Component {
             />
           </div>
         </div>
+
         <div className="separator"></div>
         <ListGroup className="foodList">
           <ListGroup horizontal>
             <ListGroup.Item className="listName">Food Name</ListGroup.Item>
             <ListGroup.Item className="listPrice">Price</ListGroup.Item>
+            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
             <ListGroup.Item className="listQuantityLeft">
               Quantity Left
             </ListGroup.Item>
-            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-            <ListGroup.Item className="listLimit">Limit</ListGroup.Item>
+            {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
             <ListGroup.Item className="listCategory">Category</ListGroup.Item>
           </ListGroup>
           {this.state.filtered.map((item, index) => (
@@ -229,13 +333,11 @@ class FoodItem extends Component {
               <ListGroup.Item className="listPrice">
                 {item.price}
               </ListGroup.Item>
-              <ListGroup.Item className="listQuantityLeft">
-                {item.quantity}
-              </ListGroup.Item>
               <ListGroup.Item className="listQuantity">
                 <Form.Group controlId={item.name}>
                   <Form.Control
                     as="select"
+                    value={this.state.foodItem[index].actualQuantity}
                     onChange={(value) => this.handleQuantity(value, index)}
                   >
                     {item.amount.map((num, index) => {
@@ -248,15 +350,21 @@ class FoodItem extends Component {
                   </Form.Control>
                 </Form.Group>
               </ListGroup.Item>
-              <ListGroup.Item className="listLimit">
+              <ListGroup.Item className="listQuantityLeft">
                 {item.food_limit}
               </ListGroup.Item>
+              {/* <ListGroup.Item className="listLimit">
+                {item.food_limit}
+              </ListGroup.Item> */}
               <ListGroup.Item className="listCategory">
                 {item.category}
               </ListGroup.Item>
             </ListGroup>
           ))}
           <div className="separator"></div>
+          {this.state.message && (
+            <h4 className="message">{this.state.message}</h4>
+          )}
           <Button
             type="button"
             className="submitButton"

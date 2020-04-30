@@ -141,7 +141,7 @@ class FoodItem extends Component {
         var cartItems = response.data;
         console.log(cartItems);
 
-        this.state.foodItem.map((item) => {
+        this.state.foodItem.map((item, index) => {
           if (item.actualQuantity > 0) {
             let isFound = false;
             cartItems.map((cartItem) => {
@@ -163,7 +163,7 @@ class FoodItem extends Component {
               }
             });
             if (!isFound && item.actualQuantity > 0) {
-              this.addFood(item, cartItems[0].oid);
+              this.addFood(item, cartItems[0].oid, index);
             }
           }
         });
@@ -171,9 +171,9 @@ class FoodItem extends Component {
       } else {
         const orderNumber = await this.insertEmptyOrder();
         await this.placeOrder(orderNumber, this.state.cid);
-        this.state.foodItem.map(async (item) => {
+        this.state.foodItem.map(async (item, index) => {
           if (item.actualQuantity > 0) {
-            await this.addFood(item, orderNumber);
+            await this.addFood(item, orderNumber, index);
           }
         });
       }
@@ -223,7 +223,7 @@ class FoodItem extends Component {
     }
   };
 
-  addFood = async (item, orderNumber) => {
+  addFood = async (item, orderNumber, index) => {
     let total_price = this.calculateCost(item.price, item.actualQuantity);
     let food = {
       oid: orderNumber,
@@ -233,6 +233,11 @@ class FoodItem extends Component {
     };
     try {
       await axios.post("http://localhost:3001/Customer/AddFood", food);
+      var foodItem = this.state.foodItem;
+      foodItem[index].actualQuantity = 0;
+      this.setState({
+        foodItem,
+      });
     } catch (err) {
       console.error(err);
     }
@@ -335,6 +340,7 @@ class FoodItem extends Component {
                 <Form.Group controlId={item.name}>
                   <Form.Control
                     as="select"
+                    value={this.state.foodItem[index].actualQuantity}
                     onChange={(value) => this.handleQuantity(value, index)}
                   >
                     {item.amount.map((num, index) => {

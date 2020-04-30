@@ -43,25 +43,28 @@ class FoodItem extends Component {
     }
   };
 
-  updateFoods = () => {
-    axios
-      .post("http://localhost:3001/Customer/GetRestaurantFoods", {
-        restaurantName: this.props.location.state.restaurantName,
-      })
-      .then((res) => {
-        let result = res.data;
-        let foodItem = [];
-        result.map((food) => {
-          foodItem.push({ ...food, amount: [], actualQuantity: 0 });
-        });
-        foodItem.sort((a, b) => this.sortingFoodItem(a, b));
-        this.setState({
-          foodItem,
-          filtered: foodItem,
-        });
-        this.generateQuantity();
-      })
-      .catch((err) => console.error(err));
+  updateFoods = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3001/Customer/GetRestaurantFoods",
+        {
+          restaurantName: this.props.location.state.restaurantName,
+        }
+      );
+      let result = res.data;
+      let foodItem = [];
+      result.map((food) => {
+        foodItem.push({ ...food, amount: [], actualQuantity: 0 });
+      });
+      foodItem.sort((a, b) => this.sortingFoodItem(a, b));
+      this.setState({
+        foodItem,
+        filtered: foodItem,
+      });
+      this.generateQuantity();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   componentDidMount() {
@@ -124,63 +127,63 @@ class FoodItem extends Component {
     });
   };
 
-  updateOrderIfExists = () => {
-    axios
-      .post("http://localhost:3001/Customer/CheckOrderExists", {
-        cid: this.state.cid,
-        rest_id: this.state.rest_id,
-      })
-      .then((res) => {
-        if (res.data.length !== 0) {
-          var cartItems = res.data;
-          console.log(cartItems);
+  updateOrderIfExists = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/CheckOrderExists",
+        {
+          cid: this.state.cid,
+          rest_id: this.state.rest_id,
+        }
+      );
 
-          this.state.foodItem.map((item) => {
-            if (item.actualQuantity > 0) {
-              let isFound = false;
-              cartItems.map((cartItem) => {
-                if (item.fid === cartItem.fid) {
-                  console.log("found");
-                  console.log(item.fid);
-                  console.log(cartItem.fid);
-                  // Update oid, fid, quantity, total_price to be continued
-                  this.updateFood(
-                    cartItem.oid,
-                    cartItem.fid,
-                    parseInt(cartItem.quantity) + item.actualQuantity,
-                    this.addCost(
-                      cartItem.total_price,
-                      this.calculateCost(item.price, item.actualQuantity)
-                    )
-                  );
-                  isFound = true;
-                }
-              });
-              if (!isFound && item.actualQuantity > 0) {
-                this.addFood(item, cartItems[0].oid);
-              }
-            }
-          });
-          console.log("exists");
-        } else {
-          this.insertEmptyOrder().then((res) => {
-            let orderNumber = res;
-            this.placeOrder(orderNumber, this.state.cid);
-            this.state.foodItem.map((item) => {
-              if (item.actualQuantity > 0) {
-                this.addFood(item, orderNumber);
+      if (response.data.length !== 0) {
+        var cartItems = response.data;
+        console.log(cartItems);
+
+        this.state.foodItem.map((item) => {
+          if (item.actualQuantity > 0) {
+            let isFound = false;
+            cartItems.map((cartItem) => {
+              if (item.fid === cartItem.fid) {
+                console.log("found");
+                console.log(item.fid);
+                console.log(cartItem.fid);
+                // Update oid, fid, quantity, total_price to be continued
+                this.updateFood(
+                  cartItem.oid,
+                  cartItem.fid,
+                  parseInt(cartItem.quantity) + item.actualQuantity,
+                  this.addCost(
+                    cartItem.total_price,
+                    this.calculateCost(item.price, item.actualQuantity)
+                  )
+                );
+                isFound = true;
               }
             });
-          });
-        }
-
-        this.setState({
-          message: "Order has been added into the cart!",
+            if (!isFound && item.actualQuantity > 0) {
+              this.addFood(item, cartItems[0].oid);
+            }
+          }
         });
-      })
-      .catch((err) => {
-        console.error(err);
+        console.log("exists");
+      } else {
+        const orderNumber = await this.insertEmptyOrder();
+        await this.placeOrder(orderNumber, this.state.cid);
+        this.state.foodItem.map(async (item) => {
+          if (item.actualQuantity > 0) {
+            await this.addFood(item, orderNumber);
+          }
+        });
+      }
+
+      this.setState({
+        message: "Order has been added into the cart!",
       });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   addOrder = (event) => {
@@ -189,35 +192,38 @@ class FoodItem extends Component {
     this.updateOrderIfExists();
   };
 
-  insertEmptyOrder = (oid, fid, quantity, price) => {
+  insertEmptyOrder = async (oid, fid, quantity, price) => {
     let order = {
       rest_id: this.state.rest_id,
       order_status: "cart",
     };
-    return axios
-      .post("http://localhost:3001/Customer/AddOrder", order)
-      .then((res) => {
-        return res.data.num;
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/AddOrder",
+        order
+      );
+      console.log(response);
+      return response.data.num;
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  placeOrder = (oid, cid) => {
+  placeOrder = async (oid, cid) => {
     let details = {
       oid: oid,
       cid: cid,
     };
-    axios
-      .post("http://localhost:3001/Customer/PlaceOrder", details)
-      .then(() => console.log("Place order"))
-      .catch((err) => {
-        console.error(err);
-      });
+    try {
+      await axios.post("http://localhost:3001/Customer/PlaceOrder", details);
+      console.log("Place order");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  addFood = (item, orderNumber) => {
+  addFood = async (item, orderNumber) => {
     let total_price = this.calculateCost(item.price, item.actualQuantity);
     let food = {
       oid: orderNumber,
@@ -225,26 +231,24 @@ class FoodItem extends Component {
       quantity: item.actualQuantity,
       total_price: total_price,
     };
-    axios
-      .post("http://localhost:3001/Customer/AddFood", food)
-      .then(() => console.log("Add " + item.name))
-      .catch((err) => {
-        console.error(err);
-      });
+    try {
+      await axios.post("http://localhost:3001/Customer/AddFood", food);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  updateFood = (oid, fid, quantity, total_price) => {
-    axios
-      .post("http://localhost:3001/Customer/UpdateFood", {
+  updateFood = async (oid, fid, quantity, total_price) => {
+    try {
+      await axios.post("http://localhost:3001/Customer/UpdateFood", {
         oid: oid,
         fid: fid,
         quantity: quantity,
         total_price: total_price,
-      })
-      .then((res) => console.log(res))
-      .catch((err) => {
-        console.error(err);
       });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   removeDollarSign(value) {
@@ -314,11 +318,11 @@ class FoodItem extends Component {
           <ListGroup horizontal>
             <ListGroup.Item className="listName">Food Name</ListGroup.Item>
             <ListGroup.Item className="listPrice">Price</ListGroup.Item>
+            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
             <ListGroup.Item className="listQuantityLeft">
               Quantity Left
             </ListGroup.Item>
-            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-            <ListGroup.Item className="listLimit">Limit</ListGroup.Item>
+            {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
             <ListGroup.Item className="listCategory">Category</ListGroup.Item>
           </ListGroup>
           {this.state.filtered.map((item, index) => (
@@ -326,9 +330,6 @@ class FoodItem extends Component {
               <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
               <ListGroup.Item className="listPrice">
                 {item.price}
-              </ListGroup.Item>
-              <ListGroup.Item className="listQuantityLeft">
-                {item.quantity}
               </ListGroup.Item>
               <ListGroup.Item className="listQuantity">
                 <Form.Group controlId={item.name}>
@@ -346,9 +347,12 @@ class FoodItem extends Component {
                   </Form.Control>
                 </Form.Group>
               </ListGroup.Item>
-              <ListGroup.Item className="listLimit">
+              <ListGroup.Item className="listQuantityLeft">
                 {item.food_limit}
               </ListGroup.Item>
+              {/* <ListGroup.Item className="listLimit">
+                {item.food_limit}
+              </ListGroup.Item> */}
               <ListGroup.Item className="listCategory">
                 {item.category}
               </ListGroup.Item>

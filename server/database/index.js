@@ -34,7 +34,7 @@ class Database {
     });
   }
 
-transaction(queries, values) {
+transaction(queries, values, callback) {
     (async () => {
       const db = await this.pool.connect()
       try {
@@ -55,9 +55,13 @@ transaction(queries, values) {
         await db.query('ROLLBACK')
         throw e
       } finally {
+        callback({}, "Success Transaction.");
         db.release()
       }
-    })().catch(e => console.error(e.stack))
+    })().catch(e => {
+      console.error(e.stack)
+      return callback({ error: "Database error... Transaction failed." }, null);
+    })
   }
 
   end() {

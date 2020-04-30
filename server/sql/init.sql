@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS Salaries CASCADE;
 DROP TABLE IF EXISTS Orders CASCADE;
 DROP TABLE IF EXISTS Restaurants CASCADE;
 DROP TABLE IF EXISTS RestaurantStaffs CASCADE;
-DROP TABLE IF EXISTS Menus CASCADE;
 DROP TABLE IF EXISTS Foods CASCADE;
 DROP TABLE IF EXISTS Consists CASCADE;
 DROP TABLE IF EXISTS Places CASCADE;
@@ -191,26 +190,20 @@ CREATE TABLE RestaurantStaffs (
     primary key(staff_id)
 );
 
-CREATE TABLE Menus (
-	menu_id serial primary key,
-    rest_id serial,
-	foreign key (rest_id) references Restaurants on delete cascade
-);
-
 CREATE TABLE Foods (
     fid serial primary key,
-    menu_id serial,
+    rest_id serial,
     name varchar(255) not null,
     price money not null,
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
-    foreign key (menu_id) references Menus on delete cascade
+    foreign key (rest_id) references Restaurants on delete cascade
 );
 
 CREATE TABLE Consists (
-	oid integer references Orders(oid) on delete cascade,
-	fid integer references Foods(fid) on delete cascade,
+	oid serial references Orders(oid) on delete cascade,
+	fid serial references Foods(fid) on delete cascade,
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
@@ -497,18 +490,6 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (27, '68973
 insert into Salaries (sid, rid, start_date, end_date, amount) values (28, '16710734-c5dc-460c-a7ad-54a7d3c92a63', '2020-02-01 15:51:25', '2020-03-01 16:15:50', '$3947.52');
 insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
 
--- Menus
-insert into Menus (menu_id, rest_id) values (1, 1);
-insert into Menus (menu_id, rest_id) values (2, 2);
-insert into Menus (menu_id, rest_id) values (3, 3);
-insert into Menus (menu_id, rest_id) values (4, 4);
-insert into Menus (menu_id, rest_id) values (5, 5);
-insert into Menus (menu_id, rest_id) values (6, 6);
-insert into Menus (menu_id, rest_id) values (7, 7);
-insert into Menus (menu_id, rest_id) values (8, 8);
-insert into Menus (menu_id, rest_id) values (9, 9);
-insert into Menus (menu_id, rest_id) values (10, 10);
-
 -- Orderscart 
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null);
@@ -534,16 +515,16 @@ insert into Places (oid, cid, address, area, payment_method) values (9, '327b255
 insert into Places (oid, cid, address, area, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'Central', 'credit-card');
 
 -- Foods
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
 
 -- Rates
 insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');
@@ -561,6 +542,7 @@ insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6
 insert into Consists (oid, fid, quantity, total_price) values (1, 1, 2, '$2.40');
 insert into Consists (oid, fid, quantity, total_price) values (1, 5, 2, '$4.20');
 insert into Consists (oid, fid, quantity, total_price) values (1, 3, 1, '$10.10');
+insert into Consists (oid, fid, quantity, total_price) values (2, 1, 2, '$2.40');
 insert into Consists (oid, fid, quantity, total_price) values (2, 4, 1, '$5.10');
 insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');

@@ -237,7 +237,7 @@ CREATE TABLE Reviews (
 CREATE OR REPLACE FUNCTION check_max_shift_hour()
    RETURNS trigger AS $$
 BEGIN
-   If NEW.end_time - NEW.start_time > 4 THEN
+   If EXTRACT(HOUR FROM (SELECT NEW.end_time - NEW.start_time)) > 4 THEN
 RAISE exception 'Given start(%) and end time(%) are more than 4 hours.', NEW.start_time, NEW.end_time;
   END IF;
   RETURN NEW;
@@ -462,6 +462,15 @@ insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-966
 -- insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
 -- insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
 -- insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
+
+INSERT into Shift (work_hour, start_time, end_time) values (4, '10:00:00', '14:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '15:00:00', '19:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '11:00:00', '15:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '16:00:00', '20:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '12:00:00', '16:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '17:00:00', '21:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '13:00:00', '17:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '18:00:00', '22:00:00');
 
 -- Contains
 

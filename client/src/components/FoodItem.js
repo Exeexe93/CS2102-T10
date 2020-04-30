@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
-import { GiShoppingCart } from "react-icons/gi";
+import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
 import { MdPerson } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button } from "react-bootstrap";
@@ -10,8 +10,10 @@ class FoodItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      message: "",
       foodItem: [],
       filtered: [],
+      orders: [],
       restaurantName: this.props.location.state.restaurantName,
       cid: this.props.location.state.cid,
       rest_id: this.props.location.state.rest_id,
@@ -20,6 +22,8 @@ class FoodItem extends Component {
 
     this.handleChange.bind(this);
   }
+
+  // Need to get the restaurant order threshold in order to allows the user to place orders.
 
   sortingFoodItem = (first, second) => {
     if (first.category === second.category) {
@@ -69,10 +73,7 @@ class FoodItem extends Component {
   };
 
   handleCart = () => {
-    this.props.history.push({
-      pathname: "/Cart",
-      cid: this.state.cid,
-    });
+    this.props.history.push("/Cart");
   };
 
   handleChange(e) {
@@ -123,19 +124,72 @@ class FoodItem extends Component {
     });
   };
 
-  addOrder = (event) => {
-    event.preventDefault();
-    this.insertEmptyOrder().then((res) => {
-      let orderNumber = res;
-      this.state.foodItem.map((item) => {
-        if (item.actualQuantity > 0) {
-          this.addFood(item, orderNumber);
+  updateOrderIfExists = () => {
+    axios
+      .post("http://localhost:3001/Customer/CheckOrderExists", {
+        cid: this.state.cid,
+        rest_id: this.state.rest_id,
+      })
+      .then((res) => {
+        if (res.data.length !== 0) {
+          var cartItems = res.data;
+          console.log(cartItems);
+
+          this.state.foodItem.map((item) => {
+            if (item.actualQuantity > 0) {
+              let isFound = false;
+              cartItems.map((cartItem) => {
+                if (item.fid === cartItem.fid) {
+                  console.log("found");
+                  console.log(item.fid);
+                  console.log(cartItem.fid);
+                  // Update oid, fid, quantity, total_price to be continued
+                  this.updateFood(
+                    cartItem.oid,
+                    cartItem.fid,
+                    parseInt(cartItem.quantity) + item.actualQuantity,
+                    this.addCost(
+                      cartItem.total_price,
+                      this.calculateCost(item.price, item.actualQuantity)
+                    )
+                  );
+                  isFound = true;
+                }
+              });
+              if (!isFound && item.actualQuantity > 0) {
+                this.addFood(item, cartItems[0].oid);
+              }
+            }
+          });
+          console.log("exists");
+        } else {
+          this.insertEmptyOrder().then((res) => {
+            let orderNumber = res;
+            this.placeOrder(orderNumber, this.state.cid);
+            this.state.foodItem.map((item) => {
+              if (item.actualQuantity > 0) {
+                this.addFood(item, orderNumber);
+              }
+            });
+          });
         }
+
+        this.setState({
+          message: "Order has been added into the cart!",
+        });
+      })
+      .catch((err) => {
+        console.error(err);
       });
-    });
   };
 
-  insertEmptyOrder = () => {
+  addOrder = (event) => {
+    event.preventDefault();
+    // Check whether there are other order that has not paid which same restaurant as current
+    this.updateOrderIfExists();
+  };
+
+  insertEmptyOrder = (oid, fid, quantity, price) => {
     let order = {
       rest_id: this.state.rest_id,
       order_status: "cart",
@@ -145,6 +199,19 @@ class FoodItem extends Component {
       .then((res) => {
         return res.data.num;
       })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  placeOrder = (oid, cid) => {
+    let details = {
+      oid: oid,
+      cid: cid,
+    };
+    axios
+      .post("http://localhost:3001/Customer/PlaceOrder", details)
+      .then(() => console.log("Place order"))
       .catch((err) => {
         console.error(err);
       });
@@ -166,8 +233,38 @@ class FoodItem extends Component {
       });
   };
 
+  updateFood = (oid, fid, quantity, total_price) => {
+    axios
+      .post("http://localhost:3001/Customer/UpdateFood", {
+        oid: oid,
+        fid: fid,
+        quantity: quantity,
+        total_price: total_price,
+      })
+      .then((res) => console.log(res))
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  removeDollarSign(value) {
+    return value.slice(1);
+  }
+
+  addCost = (total_price, priceToBeAdded) => {
+    var result = parseFloat(this.removeDollarSign(total_price));
+    var price = parseFloat(this.removeDollarSign(priceToBeAdded));
+    result += price;
+    var formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    return formatter.format(result);
+  };
+
   calculateCost = (cost, quantity) => {
-    const costInNum = parseFloat(cost.slice(1));
+    const costInNum = parseFloat(this.removeDollarSign(cost));
     const total_price = costInNum * quantity;
     var formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -211,6 +308,7 @@ class FoodItem extends Component {
             />
           </div>
         </div>
+
         <div className="separator"></div>
         <ListGroup className="foodList">
           <ListGroup horizontal>
@@ -257,6 +355,9 @@ class FoodItem extends Component {
             </ListGroup>
           ))}
           <div className="separator"></div>
+          {this.state.message && (
+            <h4 className="message">{this.state.message}</h4>
+          )}
           <Button
             type="button"
             className="submitButton"

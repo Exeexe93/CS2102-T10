@@ -10,25 +10,22 @@ router.get("/", function (req, res) {
   });
 });
 
-router.post("/GetProfile", function (req, res) {
-  const name = req.body.name;
-  Customer.getProfile(name, (err, profileInfo) => {
+router.post("/GetRewardPoints", function (req, res) {
+  Customer.getRewardPoints(req.body.name, (err, profileInfo) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(profileInfo);
   });
 });
 
 router.post("/GetOrders", function (req, res) {
-  const cid = req.body.cid;
-  Customer.getOrders(cid, (err, orders) => {
+  Customer.getOrders(req.body.cid, (err, orders) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(orders);
   });
 });
 
 router.post("/GetCreditCards", function (req, res) {
-  const cid = req.body.cid;
-  Customer.getCreditCards(cid, (err, cards) => {
+  Customer.getCreditCards(req.body.cid, (err, cards) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(cards);
   });
@@ -62,6 +59,13 @@ router.post("/AddOrder", function (req, res) {
   });
 });
 
+router.post("/PlaceOrder", function (req, res) {
+  Customer.placeOrder(req.body.oid, req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 router.post("/AddFood", function (req, res) {
   Customer.addFood(
     req.body.oid,
@@ -82,4 +86,96 @@ router.post("/GetCartOrder", function (req, res) {
   });
 });
 
+router.post("/DeleteFood", function (req, res) {
+  Customer.deleteFood(req.body.oid, req.body.fid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/UpdateFood", function (req, res) {
+  Customer.updateFood(
+    req.body.oid,
+    req.body.fid,
+    req.body.quantity,
+    req.body.total_price,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
+router.post("/UpdateOrder", function (req, res) {
+  Customer.updateOrder(
+    req.body.oid,
+    req.body.order_status,
+    req.body.total_price,
+    req.body.delivery_fee,
+    req.body.promo_used,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
+router.post("/GetTopFiveCreditCards", function (req, res) {
+  Customer.getTopFiveCreditCards(req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/DeleteOrder", function (req, res) {
+  Customer.deleteOrder(req.body.oid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/UpdatePlaceTable", function (req, res) {
+  Customer.updatePlaceTable(
+    req.body.oid,
+    req.body.cid,
+    req.body.address,
+    req.body.payment_method,
+    req.body.card_number,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
+router.post("/UpdateRewardPoint", function (req, res) {
+  Customer.updateRewardPoint(
+    req.body.cid,
+    req.body.reward_points,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
+router.post("/CheckOrderExists", function (req, res) {
+  Customer.checkOrderExists(req.body.cid, req.body.rest_id, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/UpdateFood", function (req, res) {
+  Customer.updateFood(
+    req.body.oid,
+    req.body.fid,
+    req.body.quantity,
+    req.body.total_price,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
 module.exports = router;

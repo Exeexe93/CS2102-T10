@@ -49,4 +49,12 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
+// const db = require("./database/index.js");
+// db.query(
+//   "SELECT name, SUM(Consists.quantity) as TotalQuantity FROM Foods INNER JOIN Consists USING (fid) WHERE rest_id = 1 GROUP BY fid ORDER BY totalQuantity desc LIMIT 5",
+//   (value, output) => {
+//     console.log(output);
+//   },
+// );
+
 module.exports = app;

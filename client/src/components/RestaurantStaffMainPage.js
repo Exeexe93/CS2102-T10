@@ -14,26 +14,35 @@ class RestaurantStaffMainPage extends Component {
         super(props);
         this.state = {
             foodItems: [],
-            restaurantName: "Mr. Eng Pte Ltd"
+            restaurantDetails: []
         }
         this.handleSubmit.bind(this);
         this.handleDelete.bind(this);
     }
     
-    getFoodItems() {
-        fetch("http://localhost:3001/RestaurantStaff")
-        .then(res => res.json())
-        .then(res => this.setState({ foodItems: res }));
-      };
+    getRestaurantStaffDetails() {
+        let data = { staff_id: this.props.location.state.account_id};
+        axios.post('http://localhost:3001/RestaurantStaff/getRestaurantStaffDetails', data)
+        .then(res => this.setState({ restaurantDetails: res.data[0] }, () => {
+            this.getFoodItems();
+        }));
+    }
     
-    componentWillMount() {
-        this.getFoodItems();
+    getFoodItems() {
+        let data = { rest_id: this.state.restaurantDetails.rest_id };
+        axios.post('http://localhost:3001/RestaurantStaff/getFoodItems', data)
+        .then(res => this.setState({ foodItems: res.data }));
+      };
+
+    componentDidMount() {
+        this.getRestaurantStaffDetails();
     }
     
     handleSubmit = (event) => {
         let form = event.target;
         event.preventDefault();
         let newFood = {
+            rest_id: this.state.restaurantDetails.rest_id,
             name: form.elements.foodName.value,
             price: '$' + parseFloat(form.elements.foodPrice.value).toFixed(2),
             quantity: Math.round(form.elements.foodQuantity.value),
@@ -83,10 +92,13 @@ class RestaurantStaffMainPage extends Component {
             <div className="content">
                 <div className="container">
                     <div className="header">
-                        <h1> {this.state.restaurantName} {' '}
-                            <Link to='/RestaurantSummaryPage'>
-                                <Button variant={"primary"}>Summary Info</Button>
-                            </Link>
+                        <h1> {this.state.restaurantDetails.name} {' '}
+                        <Link to={{
+                            pathname: '/RestaurantSummaryPage',
+                            state: { account_id: this.props.location.state.account_id, rest_id: this.state.restaurantDetails.rest_id }
+                            }}>
+                            <Button variant={"primary"}>Summary Info</Button>
+                        </Link>
                         </h1>
                         <br/>
                     </div>
@@ -96,23 +108,23 @@ class RestaurantStaffMainPage extends Component {
                                 <Row>
                                     <Col>
                                         <Form.Label>Food: </Form.Label>
-                                        <Form.Control name = "foodName" required="true" type="text" placeholder="Food name"/>
+                                        <Form.Control name = "foodName" required={true} type="text" placeholder="Food name"/>
                                     </Col>
                                     <Col>
                                         <Form.Label>Price: </Form.Label>
-                                        <Form.Control name = "foodPrice" required="true" type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price"/>
+                                        <Form.Control name = "foodPrice" required={true} type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price"/>
                                     </Col>
                                     <Col>
                                         <Form.Label>Quantity: </Form.Label>
-                                        <Form.Control name = "foodQuantity" required="true" type="number" min="1" placeholder="Food quantity"/>
+                                        <Form.Control name = "foodQuantity" required={true} type="number" min="1" placeholder="Food quantity"/>
                                     </Col>
                                     <Col>
                                         <Form.Label>Category: </Form.Label>
-                                        <Form.Control name = "foodCategory" required="true" type="text" placeholder="Food category"/>
+                                        <Form.Control name = "foodCategory" required={true} type="text" placeholder="Food category"/>
                                     </Col>
                                     <Col>
                                         <Form.Label>Limit: </Form.Label>
-                                        <Form.Control name = "foodLimit" required="true" type="number" min="1" placeholder="Food limit"/>
+                                        <Form.Control name = "foodLimit" required={true} type="number" min="1" placeholder="Food limit"/>
                                     </Col>
                                     <div>
                                     <Button className="submit-button" type="submit" size="sm"> Add Item </Button>

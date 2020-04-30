@@ -22,4 +22,25 @@ router.post("/checkAvailableAccountId", (request, response) => {
   });
 });
 
+router.post("/createAccount", (request, response) => {
+  const account_id = request.body.account_id;
+  const name = request.body.name;
+  const account_password = request.body.account_password;
+  const account_type = request.body.account_type;
+  const selected_restaurant = request.body.selected_restaurant;
+  Signup.createAccount(
+    account_id,
+    name,
+    account_password,
+    account_type,
+    selected_restaurant,
+    (err, result) => {
+      if (err.error) {
+        return response.status(404).json(err);
+      }
+      return response.status(200).json(result);
+    }
+  );
+});
+
 module.exports = router;

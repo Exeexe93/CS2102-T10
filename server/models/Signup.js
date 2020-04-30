@@ -27,6 +27,118 @@ class Signup {
       }
     );
   }
+
+  static createAccount(
+    account_id,
+    name,
+    account_password,
+    account_type,
+    selected_restaurant,
+    callback
+  ) {
+    db.query(
+      "INSERT INTO Accounts (account_id, account_pass, date_created, account_type) VALUES ($1, $2, TO_DATE(TO_CHAR(current_date, 'mm/dd/yyyy'), 'mm/dd/yyyy'), $3)",
+      [account_id, account_password, account_type],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not create account: ", err);
+          return callback(err, res);
+        }
+      }
+    );
+
+    if (account_type === "FDSManager") {
+      db.query(
+        "INSERT INTO FDSManagers (fds_id, name) VALUES ($1, $2)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new FDSManager Account: ", err);
+            return callback(err, res);
+          }
+          return callback(err, res);
+        }
+      );
+    }
+
+    if (account_type === "FTRider") {
+      db.query(
+        "INSERT INTO Riders (rid, name) VALUES ($1, $2)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Full Time Rider Account: ", err);
+            return callback(err, res);
+          }
+        }
+      );
+
+      db.query(
+        "INSERT INTO FTRiders (rid, name) VALUES ($1, $2)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Full Time Rider Account: ", err);
+            return callback(err, res);
+          }
+          return callback(err, res);
+        }
+      );
+    }
+
+    if (account_type === "PTRider") {
+      db.query(
+        "INSERT INTO Riders (rid, name) VALUES ($1, $2)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Part Time Rider Account: ", err);
+            return callback(err, res);
+          }
+        }
+      );
+
+      db.query(
+        "INSERT INTO PTRiders (rid, name) VALUES ($1, $2)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Part Time Rider Account: ", err);
+            return callback(err, res);
+          }
+          return callback(err, res);
+        }
+      );
+    }
+
+    if (account_type === "Customer") {
+      db.query(
+        "INSERT INTO Customers (cid, name, reward_points) VALUES ($1, $2, 0)",
+        [account_id, name],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Customer Account: ", err);
+            return callback(err, res);
+          }
+          return callback(err, res);
+        }
+      );
+    }
+
+    if (account_type === "RestaurantStaff") {
+      db.query(
+        "INSERT INTO RestaurantStaffs (staff_id, rest_id) VALUES ($1, $2)",
+        [account_id, selected_restaurant],
+        (err, res) => {
+          if (err.error) {
+            console.log("Could not create new Restaurant Staff Account: ", err);
+            return callback(err, res);
+          }
+          return callback(err, res);
+        }
+      );
+    }
+  }
 }
 
 module.exports = Signup;

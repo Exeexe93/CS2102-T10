@@ -31,6 +31,7 @@ class Signup extends Component {
       restaurantList: [],
       chosenRestaurant: null,
       isValidAccountId: true,
+      promptChooseRestaurant: false,
     };
   }
 
@@ -51,35 +52,18 @@ class Signup extends Component {
       });
   };
 
-  isValidAccountId = async () => {
-    try {
-      const response = await fetch(
-        "http://localhost:3001/Signup/checkAvailableAccountId",
-        {
-          method: "post",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ account_id: this.state.accountId }),
-        }
-      );
-      const res = response
-        ? response.json()
-        : [{ is_account_id_available: false }];
-
-      return res[0].is_account_id_available;
-    } catch (err) {
-      console.log(err);
-    }
-    // return fetch("http://localhost:3001/Signup/checkAvailableAccountId", {
-    //   method: "post",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify({ account_id: this.state.accountId }),
-    // })
-    //   .then((res) => {
-    //     return res ? res.json() : [{ is_account_id_available: false }];
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+  checkAccountId = () => {
+    return fetch("http://localhost:3001/Signup/checkAvailableAccountId", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ account_id: this.state.accountId }),
+    })
+      .then((res) => {
+        return res ? res.json() : [{ is_account_id_available: false }];
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   createAccount = (
@@ -113,24 +97,29 @@ class Signup extends Component {
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
     const isSamePassword = password === confirmPassword;
-    // Check for valid account id (available for creation)
-    if (isValidAccountId) {
-      const hasAccountType = this.state.accountType !== null;
-      const hasSelectedRestaurant = this.state.chosenRestaurant !== null;
-      if (isSamePassword && hasAccountType) {
-        this.createAccountType();
+    this.checkAccountId().then((res) => {
+      const isValidAccountId = res[0].is_account_id_available;
+      // Check for valid account id (available for creation)
+      if (isValidAccountId) {
+        const hasAccountType = this.state.accountType !== null;
+        if (isSamePassword && hasAccountType) {
+          this.createAccountType();
+        } else {
+          this.setState({
+            isValidAccountId: isValidAccountId,
+            isSamePassword: isSamePassword,
+          });
+        }
       } else {
-        this.setState({
-          isValidAccountId: isValidAccountId,
-          isSamePassword: isSamePassword,
-        });
+        this.setState({ isValidAccountId: false });
       }
-    }
+    });
   };
 
   createAccountType = () => {
+    const hasSelectedRestaurant = this.state.chosenRestaurant !== null;
     switch (this.state.accountType) {
-      case "Restaurant Staff":
+      case "RestaurantStaff":
         if (hasSelectedRestaurant) {
           this.createAccount(
             this.state.accountId,
@@ -139,12 +128,14 @@ class Signup extends Component {
             this.state.accountType,
             this.state.chosenRestaurant
           );
+        } else {
+          this.setState({ promptChooseRestaurant: true });
         }
         break;
       case "Customer":
-      case "Full Time Rider":
-      case "Part Time Rider":
-      case "Manager":
+      case "FTRider":
+      case "PTRider":
+      case "FDSManager":
         this.createAccount(
           this.state.accountId,
           this.state.name,
@@ -160,6 +151,9 @@ class Signup extends Component {
   handleSelectAccountType = (e) => {
     let type = e.currentTarget.textContent;
     switch (type) {
+      case "Customer":
+        type = "Customer";
+        break;
       case "Restaurant Staff":
         type = "RestaurantStaff";
         break;
@@ -320,7 +314,7 @@ class Signup extends Component {
             </div>
 
             <div>
-              {this.state.accountType === "Restaurant Staff" && (
+              {this.state.accountType === "RestaurantStaff" && (
                 <div>
                   <Dropdown
                     direction="right"
@@ -346,6 +340,13 @@ class Signup extends Component {
                 </div>
               )}
             </div>
+
+            {this.state.promptChooseRestaurant &&
+              this.state.accountType === "RestaurantStaff" && (
+                <p className="invalid-field">
+                  Please choose a restaurant to work at!
+                </p>
+              )}
 
             {!this.state.isSamePassword && (
               <p className="invalid-field">

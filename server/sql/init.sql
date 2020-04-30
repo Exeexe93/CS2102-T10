@@ -1,6 +1,3 @@
--- Set the timestamp to this format
--- ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
-
 DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
@@ -29,6 +26,8 @@ DROP TABLE IF EXISTS Consists CASCADE;
 DROP TABLE IF EXISTS Places CASCADE;
 DROP TABLE IF EXISTS Reviews CASCADE;
 
+
+
 CREATE TABLE Accounts (
 	account_id varchar(255) primary key,
 	account_pass varchar(50) not null,
@@ -41,13 +40,13 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
 	name varchar(255) not null,
-	reward_points double precision,
+	reward_points integer,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
-	card_number varchar(255) unique not null,
+	card_number varchar(255),
 	primary key (cid, card_number)
 	--foreign key (cid) references Customers on delete cascade
 );
@@ -100,17 +99,12 @@ CREATE TABLE Shift (
 
 CREATE TABLE WWS (
 	wws_id serial primary key,
-	day_1 date,
-	day_2 date,
-	day_3 date,
-	day_4 date,
-	day_5 date,
-	day_6 date,
-	day_7 date 
+	first_day_of_week integer not null
 );
 
 CREATE TABLE Contains (
 	wws_id serial references WWS(wws_id) on delete cascade,
+	day integer not null,
 	actual_date date not null,
 	shift_id integer references Shift(shift_id) on delete cascade,
 	primary key (wws_id, actual_date)
@@ -218,11 +212,10 @@ CREATE TABLE Consists (
 );
 
 CREATE TABLE Places (
-	oid serial references Orders(oid) on delete cascade,
+	oid integer references Orders(oid),
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
-	payment_method varchar(50),
-	card_number varchar(255) references CreditCards(card_number),
+	payment_method varchar(255),
 	primary key(oid, cid)
 );
 
@@ -239,7 +232,7 @@ CREATE TABLE Reviews (
 CREATE OR REPLACE FUNCTION check_max_shift_hour()
    RETURNS trigger AS $$
 BEGIN
-   If NEW.end_time - NEW.start_time > 4 THEN
+   If EXTRACT(HOUR FROM (SELECT NEW.end_time - NEW.start_time)) > 4 THEN
 RAISE exception 'Given start(%) and end time(%) are more than 4 hours.', NEW.start_time, NEW.end_time;
   END IF;
   RETURN NEW;
@@ -464,6 +457,15 @@ insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-966
 -- insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
 -- insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
 -- insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
+
+INSERT into Shift (work_hour, start_time, end_time) values (4, '10:00:00', '14:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '15:00:00', '19:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '11:00:00', '15:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '16:00:00', '20:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '12:00:00', '16:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '17:00:00', '21:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '13:00:00', '17:00:00');
+INSERT into Shift (work_hour, start_time, end_time) values (4, '18:00:00', '22:00:00');
 
 -- Contains
 

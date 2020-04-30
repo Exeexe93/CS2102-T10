@@ -154,7 +154,7 @@ class FTRiderMainPage extends Component {
 
   render() {
     return (
-      <Container fluid className="container-fluid">
+      <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Full Time Rider</NavbarBrand>
           <Nav className="mr-auto">
@@ -209,7 +209,7 @@ class FTRiderMainPage extends Component {
           orders={this.state.completed_orders}
           title={"Completed Orders"}
         />
-      </Container>
+      </div>
     );
   }
 }

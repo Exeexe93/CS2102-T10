@@ -12,6 +12,7 @@ import FDSManager from "../components/FDSManager";
 import Profile from "../components/Profile";
 import FoodItem from "../components/FoodItem";
 import Cart from "../components/Cart";
+import Signup from "../components/Signup";
 
 class Routes extends React.Component {
   render() {
@@ -35,6 +36,8 @@ class Routes extends React.Component {
           path="/RestaurantSummaryPage"
           component={RestaurantSummaryPage}
         />
+
+        <Route exact path="/Signup" component={Signup} />
 
         <Route exact path="/FTRiderMainPage" component={FTRiderMainPage} />
         {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}

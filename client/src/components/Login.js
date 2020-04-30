@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Redirect } from 'react-router';
+import { Redirect } from "react-router";
 import "../styles/Login.css";
 import axios from "axios";
 
@@ -7,12 +7,12 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '', 
-      password: '', 
+      username: "",
+      password: "",
       redirect: false,
-      redirectLocation: '/Login',
-      errorMessage: ''
-    }
+      redirectLocation: "/Login",
+      errorMessage: "",
+    };
     this.handleLogin = this.handleLogin.bind(this);
     this.handleChangeUserName = this.handleChangeUserName.bind(this);
     this.handleChangePassword = this.handleChangePassword.bind(this);
@@ -23,10 +23,9 @@ class Login extends Component {
     event.preventDefault();
     let data = {
       account_id: this.state.username,
-      account_pass: this.state.password
+      account_pass: this.state.password,
     };
-    axios.post('http://localhost:3001/Login', data)
-    .then(res => {
+    axios.post("http://localhost:3001/Login", data).then((res) => {
       if (res.data[0] != null) {
         let toRedirect;
         console.log(res.data[0].account_type);
@@ -50,23 +49,23 @@ class Login extends Component {
             toRedirect = "/Login";
             break;
         }
-        this.setState({redirect: true, redirectLocation: toRedirect});
+        this.setState({ redirect: true, redirectLocation: toRedirect });
       } else {
-        this.setState({errorMessage: "Invalid username or password."})
+        this.setState({ errorMessage: "Invalid username or password." });
       }
-    })
-  };
+    });
+  }
 
   handleChangeUserName(event) {
-    this.setState({username: event.target.value})
+    this.setState({ username: event.target.value });
   }
 
   handleChangePassword(event) {
-    this.setState({password: event.target.value})
+    this.setState({ password: event.target.value });
   }
 
   handleSignUp() {
-    this.setState({redirect: true, redirectLocation: "/"});
+    this.setState({ redirect: true, redirectLocation: "/Signup" });
   }
 
   render() {
@@ -93,11 +92,12 @@ class Login extends Component {
             placeholder="Password"
             required
           />
-          { this.state.errorMessage && <h5 className="text-danger"> { this.state.errorMessage } </h5> }
+          {this.state.errorMessage && (
+            <h5 className="text-danger"> {this.state.errorMessage} </h5>
+          )}
           <input type="submit" value="Submit" />
           <span>
-            Don't have an account?
-            Sign up{' '}
+            Don't have an account? Sign up{" "}
             <button onClick={this.handleSignUp}>here</button>
           </span>
         </form>

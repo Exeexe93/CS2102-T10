@@ -34,34 +34,28 @@ class Database {
     });
   }
 
-transaction(queries, values, callback) {
-    (async () => {
-      const db = await this.pool.connect()
-      try {
-        await db.query('BEGIN')
+  async transaction(queries, values, callback) {
+    const db = await this.pool.connect();
+    try {
+      await db.query("BEGIN");
 
-        // queries = [{'INSERT INTO users(name) VALUES($1, $2) RETURNING id'}, {'INSERT INTO users(name) VALUES($1) RETURNING id'}]
-        // value = [[[brian, xian], [kenny,sdafsd]], [[xuan en], [bobo]]]
-        queries.map((query, index) => {
-          values[index].map(
-            (item) => {
-              await db.query(query, item);
-            }
-          )
-        })
+      // queries = [{'INSERT INTO users(name, nickname) VALUES($1, $2) RETURNING id'}, {'INSERT INTO users(name) VALUES($1) RETURNING id'}]
+      // value = [[[brian, happy man], [kenny, sad man]], [[xuan en], [michelle]]]
+      queries.map(async (query, index) => {
+        values[index].map(async (item) => {
+          await db.query(query, item);
+        });
+      });
 
-        await db.query('COMMIT')
-      } catch (e) {
-        await db.query('ROLLBACK')
-        throw e
-      } finally {
-        callback({}, "Success Transaction.");
-        db.release()
-      }
-    })().catch(e => {
-      console.error(e.stack)
+      await db.query("COMMIT");
+    } catch (e) {
+      await db.query("ROLLBACK");
+      console.error(e.stack);
       return callback({ error: "Database error... Transaction failed." }, null);
-    })
+    } finally {
+      callback({}, "Success Transaction.");
+      db.release();
+    }
   }
 
   end() {

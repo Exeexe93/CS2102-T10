@@ -10,10 +10,11 @@ import {
 } from "reactstrap";
 import "../styles/FTRiderMainPage.css";
 
-import PendingOrders from "./PendingOrders";
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
+import OrderList from "./OrderList";
+import CompletedOrderList from "./CompletedOrderList";
 
 class FTRiderMainPage extends Component {
   constructor(props) {
@@ -23,6 +24,7 @@ class FTRiderMainPage extends Component {
       id: this.props.location.id,
       name: "",
       orders: [],
+      completed_orders: [],
       avg_rating: 0,
     };
   }
@@ -93,6 +95,35 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  getCompletedOrders = () => {
+    fetch("http://localhost:3001/FTRider/getCompletedOrders", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => {
+        return res
+          ? res.json()
+          : [
+              {
+                order_number: "",
+                cname: "",
+                delivery_location: "",
+                restaurant_name: "",
+                restaurant_location: "",
+              },
+            ];
+      })
+      .then((res) => {
+        this.setState({
+          completed_orders: res,
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   handleViewSalary = () => {
     // if (this.state.isFTRider) {
     //   this.props.history.push("/FTriderMainPage/salary");
@@ -118,11 +149,12 @@ class FTRiderMainPage extends Component {
     this.getName();
     this.getAvgRating();
     this.getPendingOrders();
+    this.getCompletedOrders();
   }
 
   render() {
     return (
-      <Container fluid className="container-fluid">
+      <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Full Time Rider</NavbarBrand>
           <Nav className="mr-auto">
@@ -166,11 +198,18 @@ class FTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
-        <PendingOrders
-          key={this.state.orders.length}
+        <OrderList
+          key={"pending-orders-" + this.state.orders.length}
           orders={this.state.orders}
+          title={"Pending Orders"}
         />
-      </Container>
+
+        <CompletedOrderList
+          key={"completed-orders-" + this.state.completed_orders.length}
+          orders={this.state.completed_orders}
+          title={"Completed Orders"}
+        />
+      </div>
     );
   }
 }

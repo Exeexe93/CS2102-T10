@@ -147,6 +147,7 @@ CREATE TABLE Restaurants (
 	rest_id serial,
 	name varchar(255) not null,
     order_threshold money not null,
+	address varchar(255) not null,
     primary key(rest_id) 
 );
 
@@ -388,16 +389,16 @@ insert into PTRiders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63',
 insert into PTRiders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
 
 -- Restaurants
-insert into Restaurants (name, order_threshold) values ('Exeexe-Restaurant', '$11.47');
-insert into Restaurants (name, order_threshold) values ('Simonis and Sons', '$12.24');
-insert into Restaurants (name, order_threshold) values ('Vandervort, Rice and Lehner', '$12.62');
-insert into Restaurants (name, order_threshold) values ('Bergnaum LLC', '$14.06');
-insert into Restaurants (name, order_threshold) values ('Abbott-Harris', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Streich-Predovic', '$11.94');
-insert into Restaurants (name, order_threshold) values ('Streich, Brekke and Bednar', '$11.18');
-insert into Restaurants (name, order_threshold) values ('Blick, Boyer and Schroeder', '$11.84');
-insert into Restaurants (name, order_threshold) values ('Kirlin-Jacobson', '$10.36');
-insert into Restaurants (name, order_threshold) values ('Ziemann-Halvorson', '$10.20');
+insert into Restaurants (name, order_threshold, address) values ('Exeexe-Restaurant', '$11.47', '10 Dempsey Rd, #01-23, S247700');
+insert into Restaurants (name, order_threshold, address) values ('Simonis and Sons', '$12.24', '#01-07 Alexis Condominium, 356 Alexandra Rd, S159948');
+insert into Restaurants (name, order_threshold, address) values ('Vandervort, Rice and Lehner', '$12.62', '1 Cuscaden Rd, Level 2 Regent Singapore, Cuscaden Rd, S249715');
+insert into Restaurants (name, order_threshold, address) values ('Bergnaum LLC', '$14.06', '260 Upper Bukit Timah Rd, #01-01, S588190');
+insert into Restaurants (name, order_threshold, address) values ('Abbott-Harris', '$11.18', '374 Bukit Batok Street 31, HDB, S650374');
+insert into Restaurants (name, order_threshold, address) values ('Streich-Predovic', '$11.94', '#01-01 Orchard Rendezvous Hotel, 1 Tanglin Rd, S247905');
+insert into Restaurants (name, order_threshold, address) values ('Streich, Brekke and Bednar', '$11.18', '118 Commonwealth Cres, #01-29, S140118');
+insert into Restaurants (name, order_threshold, address) values ('Blick, Boyer and Schroeder', '$11.84', 'Faber Peak Singapore, Level 2, 109 Mount Faber Road, 099203');
+insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobson', '$10.36', '421 River Valley Rd, S248320');
+insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
 insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
@@ -522,10 +523,16 @@ insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
 
 -- Places
-insert into Places (oid, cid, address) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760');
-insert into Places (oid, cid, address) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 761 Yishun Ring rd #08-18 S760761');
-insert into Places (oid, cid, address) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 762 Yishun Ring rd #08-18 S760762');
-insert into Places (oid, cid, address) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763');
+insert into Places (oid, cid, address, payment_method) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 761 Yishun Ring rd #08-18 S760761', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 762 Yishun Ring rd #08-18 S760762', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (5, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 764 Yishun Ring rd #08-18 S760764', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (6, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 765 Yishun Ring rd #08-18 S760765', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (7, 'a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Blk 766 Yishun Ring rd #08-18 S760766', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (8, '2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Blk 767 Yishun Ring rd #08-18 S760767', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Blk 768 Yishun Ring rd #08-18 S760768', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
 insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');

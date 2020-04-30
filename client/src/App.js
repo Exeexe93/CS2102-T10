@@ -68,7 +68,7 @@ class App extends Component {
           <Link
             to={{
               pathname: "/FTRiderMainPage",
-              id: "06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb",
+              id: "3267e8b9-110c-44fb-a817-2c0b243b21d6",
             }}
           >
             FTRider

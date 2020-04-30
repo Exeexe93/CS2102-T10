@@ -146,9 +146,6 @@ class FoodItem extends Component {
             let isFound = false;
             cartItems.map((cartItem) => {
               if (item.fid === cartItem.fid) {
-                console.log("found");
-                console.log(item.fid);
-                console.log(cartItem.fid);
                 // Update oid, fid, quantity, total_price to be continued
                 this.updateFood(
                   cartItem.oid,

@@ -31,8 +31,9 @@ class FDSManager extends Component {
             year: '',
             month: '',
             day: [],
-            queryDate: '1',
-            area: 'North',
+            queryDate: '',
+            previousArea: '',
+            area: '',
             num: 0,
             orders: 0,
             cost: 0.00,
@@ -235,6 +236,7 @@ class FDSManager extends Component {
 
     renderDayDropdown = () => {
         let items = [];
+        items.push(<option value="none" selected disabled hidden>Day</option>)
         for (let i = 1; i <= this.state.day.length; i++) {
             items.push(<option key={i} value={i}>{i}</option>);
         }
@@ -243,13 +245,85 @@ class FDSManager extends Component {
     }
 
     renderAreaDropdown = () => {
-        return ([
-            <option key='north' values='north'>North</option>,
-            <option key='north-east' values='north-east'>North-East</option>,
-            <option key='west' values='west'>West</option>,
-            <option key='east' values='east'>East</option>,
-            <option key='central' values='central'>Central</option>
-        ])
+        let areas = [
+            'Marina Bay', 
+            'Marina Centre',
+            'Raffles Place', 
+            'Tanjong Pagar',
+            'Outram',
+            'Sentosa',
+            'Rochor',
+            'Orchard',
+            'Newton',
+            'River Valley',
+            'Bukit Timah',
+            'Holland Road',
+            'Tanglin',
+            'Novena',
+            'Thomson',
+            'Bishan',
+            'Bukit Merah',
+            'Geylang',
+            'Kallang',
+            'Marine Parade',
+            'Queenstown',
+            'Toa Payoh',
+            'Central Water Catchment',
+            'Lim Chu Kang',
+            'Mandai',
+            'Sembawang',
+            'Simpang',
+            'Sungei Kadut',
+            'Woodlands',
+            'Yishun',
+            'Ang Mo Kio',
+            'Hougang',
+            'Punggol',
+            'Seletar',
+            'Sengkang New Town', 
+            'Rivervale', 
+            'Compassvale', 
+            'Buangkok', 
+            'Anchorvale', 
+            'Fernvale', 
+            'Jalan Kayu',
+            'Serangoon',
+            'Bedok',
+            'Changi',
+            'Changi Bay',
+            'Paya Lebar',
+            'Pasir Ris',
+            'Tampines',
+            'Bukit Batok',
+            'Bukit Panjang',
+            'Boon Lay',
+            'Choa Chu Kang',
+            'Clementi',
+            'Jurong East',
+            'Jurong West',
+            'Tengah',
+            'Tuas',
+            'Benoi',
+            'Ghim Moh',
+            'Gul',
+            'Pandan Gardens',
+            'Jurong Island',
+            'Kent Ridge',
+            'Nanyang',
+            'Pioneer',
+            'Pasir Laba',
+            'Teban Gardens',
+            'Toh Tuck',
+            'Tuas South',
+            'West Coast',
+        ].sort();
+        let listOfOptions = [<option value="none" selected disabled hidden>Area</option>]
+        for (let i = 0; i < areas.length; i++) {
+            listOfOptions.push(<option key={areas[i]} values={areas[i]}>
+                {areas[i]}
+            </option>)
+        }
+        return listOfOptions;
     }
 
     onDayDropdownSelected  = (e) => {
@@ -299,14 +373,15 @@ class FDSManager extends Component {
     }
 
     handleLocationQuery = () => {
-        if (this.state.displayDay != this.state.queryDate) {
-            console.log("queryDate: ", this.state.queryDate);
-            console.log("area: ", this.state.area);
+        let emptyArea = this.state.area === ""
+        let emptyDay = this.state.queryDate === ""
+        let newQuery = this.state.displayDay !== this.state.queryDate || this.state.area !== this.state.previousArea;
+        if (newQuery && !emptyArea && !emptyDay) {
             this.setState({
+                previousArea : this.state.area,
                 displayDay : this.state.queryDate
             })
             this.handleLocationQueryHelper();
-            console.log("Query date: ", this.state.queryDate);
         }
     }
 

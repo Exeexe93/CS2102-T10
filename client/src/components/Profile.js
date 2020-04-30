@@ -30,12 +30,15 @@ class Profile extends Component {
 
   static contextType = AccountContext;
 
-  getProfileInfo = (customerName) => {
-    var request = new Request("http://localhost:3001/Customer/GetProfile", {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify({ name: customerName }),
-    });
+  getRewardPoints = (customerName) => {
+    var request = new Request(
+      "http://localhost:3001/Customer/GetRewardPoints",
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ name: customerName }),
+      }
+    );
 
     fetch(request)
       .then((res) => res.json())
@@ -90,7 +93,7 @@ class Profile extends Component {
 
   componentDidMount() {
     let value = this.context;
-    this.getProfileInfo(value.state.name);
+    this.getRewardPoints(value.state.name);
     this.getOrderList(value.state.cid);
     this.getCreditCards(value.state.cid);
     this.setState({

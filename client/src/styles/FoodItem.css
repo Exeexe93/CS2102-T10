@@ -42,6 +42,7 @@ body {
 .submitButton {
   width: 120px;
   height: 50px;
+  margin-bottom: 30px;
 }
 
 .listName {
@@ -72,4 +73,9 @@ body {
 .listCategory {
   width: 120px;
   text-align: center;
+}
+
+.message {
+  color: blue;
+  margin-bottom: 30px;
 }

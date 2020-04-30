@@ -31,8 +31,8 @@ class FDSManager extends Component {
             year: '',
             month: '',
             day: [],
-            queryDate: '1',
-            queryArea: '',
+            queryDate: '',
+            previousArea: '',
             area: '',
             num: 0,
             orders: 0,
@@ -236,6 +236,7 @@ class FDSManager extends Component {
 
     renderDayDropdown = () => {
         let items = [];
+        items.push(<option value="none" selected disabled hidden>Day</option>)
         for (let i = 1; i <= this.state.day.length; i++) {
             items.push(<option key={i} value={i}>{i}</option>);
         }
@@ -296,7 +297,6 @@ class FDSManager extends Component {
             'Bukit Batok',
             'Bukit Panjang',
             'Boon Lay',
-            'Pioneer',
             'Choa Chu Kang',
             'Clementi',
             'Jurong East',
@@ -317,7 +317,7 @@ class FDSManager extends Component {
             'Tuas South',
             'West Coast',
         ].sort();
-        let listOfOptions = []
+        let listOfOptions = [<option value="none" selected disabled hidden>Area</option>]
         for (let i = 0; i < areas.length; i++) {
             listOfOptions.push(<option key={areas[i]} values={areas[i]}>
                 {areas[i]}
@@ -373,15 +373,15 @@ class FDSManager extends Component {
     }
 
     handleLocationQuery = () => {
-        let newQuery = this.state.displayDay != this.state.queryDate || this.state.area != this.state.queryArea;
-        if (newQuery) {
-            console.log("queryDate: ", this.state.queryDate);
-            console.log("area: ", this.state.area);
+        let emptyArea = this.state.area === ""
+        let emptyDay = this.state.queryDate === ""
+        let newQuery = this.state.displayDay !== this.state.queryDate || this.state.area !== this.state.previousArea;
+        if (newQuery && !emptyArea && !emptyDay) {
             this.setState({
+                previousArea : this.state.area,
                 displayDay : this.state.queryDate
             })
             this.handleLocationQueryHelper();
-            console.log("Query date: ", this.state.queryDate);
         }
     }
 

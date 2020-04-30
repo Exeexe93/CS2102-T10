@@ -34,6 +34,36 @@ class Database {
     });
   }
 
+transaction(queries, values, callback) {
+    (async () => {
+      const db = await this.pool.connect()
+      try {
+        await db.query('BEGIN')
+
+        // queries = [{'INSERT INTO users(name) VALUES($1, $2) RETURNING id'}, {'INSERT INTO users(name) VALUES($1) RETURNING id'}]
+        // value = [[[brian, xian], [kenny,sdafsd]], [[xuan en], [bobo]]]
+        queries.map((query, index) => {
+          values[index].map(
+            (item) => {
+              await db.query(query, item);
+            }
+          )
+        })
+
+        await db.query('COMMIT')
+      } catch (e) {
+        await db.query('ROLLBACK')
+        throw e
+      } finally {
+        callback({}, "Success Transaction.");
+        db.release()
+      }
+    })().catch(e => {
+      console.error(e.stack)
+      return callback({ error: "Database error... Transaction failed." }, null);
+    })
+  }
+
   end() {
     this.pool.end();
   }

@@ -22,9 +22,9 @@ import {
 class FDSManager extends Component {
     constructor(props) {
         super(props);
-        let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
+            name: "",
             displayMonth: '',
             displayYear: '',
             displayDay: '',
@@ -52,8 +52,7 @@ class FDSManager extends Component {
                 {hour: 19, num_orders: 0},
                 {hour: 20, num_orders: 0},
                 {hour: 21, num_orders: 0}
-            ],
-            FDSManagerName: "Mr Eng"
+            ]
         };
     }
 
@@ -341,7 +340,6 @@ class FDSManager extends Component {
     }
 
     handleLocationQueryHelper = () => {
-        console.log("aaaaaaaaaaaaaaaaaa my querydate here: ", this.state.queryDate);
         fetch('http://localhost:3001/FDSManager/dailyLocationStats', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -396,6 +394,21 @@ class FDSManager extends Component {
 
     getName = () => {
         // TODO implement get fdsmanager name here if got time
+        let account_id = { accountid : this.props.location.state.account_id}
+        console.log("getName ran")
+        fetch('http://localhost:3001/FDSManager/getName', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(account_id)
+        })
+        .then(res => {
+            return res.json();
+        })
+        .then(res => {
+            this.setState({
+                name : res[0].name,
+            })
+        })
     }
 
     componentDidMount() {
@@ -412,7 +425,7 @@ class FDSManager extends Component {
                 <Row>
                     <Col>
                         <Jumbotron>
-                            <h1 className="display-3">Welcome { this.state.FDSManagerName }</h1>
+                            <h1 className="display-3">Welcome { this.state.name }</h1>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
                             <div class="input-group">
                             <input className="enter_button" 

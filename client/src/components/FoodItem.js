@@ -270,8 +270,7 @@ class FoodItem extends Component {
         }
       );
 
-      //if (response.data.detail) {
-      if (true) {
+      if (response.data.detail) {
         let errorFoods = this.state.errorUpdateFoods;
         errorFoods.push(this.state.foodItem[index].name);
         this.setState({

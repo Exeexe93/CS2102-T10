@@ -86,6 +86,19 @@ class FDSManager {
         )
     }
 
+    static queryGetName(accountid, callback) {
+        db.query(
+            'select * from FDSManagers where fds_id = $1',
+            [accountid],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryGetName:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
 }
 
 module.exports = FDSManager;

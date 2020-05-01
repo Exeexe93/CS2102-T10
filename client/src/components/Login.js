@@ -70,7 +70,10 @@ class Login extends Component {
 
   render() {
     if (this.state.redirect) {
-      return <Redirect to={this.state.redirectLocation} />;
+      return <Redirect to={{
+        pathname: this.state.redirectLocation,
+        state: {accountid : this.state.username}
+      }} />;
     }
     return (
       <div className="login-form">

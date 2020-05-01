@@ -76,4 +76,14 @@ router.post('/dailyLocationStats', (req, res) => {
         return res.json(result);
     })
 })
+
+router.post('/getName', (req, res) => {
+    FDSManagerModel.queryGetName(req.body.accountid, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post getName");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})
 module.exports = router;

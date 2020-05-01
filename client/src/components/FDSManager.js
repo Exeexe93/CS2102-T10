@@ -22,9 +22,10 @@ import {
 class FDSManager extends Component {
     constructor(props) {
         super(props);
-        let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
+            accountid: '',
+            name: "",
             displayMonth: '',
             displayYear: '',
             displayDay: '',
@@ -52,8 +53,7 @@ class FDSManager extends Component {
                 {hour: 19, num_orders: 0},
                 {hour: 20, num_orders: 0},
                 {hour: 21, num_orders: 0}
-            ],
-            FDSManagerName: "Mr Eng"
+            ]
         };
     }
 
@@ -341,7 +341,6 @@ class FDSManager extends Component {
     }
 
     handleLocationQueryHelper = () => {
-        console.log("aaaaaaaaaaaaaaaaaa my querydate here: ", this.state.queryDate);
         fetch('http://localhost:3001/FDSManager/dailyLocationStats', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -396,6 +395,17 @@ class FDSManager extends Component {
 
     getName = () => {
         // TODO implement get fdsmanager name here if got time
+        fetch('http://localhost:3001/FDSManager/getName', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({accountid : this.state.accountid})
+        })
+        .then(res => {
+            return res.json();
+        })
+        .then(res => {
+            this.setState({name : res.name})
+        })
     }
 
     componentDidMount() {

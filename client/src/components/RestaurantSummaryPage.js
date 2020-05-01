@@ -2,26 +2,38 @@ import React, { Component } from "react";
 import "../styles/RestaurantSummaryPage.css";
 import { Link } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
+import axios from 'axios';
 
 class RestaurantSummaryPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            numOrders: 0,
-            topItems: [
-                "Crab",
-                "Salmon",
-                "Bubble tea",
-                "Exe",
-                "Hotcakes"
-            ]
+            numOfOrders: "",
+            topItems: []
         }
+    }
+
+    getNumOfOrders() {
+        let data = { rest_id: this.props.location.state.rest_id };
+        axios.post('http://localhost:3001/RestaurantStaff/getNumOfOrders', data)
+        .then(res => this.setState({ numOfOrders: res.data[0].count }));
+      };
+
+    getTopItems() {
+        let data = { rest_id: this.props.location.state.rest_id };
+        axios.post('http://localhost:3001/RestaurantStaff/getTopItems', data)
+        .then(res => this.setState({ topItems: res.data }));
+    }
+
+    componentDidMount() {
+        this.getNumOfOrders();
+        this.getTopItems();
     }
 
     renderItem = (listItem, index) => {
         return(
             <li key={index} className="list-group-item list-group-item-secondary">
-                {index + 1}.{listItem}
+                {index + 1}. {listItem.name} - {listItem.totalquantity} sold
             </li>
         )
     }
@@ -34,19 +46,22 @@ class RestaurantSummaryPage extends Component {
                         <center>
                             <h1>
                                 <strong>Summary Information {' '}</strong>
-                                <Link to='/RestaurantStaffMainPage'>
+                                <Link to={{
+                                    pathname: '/RestaurantStaffMainPage',
+                                    state: { account_id: this.props.location.state.account_id}
+                                    }}>
                                     <Button variant={"primary"}>Main Page</Button>
                                 </Link>
                             </h1>
                             <br/>
                             <h3>
                             <b>Total no. of completed orders: {' '}</b>
-                           {this.state.numOrders}  
+                           {this.state.numOfOrders}  
                         </h3>
                         </center>
                         <br/>
                         <h4>
-                            <u>Top 5 food items: </u>
+                            <u>Top food items (up to 5): </u>
                             <br/>
                         </h4>
                         <h4>

@@ -12,6 +12,7 @@ class Login extends Component {
       redirect: false,
       redirectLocation: "/Login",
       errorMessage: "",
+      account_id: ""
     };
     this.handleLogin = this.handleLogin.bind(this);
     this.handleChangeUserName = this.handleChangeUserName.bind(this);
@@ -28,7 +29,7 @@ class Login extends Component {
     axios.post("http://localhost:3001/Login", data).then((res) => {
       if (res.data[0] != null) {
         let toRedirect;
-        console.log(res.data[0].account_type);
+        this.setState({ account_id: res.data[0].account_id });
         switch (res.data[0].account_type) {
           case "Customer":
             toRedirect = "/Customer";
@@ -72,7 +73,7 @@ class Login extends Component {
     if (this.state.redirect) {
       return <Redirect to={{
         pathname: this.state.redirectLocation,
-        state: {accountid : this.state.username}
+        state: { account_id: this.state.account_id }
       }} />;
     }
     return (

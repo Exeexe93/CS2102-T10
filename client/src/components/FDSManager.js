@@ -395,6 +395,7 @@ class FDSManager extends Component {
 
     getName = () => {
         // TODO implement get fdsmanager name here if got time
+        console.log("getName ran")
         fetch('http://localhost:3001/FDSManager/getName', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -405,6 +406,7 @@ class FDSManager extends Component {
         })
         .then(res => {
             this.setState({name : res.name})
+            console.log("result from getName: ",res);
         })
     }
 

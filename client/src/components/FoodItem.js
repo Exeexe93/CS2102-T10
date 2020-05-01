@@ -11,6 +11,8 @@ class FoodItem extends Component {
     super(props);
     this.state = {
       message: "",
+      errorAddingFoods: [],
+      errorUpdateFoods: [],
       foodItem: [],
       filtered: [],
       orders: [],
@@ -139,7 +141,6 @@ class FoodItem extends Component {
 
       if (response.data.length !== 0) {
         var cartItems = response.data;
-        console.log(cartItems);
 
         this.state.foodItem.map((item, index) => {
           if (item.actualQuantity > 0) {
@@ -154,7 +155,8 @@ class FoodItem extends Component {
                   this.addCost(
                     cartItem.total_price,
                     this.calculateCost(item.price, item.actualQuantity)
-                  )
+                  ),
+                  index
                 );
                 isFound = true;
               }
@@ -164,7 +166,6 @@ class FoodItem extends Component {
             }
           }
         });
-        console.log("exists");
       } else {
         const orderNumber = await this.insertEmptyOrder();
         await this.placeOrder(orderNumber, this.state.cid);
@@ -185,6 +186,11 @@ class FoodItem extends Component {
 
   addOrder = (event) => {
     event.preventDefault();
+    this.setState({
+      errorUpdateFoods: [],
+      errorAddingFoods: [],
+      message: "",
+    });
     // Check whether there are other order that has not paid which same restaurant as current
     this.updateOrderIfExists();
   };
@@ -229,7 +235,19 @@ class FoodItem extends Component {
       total_price: total_price,
     };
     try {
-      await axios.post("http://localhost:3001/Customer/AddFood", food);
+      const response = await axios.post(
+        "http://localhost:3001/Customer/AddFood",
+        food
+      );
+      if (response.data.detail) {
+        let errorFoods = this.state.errorAddingFoods;
+        errorFoods.push(item.name);
+        this.setState({
+          errorAddingFoods: errorFoods,
+          message:
+            "Food item are unable to added into cart due to exceed limit:",
+        });
+      }
       var foodItem = this.state.foodItem;
       foodItem[index].actualQuantity = 0;
       this.setState({
@@ -240,13 +258,32 @@ class FoodItem extends Component {
     }
   };
 
-  updateFood = async (oid, fid, quantity, total_price) => {
+  updateFood = async (oid, fid, quantity, total_price, index) => {
     try {
-      await axios.post("http://localhost:3001/Customer/UpdateFood", {
-        oid: oid,
-        fid: fid,
-        quantity: quantity,
-        total_price: total_price,
+      const response = await axios.post(
+        "http://localhost:3001/Customer/UpdateFood",
+        {
+          oid: oid,
+          fid: fid,
+          quantity: quantity,
+          total_price: total_price,
+        }
+      );
+
+      //if (response.data.detail) {
+      if (true) {
+        let errorFoods = this.state.errorUpdateFoods;
+        errorFoods.push(this.state.foodItem[index].name);
+        this.setState({
+          errorUpdateFoods: errorFoods,
+          message:
+            "Food item are unable to added into cart due to exceed limit:",
+        });
+      }
+      var foodItem = this.state.foodItem;
+      foodItem[index].actualQuantity = 0;
+      this.setState({
+        foodItem,
       });
     } catch (err) {
       console.error(err);
@@ -278,6 +315,24 @@ class FoodItem extends Component {
     });
 
     return formatter.format(total_price);
+  };
+
+  displayErrorFoods = () => {
+    return (
+      <div>
+        {this.state.errorAddingFoods.map((food, index) => (
+          <h4 className="errorFoods" key={index}>
+            {food}
+          </h4>
+        ))}
+
+        {this.state.errorUpdateFoods.map((food, index) => (
+          <h4 className="errorFoods" key={index}>
+            {food}
+          </h4>
+        ))}
+      </div>
+    );
   };
 
   render() {
@@ -364,6 +419,12 @@ class FoodItem extends Component {
           <div className="separator"></div>
           {this.state.message && (
             <h4 className="message">{this.state.message}</h4>
+          )}
+          {(this.state.errorAddingFoods.length !== 0 ||
+            this.state.errorUpdateFoods.length !== 0) &&
+            this.displayErrorFoods()}
+          {this.state.errorAddingFoods.length !== 0 && (
+            <h4 className="errorFoods">{this.state.errorAddingFoods}</h4>
           )}
           <Button
             type="button"

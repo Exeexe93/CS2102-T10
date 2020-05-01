@@ -66,15 +66,17 @@ router.post("/PlaceOrder", function (req, res) {
   });
 });
 
-router.post("/AddFood", function (req, res) {
+router.post("/AddFood", function (req, res, next) {
   Customer.addFood(
     req.body.oid,
     req.body.fid,
     req.body.quantity,
     req.body.total_price,
     (err, result) => {
-      if (err.error) return res.status(404).json(err);
-      return res.status(200).json(result);
+      if (err.error) {
+        return res.send(err.error);
+      }
+      return res.json(result);
     }
   );
 });

@@ -143,9 +143,14 @@ class FDSManager extends Component {
             return res.json();
         })
         .then(res => {
-            this.setState({
-                ridersStats: res
-            })
+            if (res.length === 0) {
+                // TODO set empty list
+            } else {
+                console.log(res);
+                this.setState({
+                    ridersStats: res
+                })
+            }
         })
 
     }
@@ -173,14 +178,17 @@ class FDSManager extends Component {
                 <td key={index}>hours work</td>
                 <td key={index + riders.salary}>{riders.salary}</td>
                 <td key={index}>{this.extractDuration(riders.delivery_duration)}</td>
-                <td key={index}>{riders.num_ratings}</td>
-                <td key={index}>{riders.avg_rating}</td>
+                <td key={index}>{riders.num_ratings ? riders.num_ratings : 'NIL'}</td>
+                <td key={index}>{riders.avg_rating ? riders.avg_rating : 'NIL'}</td>
             </tr>
         )
     }
 
     extractDuration = (duration) => {
         let returnString = ''
+        if (duration === null) {
+            return '0 hour 0 minute';
+        }
         if (duration.hours) {
             returnString += duration.hours 
             returnString += duration.hours > 1 

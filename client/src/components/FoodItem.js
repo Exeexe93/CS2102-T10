@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
-import { MdPerson } from "react-icons/md";
+import { MdPerson, MdArrowBack } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button } from "react-bootstrap";
 import axios from "axios";
@@ -74,7 +74,7 @@ class FoodItem extends Component {
   }
 
   handleProfile = () => {
-    this.props.history.push("/");
+    this.props.history.push("/Profile");
   };
 
   handleCart = () => {
@@ -338,7 +338,9 @@ class FoodItem extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
+          <NavbarBrand href="/Customer">
+            <MdArrowBack />
+          </NavbarBrand>
           <div className="icon-container">
             <GiShoppingCart
               size="3em"

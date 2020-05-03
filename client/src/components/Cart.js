@@ -11,6 +11,7 @@ import {
   DropdownButton,
   FormGroup,
 } from "react-bootstrap";
+import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import axios from "axios";
 
@@ -20,8 +21,8 @@ class Cart extends Component {
     this.state = {
       customerName: "",
       cid: "",
-      rewardPoints: 0.0,
-      rewardPointsUsed: 0.0,
+      rewardPoints: 0,
+      rewardPointsUsed: 0,
       orders: [],
       creditCards: [],
       errorUpdateFoods: [],
@@ -356,7 +357,7 @@ class Cart extends Component {
 
   updateRewardPoint = (total_cost, queryList, valueList) => {
     queryList.push(
-      "UPDATE Customers SET reward_points = reward_points + TO_NUMBER($2,'9999.99') WHERE cid = $1"
+      "UPDATE Customers SET reward_points = TO_NUMBER($2,'9999.99') WHERE cid = $1"
     );
 
     let rewardPointLeft = parseFloat(
@@ -366,6 +367,7 @@ class Cart extends Component {
         this.calculateRewardPoint(total_cost)
       ).toFixed(2)
     );
+    console.log(rewardPointLeft);
     valueList.push([[this.state.cid, rewardPointLeft]]);
   };
 
@@ -724,7 +726,9 @@ class Cart extends Component {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
+          <NavbarBrand href="/Customer">
+            <MdArrowBack />
+          </NavbarBrand>
           <div className="icon-container"></div>
         </Navbar>
 

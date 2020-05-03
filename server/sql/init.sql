@@ -189,18 +189,16 @@ CREATE TABLE PTWorks (
 		on delete cascade
 );
 
--- CREATE TABLE FTWorks(
--- 	rid varchar(255) references FTRiders(rid),
--- 	mws_id serial references MWS(mws_id),
--- 	month integer not null, 
--- 	start_wk integer not null,
--- 	end_wk integer not null,
--- 	primary key (rid, mws_id),
--- 	foreign key(month, start_wk, end_wk) references MWS
--- 		on delete cascade
--- 		on update cascade
--- );
-
+CREATE TABLE FTWorks(
+	rid varchar(255) references FTRiders(rid),
+	month integer not null, 
+	start_wk integer not null,
+	end_wk integer not null,
+	primary key (rid, month, start_wk, end_wk),
+	foreign key(month, start_wk, end_wk) references MWS
+		on delete cascade
+		on update cascade
+);
 
 CREATE TABLE FDSManagers (
 	fds_id varchar(255) references Accounts(account_id) on delete cascade,
@@ -493,31 +491,24 @@ INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05
 -- MWS
 INSERT into MWS (month, total_hours, start_wk, end_wk) values (5, 120, 18, 21);
 
+-- Has
+INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values 
+	(5, 18, 21, 18, '2020-05-02', '2020-05-08'),
+	(5, 18, 21, 19, '2020-05-09', '2020-05-15'),
+	(5, 18, 21, 20, '2020-05-16', '2020-05-22'),
+	(5, 18, 21, 21, '2020-05-23', '2020-05-29');
+
 -- PTWorks
 INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
 INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
 -- FTWorks
--- insert into FTWorks (rid, mws_id) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1);
--- insert into FTWorks (rid, mws_id) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 2);
--- insert into FTWorks (rid, mws_id) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3);
--- insert into FTWorks (rid, mws_id) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 4);
--- insert into FTWorks (rid, mws_id) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5);
--- insert into FTWorks (rid, mws_id) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 6);
--- insert into FTWorks (rid, mws_id) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 7);
--- insert into FTWorks (rid, mws_id) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 8);
--- insert into FTWorks (rid, mws_id) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 9);
--- insert into FTWorks (rid, mws_id) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 10);
--- insert into FTWorks (rid, mws_id) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 11);
--- insert into FTWorks (rid, mws_id) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 12);
--- insert into FTWorks (rid, mws_id) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 1);
--- insert into FTWorks (rid, mws_id) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 4);
--- insert into FTWorks (rid, mws_id) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 5);
--- insert into FTWorks (rid, mws_id) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 6);
--- insert into FTWorks (rid, mws_id) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 7);
--- insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
--- insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
--- insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21);
+
 
 INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');
 INSERT into Shift (shift_id, actual_date) values (1, '2020-05-03');

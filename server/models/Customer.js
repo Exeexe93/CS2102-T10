@@ -289,6 +289,19 @@ class Customer {
       return callback(err, res);
     });
   }
+
+  static getReviews(rest_id, callback) {
+    db.query(
+      "SELECT Foods.name as food_name, Customers.name as customer_name, Consists.review FROM Orders LEFT JOIN Consists using (oid) LEFT JOIN Foods using (fid) LEFT JOIN Places on Orders.oid = Places.oid LEFT JOIN Customers using (cid) WHERE Orders.rest_id = $1 GROUP BY Foods.name, Customers.name, Consists.review, Foods.category HAVING Consists.review IS NOT NULL ORDER BY CASE Foods.category WHEN 'Main Dish' THEN 1 WHEN 'Side Dish' THEN 2 WHEN 'Drink' THEN 3 WHEN 'Dessert' THEN 4 END",
+      [rest_id],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
 }
 
 module.exports = Customer;

@@ -70,3 +70,73 @@
 .addButton {
   margin-top: 35px;
 }
+
+.rewardPointContainer {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 250px;
+}
+
+.orderTable {
+  text-align: center;
+}
+
+.errorFoodList {
+  text-align: center;
+}
+
+.rewardPointInput {
+  margin-left: 20px;
+  width: 80px;
+}
+
+.rewardPointTitle {
+  width: 120px;
+}
+
+.paymentCostContainer {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 250px;
+}
+
+.totalCostContainer {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 250px;
+}
+
+.promoDiscountContainer {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 250px;
+}
+
+.deliveryFeeContainer {
+  display: flex;
+  flex-direction: row;
+  text-align: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  width: 250px;
+}
+
+.deliveryLocation {
+  margin-top: 20px;
+}
+
+.errorMessage {
+  color: red;
+}

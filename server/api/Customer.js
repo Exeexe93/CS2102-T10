@@ -102,7 +102,7 @@ router.post("/UpdateFood", function (req, res) {
     req.body.quantity,
     req.body.total_price,
     (err, result) => {
-      if (err.error) return res.status(404).json(err);
+      if (err.error) return res.send(err.error);
       return res.status(200).json(result);
     }
   );
@@ -110,20 +110,35 @@ router.post("/UpdateFood", function (req, res) {
 
 router.post("/UpdateOrder", function (req, res) {
   Customer.updateOrder(
-    req.body.oid,
-    req.body.order_status,
-    req.body.total_price,
-    req.body.delivery_fee,
-    req.body.promo_used,
+    req.body.queryList,
+    req.body.valueList,
     (err, result) => {
       if (err.error) return res.status(404).json(err);
       return res.status(200).json(result);
     }
   );
+  // Customer.updateOrder(
+  //   req.body.oid,
+  //   req.body.order_status,
+  //   req.body.total_price,
+  //   req.body.delivery_fee,
+  //   req.body.promo_used,
+  //   (err, result) => {
+  //     if (err.error) return res.status(404).json(err);
+  //     return res.status(200).json(result);
+  //   }
+  // );
 });
 
 router.post("/GetTopFiveCreditCards", function (req, res) {
   Customer.getTopFiveCreditCards(req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/GetFiveRecentDeliveryLocations", function (req, res) {
+  Customer.getFiveRecentDeliveryLocations(req.body.cid, (err, result) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(result);
   });
@@ -180,4 +195,5 @@ router.post("/UpdateFood", function (req, res) {
     }
   );
 });
+
 module.exports = router;

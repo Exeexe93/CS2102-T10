@@ -245,7 +245,7 @@ class FoodItem extends Component {
         this.setState({
           errorAddingFoods: errorFoods,
           message:
-            "Food item are unable to added into cart due to exceed limit:",
+            "Food items are unable to added into cart due to exceed limit:",
         });
       }
       var foodItem = this.state.foodItem;
@@ -276,7 +276,7 @@ class FoodItem extends Component {
         this.setState({
           errorUpdateFoods: errorFoods,
           message:
-            "Food item are unable to added into cart due to exceed limit:",
+            "Food items are unable to added into cart due to exceed limit:",
         });
       }
       var foodItem = this.state.foodItem;

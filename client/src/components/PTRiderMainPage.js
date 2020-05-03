@@ -9,8 +9,11 @@ import {
   Jumbotron,
 } from "reactstrap";
 
+import "../styles/PTRiderMainPage.css";
+
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
+import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
 import CompletedOrderList from "./CompletedOrderList";
@@ -154,6 +157,7 @@ class PTRiderMainPage extends Component {
       <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Part Time Rider</NavbarBrand>
+
           <Nav className="mr-auto">
             <NavLink
               href=""
@@ -162,6 +166,13 @@ class PTRiderMainPage extends Component {
             >
               <MdHome />
               <span> Home</span>
+            </NavLink>
+          </Nav>
+
+          <Nav>
+            <NavLink href="/Login" className="link">
+              <RiLogoutBoxLine />
+              <span> Logout</span>
             </NavLink>
           </Nav>
         </Navbar>

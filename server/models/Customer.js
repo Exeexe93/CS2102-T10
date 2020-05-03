@@ -25,7 +25,7 @@ class Customer {
 
   static getOrders(cid, callback) {
     db.query(
-      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1",
+      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -42,6 +42,15 @@ class Customer {
               restaurantName: foodItem.restaurantname,
               cost: foodItem.cost,
               foods: [],
+              order_status: foodItem.deliver_to_cust
+                ? "Food delivered"
+                : foodItem.depart_for_delivery
+                ? "Delivery in progress"
+                : foodItem.arrive_at_rest
+                ? "Rider reaches the restaurant"
+                : foodItem.depart_for_rest
+                ? "Rider is on the way to restaurant"
+                : "Assigning rider for the order",
             });
           }
           output[i].foods.push({
@@ -253,69 +262,10 @@ class Customer {
     });
   }
 
-  static updatePlaceTable(
-    oid,
-    cid,
-    address,
-    payment_method,
-    card_number,
-    callback
-  ) {
-    if (payment_method !== "cash") {
-      db.query(
-        "UPDATE Places SET address = $3, payment_method = $4, card_number = $5 WHERE oid = $1 AND cid = $2",
-        [oid, cid, address, payment_method, card_number],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          return callback(err, res);
-        }
-      );
-    } else {
-      db.query(
-        "UPDATE Places SET address = $3, payment_method = $4 WHERE oid = $1 AND cid = $2",
-        [oid, cid, address, payment_method],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          return callback(err, res);
-        }
-      );
-    }
-  }
-
-  static updateRewardPoint(cid, reward_points, callback) {
-    db.query(
-      "UPDATE Customers SET reward_points = reward_points + TO_NUMBER($2,'9999.99') WHERE cid = $1",
-      [cid, reward_points],
-      (err, res) => {
-        if (err.error) {
-          return callback(err, res);
-        }
-        return callback(err, res);
-      }
-    );
-  }
-
   static checkOrderExists(cid, rest_id, callback) {
     db.query(
       "SELECT O.oid, C.fid, C.quantity, C.total_price From PLACES as P LEFT JOIN ORDERS as O USING (oid) LEFT JOIN CONSISTS as C ON O.oid = C.oid WHERE P.cid = $1 AND O.order_status = 'cart' AND O.rest_id = $2",
       [cid, rest_id],
-      (err, res) => {
-        if (err.error) {
-          return callback(err, res);
-        }
-        return callback(err, res);
-      }
-    );
-  }
-
-  static updateFood(oid, fid, quantity, total_price, callback) {
-    db.query(
-      "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2",
-      [oid, fid, quantity, total_price],
       (err, res) => {
         if (err.error) {
           return callback(err, res);

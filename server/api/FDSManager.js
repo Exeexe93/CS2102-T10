@@ -86,4 +86,14 @@ router.post('/getName', (req, res) => {
         return res.json(result);
     })
 })
+
+router.get('/getAllRidersName', (req, res) => {
+    FDSManagerModel.queryGetAllRiderName((err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api get getAllRiderName");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})
 module.exports = router;

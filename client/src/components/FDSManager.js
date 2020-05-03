@@ -22,17 +22,17 @@ import {
 class FDSManager extends Component {
     constructor(props) {
         super(props);
-        let currentDate = new Date();
         this.state = {
             // Change to the FDSManager name here
+            name: "",
             displayMonth: '',
             displayYear: '',
             displayDay: '',
             year: '',
             month: '',
             day: [],
-            queryDate: '1',
-            queryArea: '',
+            queryDate: '',
+            previousArea: '',
             area: '',
             num: 0,
             orders: 0,
@@ -52,8 +52,7 @@ class FDSManager extends Component {
                 {hour: 19, num_orders: 0},
                 {hour: 20, num_orders: 0},
                 {hour: 21, num_orders: 0}
-            ],
-            FDSManagerName: "Mr Eng"
+            ]
         };
     }
 
@@ -144,9 +143,14 @@ class FDSManager extends Component {
             return res.json();
         })
         .then(res => {
-            this.setState({
-                ridersStats: res
-            })
+            if (res.length === 0) {
+                // TODO set empty list
+            } else {
+                console.log(res);
+                this.setState({
+                    ridersStats: res
+                })
+            }
         })
 
     }
@@ -174,14 +178,17 @@ class FDSManager extends Component {
                 <td key={index}>hours work</td>
                 <td key={index + riders.salary}>{riders.salary}</td>
                 <td key={index}>{this.extractDuration(riders.delivery_duration)}</td>
-                <td key={index}>{riders.num_ratings}</td>
-                <td key={index}>{riders.avg_rating}</td>
+                <td key={index}>{riders.num_ratings ? riders.num_ratings : 'NIL'}</td>
+                <td key={index}>{riders.avg_rating ? riders.avg_rating : 'NIL'}</td>
             </tr>
         )
     }
 
     extractDuration = (duration) => {
         let returnString = ''
+        if (duration === null) {
+            return '0 hour 0 minute';
+        }
         if (duration.hours) {
             returnString += duration.hours 
             returnString += duration.hours > 1 
@@ -236,6 +243,7 @@ class FDSManager extends Component {
 
     renderDayDropdown = () => {
         let items = [];
+        items.push(<option value="none" selected disabled hidden>Day</option>)
         for (let i = 1; i <= this.state.day.length; i++) {
             items.push(<option key={i} value={i}>{i}</option>);
         }
@@ -296,7 +304,6 @@ class FDSManager extends Component {
             'Bukit Batok',
             'Bukit Panjang',
             'Boon Lay',
-            'Pioneer',
             'Choa Chu Kang',
             'Clementi',
             'Jurong East',
@@ -317,7 +324,7 @@ class FDSManager extends Component {
             'Tuas South',
             'West Coast',
         ].sort();
-        let listOfOptions = []
+        let listOfOptions = [<option value="none" selected disabled hidden>Area</option>]
         for (let i = 0; i < areas.length; i++) {
             listOfOptions.push(<option key={areas[i]} values={areas[i]}>
                 {areas[i]}
@@ -341,7 +348,6 @@ class FDSManager extends Component {
     }
 
     handleLocationQueryHelper = () => {
-        console.log("aaaaaaaaaaaaaaaaaa my querydate here: ", this.state.queryDate);
         fetch('http://localhost:3001/FDSManager/dailyLocationStats', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
@@ -373,15 +379,15 @@ class FDSManager extends Component {
     }
 
     handleLocationQuery = () => {
-        let newQuery = this.state.displayDay != this.state.queryDate || this.state.area != this.state.queryArea;
-        if (newQuery) {
-            console.log("queryDate: ", this.state.queryDate);
-            console.log("area: ", this.state.area);
+        let emptyArea = this.state.area === ""
+        let emptyDay = this.state.queryDate === ""
+        let newQuery = this.state.displayDay !== this.state.queryDate || this.state.area !== this.state.previousArea;
+        if (newQuery && !emptyArea && !emptyDay) {
             this.setState({
+                previousArea : this.state.area,
                 displayDay : this.state.queryDate
             })
             this.handleLocationQueryHelper();
-            console.log("Query date: ", this.state.queryDate);
         }
     }
 
@@ -396,6 +402,21 @@ class FDSManager extends Component {
 
     getName = () => {
         // TODO implement get fdsmanager name here if got time
+        let account_id = { accountid : this.props.location.state.account_id}
+        console.log("getName ran")
+        fetch('http://localhost:3001/FDSManager/getName', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify(account_id)
+        })
+        .then(res => {
+            return res.json();
+        })
+        .then(res => {
+            this.setState({
+                name : res[0].name,
+            })
+        })
     }
 
     componentDidMount() {
@@ -412,7 +433,7 @@ class FDSManager extends Component {
                 <Row>
                     <Col>
                         <Jumbotron>
-                            <h1 className="display-3">Welcome { this.state.FDSManagerName }</h1>
+                            <h1 className="display-3">Welcome { this.state.name }</h1>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
                             <div class="input-group">
                             <input className="enter_button" 

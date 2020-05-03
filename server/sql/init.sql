@@ -1,6 +1,3 @@
--- Set the timestamp to this format
--- ALTER SESSION SET NLS_TIMESTAMP_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
-
 DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
@@ -13,8 +10,10 @@ DROP TABLE IF EXISTS PTRiders CASCADE;
 DROP TABLE IF EXISTS WWS CASCADE;
 DROP TABLE IF EXISTS MWS CASCADE;
 DROP TABLE IF EXISTS Contains CASCADE;
+DROP TABLE IF ExISTS Has CASCADE;
 
 DROP TABLE IF EXISTS Shift CASCADE;
+DROP TABLE IF EXISTS ShiftInfo CASCADE;
 DROP TABLE IF EXISTS PTWorks CASCADE;
 DROP TABLE IF EXISTS FTWorks CASCADE;
 DROP TABLE IF EXISTS FDSManagers CASCADE;
@@ -23,11 +22,12 @@ DROP TABLE IF EXISTS Salaries CASCADE;
 DROP TABLE IF EXISTS Orders CASCADE;
 DROP TABLE IF EXISTS Restaurants CASCADE;
 DROP TABLE IF EXISTS RestaurantStaffs CASCADE;
-DROP TABLE IF EXISTS Menus CASCADE;
 DROP TABLE IF EXISTS Foods CASCADE;
 DROP TABLE IF EXISTS Consists CASCADE;
 DROP TABLE IF EXISTS Places CASCADE;
 DROP TABLE IF EXISTS Reviews CASCADE;
+
+
 
 CREATE TABLE Accounts (
 	account_id varchar(255) primary key,
@@ -41,13 +41,13 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
 	name varchar(255) not null,
-	reward_points double precision,
+	reward_points integer,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
-	card_number varchar(255) unique not null,
+	card_number varchar(255),
 	primary key (cid, card_number)
 	--foreign key (cid) references Customers on delete cascade
 );
@@ -91,51 +91,114 @@ CREATE TABLE PTRiders (
     primary key (rid)
 );
 
+-- combination of DWS and Shift together into one entity
 CREATE TABLE Shift (
-	shift_id serial primary key,
-	work_hour integer not null,
-	start_time time not null,
-	end_time time not null
+	shift_id serial,
+	actual_date date,
+	primary key(shift_id, actual_date)
 );
 
+
+CREATE TABLE ShiftInfo (
+	start_time time,
+	end_time time,
+	shift_id integer,
+	actual_date date,
+	primary key(start_time, end_time, shift_id, actual_date),
+	foreign key(shift_id, actual_date) references Shift 
+		on delete cascade
+		on update cascade
+);
+
+-- CREATE TABLE Describes (
+-- 	shift_id integer,
+-- 	start_time time,
+-- 	end_time time,
+-- 	primary key(shift_id, start_time, end_time)
+-- 	foreign key(start_time, end_time) references ShiftInfo
+-- 		on delete cascade
+-- 		on update cascade,
+-- 	foreign key(shift_id) references Shift
+-- 		on delete cascade
+-- 		on update cascade
+-- )
+
+-- wk_no can use EXTRACT method in postgres to store if not change datatype to not double precision
+-- wk_no with respect to the start_date
+-- abstract view, defining what is a week
 CREATE TABLE WWS (
-	wws_id serial primary key,
-	day_1 date,
-	day_2 date,
-	day_3 date,
-	day_4 date,
-	day_5 date,
-	day_6 date,
-	day_7 date 
+	wk_no integer,
+	start_date date,
+	end_date date,
+	primary key(wk_no, start_date, end_date)
 );
 
 CREATE TABLE Contains (
-	wws_id serial references WWS(wws_id) on delete cascade,
-	actual_date date not null,
-	shift_id integer references Shift(shift_id) on delete cascade,
-	primary key (wws_id, actual_date)
+	wk_no integer,
+	start_date date,
+	end_date date,
+	shift_id integer,
+	actual_date date,
+	primary key(shift_id, actual_date, start_date, end_date, wk_no),
+	foreign key(wk_no, start_date, end_date) references WWS
+		on delete cascade
+		on update cascade,
+	foreign key(shift_id, actual_date) references Shift
+		on delete cascade
+		on update cascade
 );
 
+-- Start_wk and end_wk can use the EXTRACT method to extract week base of year
+-- month wrt to the start_wk
+-- abstract view defining what is a month (4 consecutive weeks)
 CREATE TABLE MWS (
-	mws_id serial primary key,
-	wws1 serial not null references WWS(wws_id),
-    wws2 serial not null references WWS(wws_id),
-    wws3 serial not null references WWS(wws_id),
-    wws4 serial not null references WWS(wws_id)
+	month integer,
+	total_hours integer not null,
+	start_wk integer,
+	end_wk integer,
+	primary key(month, start_wk, end_wk)
 );
 
+CREATE TABLE Has (
+	month integer,
+	start_wk integer,
+	end_wk integer,
+	wk_no integer,
+	start_date date,
+	end_date date,
+	primary key(month, start_wk, end_wk, wk_no, start_date, end_date),
+	foreign key(month, start_wk, end_wk) references MWS
+		on delete cascade
+		on update cascade,
+	foreign key(wk_no, start_date, end_date) references WWS
+		on delete cascade
+		on update cascade
+);
+
+-- total hours put at this table is because if put at WWS, cannot ensure that every week different riders same hour however putting at here can ensure that. 
+-- As every rider only participate in on uniquee PTWorks table 
 CREATE TABLE PTWorks (
 	rid varchar(255) references PTRiders(rid),
-	wws_id serial references WWS(wws_id),
-	primary key (wws_id, rid)
+	wk_no integer,
+	start_date date,
+	end_date date,
+	total_hours integer,
+	primary key (wk_no, start_date, end_date, rid),
+	foreign key(wk_no, start_date, end_date) references WWS
+		on update cascade
+		on delete cascade
 );
 
 CREATE TABLE FTWorks(
 	rid varchar(255) references FTRiders(rid),
-	mws_id serial references MWS(mws_id),
-	primary key (rid, mws_id)
+	month integer not null, 
+	start_wk integer not null,
+	end_wk integer not null,
+	primary key (rid, month, start_wk, end_wk),
+	foreign key(month, start_wk, end_wk) references MWS
+		on delete cascade
+		on update cascade
 );
-
 
 CREATE TABLE FDSManagers (
 	fds_id varchar(255) references Accounts(account_id) on delete cascade,
@@ -196,21 +259,15 @@ CREATE TABLE RestaurantStaffs (
     primary key(staff_id)
 );
 
-CREATE TABLE Menus (
-	menu_id serial primary key,
-    rest_id serial,
-	foreign key (rest_id) references Restaurants on delete cascade
-);
-
 CREATE TABLE Foods (
     fid serial primary key,
-    menu_id serial,
+    rest_id serial,
     name varchar(255) not null,
     price money not null,
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
-    foreign key (menu_id) references Menus on delete cascade
+    foreign key (rest_id) references Restaurants on delete cascade
 );
 
 CREATE TABLE Consists (
@@ -223,11 +280,10 @@ CREATE TABLE Consists (
 );
 
 CREATE TABLE Places (
-	oid serial references Orders(oid) on delete cascade,
+	oid integer references Orders(oid),
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
-	payment_method varchar(50),
-	card_number varchar(255) references CreditCards(card_number),
+	payment_method varchar(255),
 	primary key(oid, cid)
 );
 
@@ -247,19 +303,33 @@ CREATE TABLE Places (
 CREATE OR REPLACE FUNCTION check_max_shift_hour()
    RETURNS trigger AS $$
 BEGIN
-   If NEW.end_time - NEW.start_time > 4 THEN
+   If EXTRACT(HOUR FROM (SELECT NEW.end_time - NEW.start_time)) > 4 THEN
 RAISE exception 'Given start(%) and end time(%) are more than 4 hours.', NEW.start_time, NEW.end_time;
   END IF;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS max_shift_interval ON Shift;
+DROP TRIGGER IF EXISTS max_shift_interval ON ShiftInfo;
 CREATE TRIGGER max_shift_interval
 BEFORE UPDATE OR INSERT
-ON Shift
+ON ShiftInfo
 FOR EACH ROW
 EXECUTE FUNCTION check_max_shift_hour();
+
+-- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
+
+-- need a trigger to check weekly schdedule total hours fit within the range of working hours for ptriders
+
+-- need a trigger to check for FTRiders 5 shift is in 1 WWS.
+
+-- need a trigger to check for FTRiders, 4 WWS is equivalent.
+
+-- need a trigger to check
+
+-- need a trigger to ensure everytime a MWS is added, Has table is added with the MWS instance to capture  total participation constraint
+ 
+-- need a trigger to ensure everytime a WWS is added, Contains table is added with the WWS isntance to capture the total participation constraint
 
 -- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
@@ -421,59 +491,124 @@ insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80
 insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
 
 -- WWS
--- insert into WWS (wws_id) values(1);
--- insert into WWS (wws_id) values(2);
--- insert into WWS (wws_id) values(3);
--- insert into WWS (wws_id) values(4);
+INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');
+INSERT into WWS (wk_no, start_date, end_date) values (19, '2020-05-09', '2020-05-15');
+INSERT into WWS (wk_no, start_date, end_date) values (20, '2020-05-16', '2020-05-22');
+INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05-29');
 
 -- MWS
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (1, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (2, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (3, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (4, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (5, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (6, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (7, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (8, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (9, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (10, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (11, 1, 2, 3, 4);
--- insert into MWS(mws_id, wws1, wws2, wws3, wws4) values (12, 1, 2, 3, 4);
+INSERT into MWS (month, total_hours, start_wk, end_wk) values (5, 120, 18, 21);
+
+-- Has
+INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values 
+	(5, 18, 21, 18, '2020-05-02', '2020-05-08'),
+	(5, 18, 21, 19, '2020-05-09', '2020-05-15'),
+	(5, 18, 21, 20, '2020-05-16', '2020-05-22'),
+	(5, 18, 21, 21, '2020-05-23', '2020-05-29');
 
 -- PTWorks
--- insert into PTWorks (rid, wws_id) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1);
--- insert into PTWorks (rid, wws_id) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 2);
--- insert into PTWorks (rid, wws_id) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 3);
--- insert into PTWorks (rid, wws_id) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 4);
--- insert into PTWorks (rid, wws_id) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 1);
--- insert into PTWorks (rid, wws_id) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 2);
--- insert into PTWorks (rid, wws_id) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 3);
--- insert into PTWorks (rid, wws_id) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 4);
--- insert into PTWorks (rid, wws_id) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 1); 
+INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
+INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
 -- FTWorks
--- insert into FTWorks (rid, mws_id) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1);
--- insert into FTWorks (rid, mws_id) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 2);
--- insert into FTWorks (rid, mws_id) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3);
--- insert into FTWorks (rid, mws_id) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 4);
--- insert into FTWorks (rid, mws_id) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5);
--- insert into FTWorks (rid, mws_id) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 6);
--- insert into FTWorks (rid, mws_id) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 7);
--- insert into FTWorks (rid, mws_id) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 8);
--- insert into FTWorks (rid, mws_id) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 9);
--- insert into FTWorks (rid, mws_id) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 10);
--- insert into FTWorks (rid, mws_id) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 11);
--- insert into FTWorks (rid, mws_id) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 12);
--- insert into FTWorks (rid, mws_id) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 1);
--- insert into FTWorks (rid, mws_id) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 4);
--- insert into FTWorks (rid, mws_id) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 5);
--- insert into FTWorks (rid, mws_id) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 6);
--- insert into FTWorks (rid, mws_id) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 7);
--- insert into FTWorks (rid, mws_id) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 8);
--- insert into FTWorks (rid, mws_id) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 9);
--- insert into FTWorks (rid, mws_id) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 10);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21);
+insert into FTWorks (rid, month, start_wk, end_wk) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21);
+
+
+INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');
+INSERT into Shift (shift_id, actual_date) values (1, '2020-05-03');
+INSERT into Shift (shift_id, actual_date) values (1, '2020-05-04');
+INSERT into Shift (shift_id, actual_date) values (1, '2020-05-05');
+INSERT into Shift (shift_id, actual_date) values (1, '2020-05-06');
+INSERT into Shift (shift_id, actual_date) values (2, '2020-05-02');
+INSERT into Shift (shift_id, actual_date) values (2, '2020-05-03');
+INSERT into Shift (shift_id, actual_date) values (2, '2020-05-04');
+INSERT into Shift (shift_id, actual_date) values (2, '2020-05-05');
+INSERT into Shift (shift_id, actual_date) values (2, '2020-05-06');
+INSERT into Shift (shift_id, actual_date) values (3, '2020-05-02');
+INSERT into Shift (shift_id, actual_date) values (3, '2020-05-03');
+INSERT into Shift (shift_id, actual_date) values (3, '2020-05-04');
+INSERT into Shift (shift_id, actual_date) values (3, '2020-05-05');
+INSERT into Shift (shift_id, actual_date) values (3, '2020-05-06');
+INSERT into Shift (shift_id, actual_date) values (4, '2020-05-02');
+INSERT into Shift (shift_id, actual_date) values (4, '2020-05-03');
+INSERT into Shift (shift_id, actual_date) values (4, '2020-05-04');
+INSERT into Shift (shift_id, actual_date) values (4, '2020-05-05');
+INSERT into Shift (shift_id, actual_date) values (4, '2020-05-06');
+
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-02');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-02');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-03');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-03');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-04');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-04');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-05');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-05');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-06');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-06');
+
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-02');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-02');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-03');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-03');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-04');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-04');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-05');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-05');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-06');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-06');
+
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-02');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-02');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-03');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-03');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-04');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-04');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-05');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-05');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-06');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-06');
+
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-02');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-02');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-03');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-03');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-04');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-04');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-05');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-05');
+
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-06');
+INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-06');
 
 -- Contains
+INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-02');
+INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-03');
+INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-04');
+INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-05');
+INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-06');
 
 -- Salaries
 insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36');
@@ -506,18 +641,6 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (27, '68973
 insert into Salaries (sid, rid, start_date, end_date, amount) values (28, '16710734-c5dc-460c-a7ad-54a7d3c92a63', '2020-02-01 15:51:25', '2020-03-01 16:15:50', '$3947.52');
 insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
 
--- Menus
-insert into Menus (menu_id, rest_id) values (1, 1);
-insert into Menus (menu_id, rest_id) values (2, 2);
-insert into Menus (menu_id, rest_id) values (3, 3);
-insert into Menus (menu_id, rest_id) values (4, 4);
-insert into Menus (menu_id, rest_id) values (5, 5);
-insert into Menus (menu_id, rest_id) values (6, 6);
-insert into Menus (menu_id, rest_id) values (7, 7);
-insert into Menus (menu_id, rest_id) values (8, 8);
-insert into Menus (menu_id, rest_id) values (9, 9);
-insert into Menus (menu_id, rest_id) values (10, 10);
-
 -- Orders
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null, 4);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null, 5);
@@ -543,16 +666,16 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (menu_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

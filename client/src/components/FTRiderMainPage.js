@@ -12,6 +12,7 @@ import "../styles/FTRiderMainPage.css";
 
 import { GiFoodTruck } from "react-icons/gi";
 import { MdHome } from "react-icons/md";
+import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
 import CompletedOrderList from "./CompletedOrderList";
@@ -157,6 +158,7 @@ class FTRiderMainPage extends Component {
       <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Full Time Rider</NavbarBrand>
+
           <Nav className="mr-auto">
             <NavLink
               href=""
@@ -165,6 +167,13 @@ class FTRiderMainPage extends Component {
             >
               <MdHome />
               <span> Home</span>
+            </NavLink>
+          </Nav>
+
+          <Nav>
+            <NavLink href="/Login" className="link">
+              <RiLogoutBoxLine />
+              <span> Logout</span>
             </NavLink>
           </Nav>
         </Navbar>

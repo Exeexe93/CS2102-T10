@@ -191,9 +191,10 @@ CREATE TABLE PTWorks (
 
 CREATE TABLE FTWorks(
 	rid varchar(255) references FTRiders(rid),
-	month integer not null, 
-	start_wk integer not null,
-	end_wk integer not null,
+	month integer, 
+	start_wk integer,
+	end_wk integer,
+	total_hours integer,
 	primary key (rid, month, start_wk, end_wk),
 	foreign key(month, start_wk, end_wk) references MWS
 		on delete cascade
@@ -502,12 +503,12 @@ INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values
 INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
 INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
--- FTWorks
-insert into FTWorks (rid, month, start_wk, end_wk) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21);
-insert into FTWorks (rid, month, start_wk, end_wk) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21);
-insert into FTWorks (rid, month, start_wk, end_wk) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21);
-insert into FTWorks (rid, month, start_wk, end_wk) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21);
-insert into FTWorks (rid, month, start_wk, end_wk) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21);
+-- FTWorks, total_hours
+insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21, 160);
+insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21, 160);
+insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21, 160);
+insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21, 160);
+insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21, 160);
 
 
 INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');

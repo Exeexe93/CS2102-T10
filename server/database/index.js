@@ -41,21 +41,25 @@ class Database {
     try {
       await db.query("BEGIN");
 
-      // queries = [{'INSERT INTO users(name, nickname) VALUES($1, $2) RETURNING id'}, {'INSERT INTO users(name) VALUES($1) RETURNING id'}]
+      // queries = ['INSERT INTO users(name, nickname) VALUES($1, $2) RETURNING id', 'INSERT INTO users(name) VALUES($1) RETURNING id']
       // value = [[[brian, happy man], [kenny, sad man]], [[xuan en], [michelle]]]
-      queries.map(async (query, index) => {
-        values[index].map(async (item) => {
-          await db.query(query, item);
-        });
-      });
+      await Promise.all(
+        queries.map(async (query, index) => {
+          return await Promise.all(
+            values[index].map(async (item) => {
+              await db.query(query, item);
+            })
+          );
+        })
+      );
 
       await db.query("COMMIT");
-    } catch (e) {
-      await db.query("ROLLBACK");
-      console.error(e.stack);
-      return callback({ error: "Database error... Transaction failed." }, null);
-    } finally {
       callback({}, "Success Transaction.");
+    } catch (err) {
+      await db.query("ROLLBACK");
+      console.error(err.stack);
+      callback({ error: err }, null);
+    } finally {
       db.release();
     }
   }

@@ -9,8 +9,6 @@ import {
   Accordion,
   Card,
   Table,
-  DropdownButton,
-  Dropdown,
 } from "react-bootstrap";
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";

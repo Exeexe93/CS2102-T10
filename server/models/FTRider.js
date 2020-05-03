@@ -17,7 +17,7 @@ class FTRider {
   static getAverageRating(rid, callback) {
     let newAverageRating;
     db.query(
-      "SELECT ROUND(AVG(rating)::numeric,2) AS avg_rating FROM Rates WHERE rid = $1 GROUP BY rid",
+      "SELECT ROUND(AVG(rating)::numeric,2) AS avg_rating FROM Orders WHERE rid = $1 GROUP BY rid",
       [rid],
       (err, res) => {
         if (err.error) {

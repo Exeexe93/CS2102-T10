@@ -3,7 +3,8 @@ import "../styles/FoodItem.css";
 import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
 import { MdPerson, MdArrowBack } from "react-icons/md";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
-import { Form, ListGroup, Button } from "react-bootstrap";
+import { Form, ListGroup, Button, Table } from "react-bootstrap";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import axios from "axios";
 
 class FoodItem extends Component {
@@ -16,6 +17,7 @@ class FoodItem extends Component {
       foodItem: [],
       filtered: [],
       orders: [],
+      reviews: [],
       restaurantName: this.props.location.state.restaurantName,
       cid: this.props.location.state.cid,
       rest_id: this.props.location.state.rest_id,
@@ -69,8 +71,28 @@ class FoodItem extends Component {
     }
   };
 
+  getReviews = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:3001/Customer/GetReviews",
+        {
+          rest_id: this.props.location.state.rest_id,
+        }
+      );
+      console.log("reviews: ");
+      console.log(res);
+      console.log(res.data);
+      this.setState({
+        reviews: res.data,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   componentDidMount() {
     this.updateFoods();
+    this.getReviews();
   }
 
   handleProfile = () => {
@@ -334,6 +356,141 @@ class FoodItem extends Component {
     );
   };
 
+  displayMenuHeader = () => {
+    return (
+      <ListGroup horizontal>
+        <ListGroup.Item className="listName">Food Name</ListGroup.Item>
+        <ListGroup.Item className="listPrice">Price</ListGroup.Item>
+        <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
+        <ListGroup.Item className="listQuantityLeft">
+          Quantity Left
+        </ListGroup.Item>
+        {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
+        <ListGroup.Item className="listCategory">Category</ListGroup.Item>
+      </ListGroup>
+    );
+  };
+
+  displayMenuFoods = (item, index) => {
+    return (
+      <ListGroup key={index} horizontal>
+        <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
+        <ListGroup.Item className="listPrice">{item.price}</ListGroup.Item>
+        <ListGroup.Item className="listQuantity">
+          <Form.Group controlId={item.name}>
+            <Form.Control
+              as="select"
+              value={this.state.foodItem[index].actualQuantity}
+              onChange={(value) => this.handleQuantity(value, index)}
+            >
+              {item.amount.map((num, index) => {
+                return (
+                  <option key={index} value={num.value}>
+                    {num.value}
+                  </option>
+                );
+              })}
+            </Form.Control>
+          </Form.Group>
+        </ListGroup.Item>
+        <ListGroup.Item className="listQuantityLeft">
+          {item.food_limit}
+        </ListGroup.Item>
+        {/* <ListGroup.Item className="listLimit">
+        {item.food_limit}
+      </ListGroup.Item> */}
+        <ListGroup.Item className="listCategory">
+          {item.category}
+        </ListGroup.Item>
+      </ListGroup>
+    );
+  };
+
+  displaySearchInput = () => {
+    return (
+      <div className="container">
+        <div className="searchContainer">
+          <input
+            type="text"
+            className="input"
+            onChange={(e) => this.handleChange(e)}
+            placeholder="Search..."
+          />
+        </div>
+      </div>
+    );
+  };
+
+  displayMenu = () => {
+    return (
+      <TabPanel>
+        <div className="restaurantNameTitle">
+          <h2>{this.state.restaurantName}</h2>
+        </div>
+
+        {this.displaySearchInput()}
+
+        <div className="separator"></div>
+        <ListGroup className="foodList">
+          {this.displayMenuHeader()}
+          {this.state.filtered.map((item, index) =>
+            this.displayMenuFoods(item, index)
+          )}
+          <div className="separator"></div>
+          {this.state.message && (
+            <h4 className="message">{this.state.message}</h4>
+          )}
+          {(this.state.errorAddingFoods.length !== 0 ||
+            this.state.errorUpdateFoods.length !== 0) &&
+            this.displayErrorFoods()}
+          {this.state.errorAddingFoods.length !== 0 && (
+            <h4 className="errorFoods">{this.state.errorAddingFoods}</h4>
+          )}
+          <Button
+            type="button"
+            className="submitButton"
+            onClick={this.addOrder}
+          >
+            Submit
+          </Button>
+        </ListGroup>
+      </TabPanel>
+    );
+  };
+
+  renderReview = (review, index) => {
+    return (
+      <tr key={index}>
+        <td>{review.food_name}</td>
+        <td>{review.customer_name}</td>
+        <td>{review.review}</td>
+      </tr>
+    );
+  };
+
+  displayReviews = () => {
+    return (
+      <TabPanel>
+        <div className="reviewBody">
+          <h2 className="reviewTitle">Reviews</h2>
+          <div className="separator"></div>
+          <div className="reviewTableContainer">
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Food Name</th>
+                  <th>Reviewer's Name</th>
+                  <th>Comments</th>
+                </tr>
+              </thead>
+              <tbody>{this.state.reviews.map(this.renderReview)}</tbody>
+            </Table>
+          </div>
+        </div>
+      </TabPanel>
+    );
+  };
+
   render() {
     return (
       <div>
@@ -360,81 +517,14 @@ class FoodItem extends Component {
           </Col>
         </Row>
 
-        <div className="container">
-          <div className="searchContainer">
-            <input
-              type="text"
-              className="input"
-              onChange={(e) => this.handleChange(e)}
-              placeholder="Search..."
-            />
-          </div>
-        </div>
-
-        <div className="separator"></div>
-        <ListGroup className="foodList">
-          <ListGroup horizontal>
-            <ListGroup.Item className="listName">Food Name</ListGroup.Item>
-            <ListGroup.Item className="listPrice">Price</ListGroup.Item>
-            <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-            <ListGroup.Item className="listQuantityLeft">
-              Quantity Left
-            </ListGroup.Item>
-            {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
-            <ListGroup.Item className="listCategory">Category</ListGroup.Item>
-          </ListGroup>
-          {this.state.filtered.map((item, index) => (
-            <ListGroup key={index} horizontal>
-              <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
-              <ListGroup.Item className="listPrice">
-                {item.price}
-              </ListGroup.Item>
-              <ListGroup.Item className="listQuantity">
-                <Form.Group controlId={item.name}>
-                  <Form.Control
-                    as="select"
-                    value={this.state.foodItem[index].actualQuantity}
-                    onChange={(value) => this.handleQuantity(value, index)}
-                  >
-                    {item.amount.map((num, index) => {
-                      return (
-                        <option key={index} value={num.value}>
-                          {num.value}
-                        </option>
-                      );
-                    })}
-                  </Form.Control>
-                </Form.Group>
-              </ListGroup.Item>
-              <ListGroup.Item className="listQuantityLeft">
-                {item.food_limit}
-              </ListGroup.Item>
-              {/* <ListGroup.Item className="listLimit">
-                {item.food_limit}
-              </ListGroup.Item> */}
-              <ListGroup.Item className="listCategory">
-                {item.category}
-              </ListGroup.Item>
-            </ListGroup>
-          ))}
-          <div className="separator"></div>
-          {this.state.message && (
-            <h4 className="message">{this.state.message}</h4>
-          )}
-          {(this.state.errorAddingFoods.length !== 0 ||
-            this.state.errorUpdateFoods.length !== 0) &&
-            this.displayErrorFoods()}
-          {this.state.errorAddingFoods.length !== 0 && (
-            <h4 className="errorFoods">{this.state.errorAddingFoods}</h4>
-          )}
-          <Button
-            type="button"
-            className="submitButton"
-            onClick={this.addOrder}
-          >
-            Submit
-          </Button>
-        </ListGroup>
+        <Tabs className="centered">
+          <TabList id="tabs">
+            <Tab>Menu</Tab>
+            <Tab>Reviews</Tab>
+          </TabList>
+          {this.displayMenu()}
+          {this.displayReviews()}
+        </Tabs>
       </div>
     );
   }

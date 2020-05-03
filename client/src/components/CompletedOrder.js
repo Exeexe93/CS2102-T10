@@ -14,34 +14,32 @@ class CompletedOrder extends Component {
 
     return (
       <React.Fragment>
-        <Container fluid className="container-fluid">
-          <div className="order-container">
-            <div className="order-row">
-              <h3>Order Number: </h3>
-              <p>{order_number}</p>
-            </div>
-
-            <div className="order-row">
-              <h3>Customer Name: </h3>
-              <p>{cname}</p>
-            </div>
-
-            <div className="order-row">
-              <h3>Delivery Location: </h3>
-              <p>{delivery_location}</p>
-            </div>
-
-            <div className="order-row">
-              <h3>Restaurant: </h3>
-              <p>{restaurant_name}</p>
-            </div>
-
-            <div className="order-row">
-              <h3>Restaurant Location: </h3>
-              <p>{restaurant_location}</p>
-            </div>
+        <div className="order-container">
+          <div className="order-row">
+            <h3>Order Number: </h3>
+            <p>{order_number}</p>
           </div>
-        </Container>
+
+          <div className="order-row">
+            <h3>Customer Name: </h3>
+            <p>{cname}</p>
+          </div>
+
+          <div className="order-row">
+            <h3>Delivery Location: </h3>
+            <p>{delivery_location}</p>
+          </div>
+
+          <div className="order-row">
+            <h3>Restaurant: </h3>
+            <p>{restaurant_name}</p>
+          </div>
+
+          <div className="order-row">
+            <h3>Restaurant Location: </h3>
+            <p>{restaurant_location}</p>
+          </div>
+        </div>
       </React.Fragment>
     );
   }

@@ -2,16 +2,18 @@
   font-family: Helvetica, Arial;
 }
 
-.order-row {
+.order-container {
   display: flex;
-  font-family: Helvetica, Arial;
-  font-size: 18px;
-  width: 80%;
+  flex-direction: column;
   /* Vertical alignment */
   align-items: center;
   /* Horizontal alignment */
   justify-content: center;
+}
 
+.order-row {
+  font-family: Helvetica, Arial;
+  font-size: 18px;
   padding: 1em;
 
   margin-left: 4em;

@@ -84,3 +84,22 @@ body {
   color: blue;
   margin-bottom: 20px;
 }
+
+.restaurantNameTitle {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.reviewTitle {
+  margin-top: 20px;
+}
+
+.reviewTableContainer {
+  width: 80%;
+}
+
+.reviewBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

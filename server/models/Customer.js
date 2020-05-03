@@ -25,7 +25,7 @@ class Customer {
 
   static getOrders(cid, callback) {
     db.query(
-      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
+      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust, O.rating, C.review, C.fid from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -42,6 +42,8 @@ class Customer {
               restaurantName: foodItem.restaurantname,
               cost: foodItem.cost,
               foods: [],
+              rating: foodItem.rating,
+              ratingSubmitted: foodItem.rating ? true : false,
               order_status: foodItem.deliver_to_cust
                 ? "Food delivered"
                 : foodItem.depart_for_delivery
@@ -57,6 +59,9 @@ class Customer {
             FoodName: foodItem.foodname,
             FoodQuantity: foodItem.quantity,
             FoodCost: foodItem.total_price,
+            FoodId: foodItem.fid,
+            Review: foodItem.review,
+            ReviewSubmitted: foodItem.review ? true : false,
           });
         });
         return callback(err, output);
@@ -273,6 +278,16 @@ class Customer {
         return callback(err, res);
       }
     );
+  }
+
+  static updateRatingAndReview(queryList, valueList, callback) {
+    console.log(queryList);
+    console.log(valueList);
+    db.transaction(queryList, valueList, (err, res) => {
+      console.log(err.error);
+      if (err.error) return callback(err, res);
+      return callback(err, res);
+    });
   }
 }
 

@@ -147,4 +147,15 @@ router.post("/CheckOrderExists", function (req, res) {
   });
 });
 
+router.post("/UpdateRatingAndReview", function (req, res) {
+  Customer.updateRatingAndReview(
+    req.body.queryList,
+    req.body.valueList,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
 module.exports = router;

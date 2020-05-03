@@ -3,6 +3,7 @@ import "../styles/Customer.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
+import { RiLogoutBoxLine } from "react-icons/ri";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { AccountContext } from "./AccountProvider.js";
 
@@ -75,7 +76,9 @@ class Customer extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">Main Page</NavbarBrand>
+          <NavbarBrand href="/Login">
+            <RiLogoutBoxLine className="logoutIcon" />
+          </NavbarBrand>
           <div className="icon-container">
             <GiShoppingCart
               size="3em"
@@ -90,7 +93,7 @@ class Customer extends Component {
           <Col>
             <Jumbotron className="header-centered">
               <h1 className="display-3">Welcome {this.state.customerName}</h1>
-              <p className="lead">What foods to order today? Yum! Yum!</p>
+              <p className="lead">Choose a restaurant and start order now!</p>
             </Jumbotron>
           </Col>
         </Row>

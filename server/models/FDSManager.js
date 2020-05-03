@@ -56,10 +56,16 @@ class FDSManager {
 
     static queryRidersStats(month, year, callback) {
         db.query(
-            'select max(delivery_duration) as delivery_duration, max(num_ratings) as num_ratings, max(rating) as avg_rating, count(O.rid) as num_orders, max(salary) as salary, name, rid, SUM(O.total_price) as total_price ' + 
-	        'from Riders left join Orders as O using (rid) left join (select sum(amount) as salary, rid, start_date from Salaries join Riders using (rid) group by rid, start_date) as RidersSalary using (rid) left join (select round(avg(rating), 2) as rating, rid, count(*) as num_ratings, ' +
-	        '(SELECT age(MAX(deliver_to_cust), MAX(order_placed))) as delivery_duration from Rates join Orders using (rid, oid) group by rid) as RateOrders using (rid) where (SELECT EXTRACT(MONTH FROM RidersSalary.start_date)) = $1 ' + 
-            'and (SELECT EXTRACT(YEAR FROM RidersSalary.start_date)) = $2 group by rid;',
+            'With RiderOrders as (select r.rid, r.name, sum(o.total_price) as total_price, MAX(age(deliver_to_cust, order_placed)) as delivery_duration, count(distinct o.rating) as num_rating, ' +
+	        'round(avg(rating), 2) as avg_rating, count(o.oid) as num_orders from Riders r left join Orders o using (rid) where extract(month from o.order_placed) = $1 ' +
+	        'and extract(year from o.order_placed) = $2 group by rid order by name), ' + 
+            'RiderSalary as (select r.rid, sum(amount) as salary, start_date from Salaries right join Riders r using (rid) where extract(month from start_date) = $1 ' +
+	        'and extract(year from start_date) = $2 group by (rid, start_date)), ' +
+            'RiderWorkHour as (select r.rid, coalesce(sum(ftwh.total_hours), sum(ptwh.total_hours)) as total_hours from Riders r left join PTWorks ptwh using (rid) left join FTWorks ftwh using(rid) ' +
+	        'where month = $1 group by r.rid) ' + 
+            'select rid, r.name, coalesce(ro.total_price, 0::money) as total_price, coalesce(ro.delivery_duration, \'00:00:00\') as delivery_duration, ' +
+	        'coalesce(ro.num_rating, 0) as num_rating, coalesce(ro.avg_rating, 0) as avg_rating, coalesce(ro.num_orders, 0) as num_orders, coalesce(rs.salary, 0::money) as salary, ' +
+            'coalesce(rwh.total_hours, 0) as total_hours from Riders r left join RiderOrders as ro using (rid) left join RiderSalary as rs using (rid) left join RiderWorkHour as rwh using (rid) order by name',
             [month, year],
             (err, res) => {
                 if (err.error) {
@@ -97,6 +103,18 @@ class FDSManager {
                 callback(err, res);
             }
 
+        )
+    }
+
+    static queryGetAllRiderName(callback) {
+        db.query(
+            'select * from Riders order by name;',
+            (err, res) => {
+                if (err.error) {
+                    cosole.log("Error occured at FDSManagerModel#queryGetAllRiderName:", err.error);
+                }
+                callback(err, res);
+            }
         )
     }
 }

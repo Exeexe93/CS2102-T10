@@ -39,6 +39,7 @@ class FDSManager extends Component {
             cost: 0.00,
             customerStats : [],
             ridersStats : [],
+            ridersName : [],
             dailyLocationStats: [ 
                 {hour: 10, num_orders: 0}, 
                 {hour: 11, num_orders: 0},
@@ -145,8 +146,10 @@ class FDSManager extends Component {
         .then(res => {
             if (res.length === 0) {
                 // TODO set empty list
+                this.setState({ridersStats : this.state.ridersName})
+                console.log('res length = 0 ',res);
             } else {
-                console.log(res);
+                console.log('printing from riderstats query in component ', res);
                 this.setState({
                     ridersStats: res
                 })
@@ -161,11 +164,11 @@ class FDSManager extends Component {
 
     renderCustomerStats = (customers, index) => {
         return (
-            <tr>
-                <td key={index}>{index + 1}</td>
-                <td key={index + customers.name}>{customers.cust_name}</td>
-                <td key={index + customers.num}>{customers.num}</td>
-                <td key={index + customers.total_price}>{customers.total_price}</td>
+            <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{customers.cust_name}</td>
+                <td>{customers.num}</td>
+                <td>{customers.total_price}</td>
             </tr>
         )
     }
@@ -173,28 +176,28 @@ class FDSManager extends Component {
     renderRidersStats = (riders, index) => {
         return (
             <tr key={index}>
-                <td key={index + riders.name}>{riders.name ? riders.name : "abcdef"}</td>
-                <td key={index + riders.num_orders}>{riders.num_orders}</td>
-                <td key={index}>hours work</td>
-                <td key={index + riders.salary}>{riders.salary}</td>
-                <td key={index}>{this.extractDuration(riders.delivery_duration)}</td>
-                <td key={index}>{riders.num_ratings ? riders.num_ratings : 'NIL'}</td>
-                <td key={index}>{riders.avg_rating ? riders.avg_rating : 'NIL'}</td>
+                <td>{riders.name ? riders.name : "abcdef"}</td>
+                <td>{riders.num_orders ? riders.num_orders : 0}</td>
+                <td>{riders.total_hours ? riders.total_hours : 0}</td>
+                <td>{riders.salary ? riders.salary : '$0.00'}</td>
+                <td>{this.extractDuration(riders.delivery_duration)}</td>
+                <td>{riders.num_ratings ? riders.num_ratings : 0}</td>
+                <td>{riders.avg_rating ? riders.avg_rating : 0}</td>
             </tr>
         )
     }
 
     extractDuration = (duration) => {
         let returnString = ''
-        if (duration === null) {
+        let emptyDuration = duration == null || (!duration.hours && !duration.minutes) 
+        if (emptyDuration) {
             return '0 hour 0 minute';
         }
         if (duration.hours) {
             returnString += duration.hours 
             returnString += duration.hours > 1 
                 ? " hours " 
-                : " hour "
-            
+                : " hour "    
         }
         if (duration.minutes) {
             returnString += "" + duration.minutes
@@ -381,8 +384,7 @@ class FDSManager extends Component {
     handleLocationQuery = () => {
         let emptyArea = this.state.area === ""
         let emptyDay = this.state.queryDate === ""
-        let newQuery = this.state.displayDay !== this.state.queryDate || this.state.area !== this.state.previousArea;
-        if (newQuery && !emptyArea && !emptyDay) {
+        if (!emptyArea && !emptyDay) {
             this.setState({
                 previousArea : this.state.area,
                 displayDay : this.state.queryDate
@@ -393,9 +395,9 @@ class FDSManager extends Component {
 
     renderDailyLocationStats = (dailyLocStats, index) => {
         return (
-            <tr>
-                <td key={dailyLocStats.hour}>{dailyLocStats.hour}</td>
-                <td key={dailyLocStats.hour + '-order'}>{dailyLocStats.num_orders}</td>
+            <tr key={index}>
+                <td>{dailyLocStats.hour}</td>
+                <td>{dailyLocStats.num_orders}</td>
             </tr>
         )
     }
@@ -419,8 +421,22 @@ class FDSManager extends Component {
         })
     }
 
+    getAllRidersName = () => {
+        fetch('http://localhost:3001/FDSManager/getAllRidersName')
+            .then(res => {
+                return res.json()
+            })
+            .then(res => {
+                this.setState({
+                    ridersStats : res,
+                    ridersName : res
+                })
+            })
+    }
+
     componentDidMount() {
         this.getName();
+        this.getAllRidersName();
     }
 
     render() {
@@ -461,6 +477,7 @@ class FDSManager extends Component {
                     <Tab eventKey="customers">Customers</Tab>
                     <Tab eventKey="riders" title="Riders">Riders</Tab>
                     <Tab eventKey="location" title="Location">Location</Tab>
+                    <Tab eventKey="promotion" titile="Promotion">Promotion</Tab>
                 </TabList>
                 <TabPanel class="tab-panel">
                     <h2>Monthly Statistics</h2>
@@ -468,17 +485,21 @@ class FDSManager extends Component {
                         <h3>Overall Summary</h3>
                         <Table>
                             <thead>
-                                <th>Report for Month</th>
-                                <th>Report for Year</th>
+                                <tr key="report-date-header">
+                                    <th>Report for Month</th>
+                                    <th>Report for Year</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
-                                <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                <tr key="report-date-content">
+                                    <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                    <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                </tr>
                             </tbody>
                         </Table>
                         <Table striped bordered hover>
                             <thead>
-                                <tr>
+                                <tr key="report-customer-header">
                                     <th>New Customer</th>
                                     <th>Number of Orders in this month</th>
                                     <th>Total amount collected from all orders in this month</th>
@@ -510,12 +531,16 @@ class FDSManager extends Component {
                     <h2>Monthly Statistics</h2>
                     <Table>
                             <thead>
-                                <th>Report for Month</th>
-                                <th>Report for Year</th>
+                                <tr>
+                                    <th>Report for Month</th>
+                                    <th>Report for Year</th>
+                                </tr>
                             </thead>
                             <tbody>
-                                <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
-                                <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                <tr>
+                                    <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                    <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                </tr>
                             </tbody>
                     </Table>
                     <Table striped bordered hover>
@@ -549,25 +574,34 @@ class FDSManager extends Component {
                     </Row>
                     <Table id="location">
                         <thead>
-                            <th>Report for Day</th>
-                            <th>Report for Month</th>
-                            <th>Report for Year</th>
+                            <tr>
+                                <th>Report for Day</th>
+                                <th>Report for Month</th>
+                                <th>Report for Year</th>
+                            </tr>
                         </thead>
                         <tbody>
-                            <td>{this.state.displayDay ? this.state.displayDay : 0}</td>
-                            <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
-                            <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                            <tr>
+                                <td>{this.state.displayDay ? this.state.displayDay : 0}</td>
+                                <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                            </tr>
                         </tbody>
                     </Table>
                     <Table id="daily-stats">
                         <thead>
-                            <th>Hour</th>
-                            <th>Num of Orders</th>
+                            <tr>
+                                <th>Hour</th>
+                                <th>Num of Orders</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {this.state.dailyLocationStats.map(this.renderDailyLocationStats)}
                         </tbody>
                     </Table>
+                </TabPanel>
+                <TabPanel>
+                    details for adding promotion
                 </TabPanel>
             </Tabs>
 

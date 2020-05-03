@@ -58,7 +58,7 @@ class Schedule extends Component {
 
   render() {
     return (
-      <Container fluid className="container-fluid">
+      <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Schedule</NavbarBrand>
           <Nav className="mr-auto">
@@ -82,7 +82,7 @@ class Schedule extends Component {
         </div>
 
         {this.state.scheduleComponent}
-      </Container>
+      </div>
     );
   }
 }

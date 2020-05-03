@@ -550,24 +550,42 @@ class Cart extends Component {
   updateRewardPointUsed = (event) => {
     let value = event.target.value;
     if (value) {
+      console.log(value);
       if (value > this.state.rewardPoints) {
         this.setState({
           errorMessage:
-            "Points deducted cannot be more than available reward Points!",
+            "Points deducted cannot be more than available Reward Points!",
         });
       } else {
-        const paymentCost = parseFloat(
-          (
-            this.state.totalOrdersCost -
-            parseFloat(value) +
-            this.state.deliveryFee
-          ).toFixed(2)
-        );
-        this.setState({
-          rewardPointsUsed: value,
-          paymentCost: paymentCost,
-          errorMessage: "",
-        });
+        if (value > this.state.deliveryFee) {
+          this.setState({
+            errorMessage: "Points deducted cannot be more than delivery fee!",
+          });
+        } else {
+          console.log(value);
+          if (value.includes(".") && value.split(".")[1].length >= 3) {
+            this.setState({
+              errorMessage: "Points must be at most 2 decimal places!",
+            });
+          } else {
+            // 1 reward point = $1 offset in delivery fee
+            const conversionRate = 1;
+            const maxRewardPointsUsed = Math.min(value, this.state.deliveryFee);
+            const discount = conversionRate * maxRewardPointsUsed;
+            const paymentCost = parseFloat(
+              (
+                this.state.totalOrdersCost +
+                this.state.deliveryFee -
+                discount
+              ).toFixed(2)
+            );
+            this.setState({
+              rewardPointsUsed: maxRewardPointsUsed,
+              paymentCost: paymentCost,
+              errorMessage: "",
+            });
+          }
+        }
       }
     }
   };
@@ -579,8 +597,9 @@ class Cart extends Component {
         <h6>{this.state.rewardPoints}</h6>
         <div className="rewardPointInput">
           <Form.Control
-            pattern="[0-9]*(\.[0-9][0-9]|\.[0-9])*"
+            pattern="^[0-9]+(\.[0-9]{1,2})?$"
             defaultValue="0"
+            // value={this.state.rewardPointsUsed}
             onChange={(event) => this.updateRewardPointUsed(event)}
           />
         </div>

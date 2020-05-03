@@ -158,4 +158,11 @@ router.post("/UpdateRatingAndReview", function (req, res) {
   );
 });
 
+router.post("/GetReviews", function (req, res) {
+  Customer.getReviews(req.body.rest_id, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 module.exports = router;

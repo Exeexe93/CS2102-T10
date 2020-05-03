@@ -220,6 +220,7 @@ CREATE TABLE Orders (
 	rid varchar(255),
 	rest_id integer not null,
 	order_status varchar(50) not null,
+	rating integer,
 	delivery_fee money,
 	total_price money,
 	order_placed timestamp,
@@ -233,14 +234,17 @@ CREATE TABLE Orders (
 	foreign key (promo_used) references Promos(promo_id)
 );
 
-CREATE TABLE Rates (
-	rating integer,
-	oid integer,
-	rid varchar(255),
-	primary key (oid, rid),
-	foreign key (oid) references Orders (oid),
-	foreign key (rid) references Riders(rid)
-);
+-- Remove the rates table and add the rating as one of the attributes in Orders
+-- As order only have one rating 
+
+-- CREATE TABLE Rates (
+-- 	rating integer,
+-- 	oid integer,
+-- 	rid varchar(255) not null,
+-- 	primary key (oid),
+-- 	foreign key (oid) references Orders (oid),
+-- 	foreign key (rid) references Riders(rid)
+-- );
 
 CREATE TABLE Salaries (
 	sid serial primary key,
@@ -268,8 +272,9 @@ CREATE TABLE Foods (
 );
 
 CREATE TABLE Consists (
-	oid serial references Orders(oid) on delete cascade,
-	fid serial references Foods(fid) on delete cascade,
+	oid integer references Orders(oid) on delete cascade,
+	fid integer references Foods(fid) on delete cascade,
+	review varchar(255),
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
@@ -283,14 +288,17 @@ CREATE TABLE Places (
 	primary key(oid, cid)
 );
 
-CREATE TABLE Reviews (
-    cid varchar(255),
-    fid serial,
-    text varchar(255) not null,
-    primary key (cid, fid),
-    foreign key (fid) references Foods,
-    foreign key (cid) references Customers
-);
+-- Remove reviews table and add review as one of the attributes to Consists table
+-- As each foods for that order have only one review and no point having another table for it.
+
+-- CREATE TABLE Reviews (
+--     cid varchar(255),
+--     fid serial,
+--     text varchar(255) not null,
+--     primary key (cid, fid),
+--     foreign key (fid) references Foods,
+--     foreign key (cid) references Customers
+-- );
 
 -- Triggers
 CREATE OR REPLACE FUNCTION check_max_shift_hour()
@@ -634,17 +642,17 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (27, '68973
 insert into Salaries (sid, rid, start_date, end_date, amount) values (28, '16710734-c5dc-460c-a7ad-54a7d3c92a63', '2020-02-01 15:51:25', '2020-03-01 16:15:50', '$3947.52');
 insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
 
--- Orderscart 
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null);
+-- Orders
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$5.00', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', null, 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$5.00', '$89.00', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', null, 5);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$5.00', '$5.10', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$5.00', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$5.00', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$5.00', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$5.00', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$5.00', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$5.00', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', null);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$5.00', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', null, 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$5.00', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', null, 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$5.00', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null, 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$5.00', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', null, 3);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$5.00', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', null, 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$5.00', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', null, 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, promo_used, rating) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$5.00', '$92.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', null, 5);
 
 -- Places
 insert into Places (oid, cid, address, payment_method) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760', 'credit-card');
@@ -671,23 +679,22 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
 
 -- Rates
-insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');
-insert into Rates (rating, oid, rid) values (2, 2, '3c30a803-6834-41a9-b81e-6d54b6d5512d');
-insert into Rates (rating, oid, rid) values (5, 3, '1e9736bd-78ab-4dbd-9adc-40622a2f7223');
-insert into Rates (rating, oid, rid) values (1, 4, '2534042c-6526-44b1-abd5-532d7b7b281a');
-insert into Rates (rating, oid, rid) values (4, 5, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
-insert into Rates (rating, oid, rid) values (2, 6, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
-insert into Rates (rating, oid, rid) values (3, 7, '0161cded-c664-4f1b-ad3f-7766dc48fecb');
-insert into Rates (rating, oid, rid) values (3, 8, '03667134-3ab1-41e2-bff4-e1e6e14d3035');
-insert into Rates (rating, oid, rid) values (2, 9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0');
-insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb');
+-- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');
+-- insert into Rates (rating, oid, rid) values (5, 2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223');
+-- insert into Rates (rating, oid, rid) values (2, 3, '3c30a803-6834-41a9-b81e-6d54b6d5512d');
+-- insert into Rates (rating, oid, rid) values (1, 4, '2534042c-6526-44b1-abd5-532d7b7b281a');
+-- insert into Rates (rating, oid, rid) values (4, 5, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
+-- insert into Rates (rating, oid, rid) values (2, 7, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
+-- insert into Rates (rating, oid, rid) values (3, 6, '0161cded-c664-4f1b-ad3f-7766dc48fecb');
+-- insert into Rates (rating, oid, rid) values (3, 8, '03667134-3ab1-41e2-bff4-e1e6e14d3035');
+-- insert into Rates (rating, oid, rid) values (2, 9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0');
+-- insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb');
 
 -- Consists
-insert into Consists (oid, fid, quantity, total_price) values (1, 1, 2, '$2.40');
-insert into Consists (oid, fid, quantity, total_price) values (1, 5, 2, '$4.20');
-insert into Consists (oid, fid, quantity, total_price) values (1, 3, 1, '$10.10');
-insert into Consists (oid, fid, quantity, total_price) values (2, 1, 2, '$2.40');
-insert into Consists (oid, fid, quantity, total_price) values (2, 4, 1, '$5.10');
+insert into Consists (oid, fid, quantity, total_price, review) values (1, 1, 2, '$2.40', 'Taste not bad! Can consider buy again.');
+insert into Consists (oid, fid, quantity, total_price, review) values (1, 5, 2, '$4.20', 'Worth the price!! Recommend this food!');
+insert into Consists (oid, fid, quantity, total_price, review) values (1, 3, 1, '$10.10', 'Bad taste. Not worth the price!');
+insert into Consists (oid, fid, quantity, total_price, review) values (2, 4, 1, '$5.10', 'No comment!');
 insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
 insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');

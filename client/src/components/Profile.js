@@ -1,19 +1,21 @@
 import React, { Component } from "react";
 import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
+import { Navbar, NavbarBrand, Col, Row, Jumbotron } from "reactstrap";
 import {
-  Navbar,
-  NavbarBrand,
-  Col,
-  Row,
-  Jumbotron,
-  ListGroup,
-  ListGroupItem,
-} from "reactstrap";
-import { FormGroup, Form, Button } from "react-bootstrap";
+  FormGroup,
+  Form,
+  Button,
+  Accordion,
+  Card,
+  Table,
+  DropdownButton,
+  Dropdown,
+} from "react-bootstrap";
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { MdArrowBack } from "react-icons/md";
 import axios from "axios";
 
 class Profile extends Component {
@@ -155,11 +157,300 @@ class Profile extends Component {
       .catch((err) => console.error(err));
   };
 
+  handleReviewInput = (foodIndex, index, review) => {
+    let orders = this.state.orderHistory;
+    orders[index].foods[foodIndex].Review = review;
+    this.setState({
+      orderHistory: orders,
+    });
+  };
+
+  displayReviewInput = (foodIndex, index) => {
+    let order = this.state.orderHistory[index];
+    return (
+      <div>
+        {order.order_status === "Food delivered" ? (
+          order.foods[foodIndex].ReviewSubmitted ? (
+            <h6>{order.foods[foodIndex].Review}</h6>
+          ) : (
+            <Form.Control
+              name="card_number"
+              required={false}
+              type="text"
+              placeholder="No review yet"
+              onChange={(input) => {
+                this.handleReviewInput(foodIndex, index, input.target.value);
+              }}
+            />
+          )
+        ) : (
+          ""
+        )}
+      </div>
+    );
+  };
+
+  handleRatingInput = (input, index) => {
+    let orders = this.state.orderHistory;
+    orders[index].rating = input;
+    this.setState({
+      orderHistory: orders,
+    });
+  };
+
+  displayRatingInput = (index, order) => {
+    return (
+      <div className="ratingInput">
+        {order.order_status === "Food delivered" ? (
+          order.ratingSubmitted ? (
+            <div>
+              <Form.Label>Rating</Form.Label>
+              <h6>{order.rating}</h6>
+            </div>
+          ) : (
+            <div>
+              <Form.Label>Rating</Form.Label>
+              <Form.Control
+                as="select"
+                size="sm"
+                custom
+                onChange={(input) => {
+                  this.handleRatingInput(input.target.value, index);
+                }}
+              >
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+              </Form.Control>
+            </div>
+          )
+        ) : (
+          ""
+        )}
+      </div>
+    );
+  };
+
+  submitReviewAndRating = async (index) => {
+    let orders = this.state.orderHistory;
+    let order = orders[index];
+    let queryList = [];
+    let valueList = [];
+
+    try {
+      order.foods.map((food, foodIndex) => {
+        if (!food.ReviewSubmitted) {
+          if (foodIndex === 0) {
+            queryList.push(
+              "Update Consists SET review = $3 WHERE oid = $1 AND fid = $2"
+            );
+            valueList.push([]);
+          }
+
+          if (food.Review && food.Review !== "") {
+            valueList[0].push([order.orderNum, food.FoodId, food.Review]);
+          } else {
+            orders[index].errorMessage = "Review cannot leave blank!";
+            this.setState({
+              orderHistory: orders,
+            });
+            throw "Review leaving blank!";
+          }
+        }
+      });
+    } catch (err) {
+      return;
+    }
+
+    if (!order.ratingSubmitted) {
+      if (order.rating) {
+        queryList.push("UPDATE Orders SET rating = $2 WHERE oid = $1");
+        valueList.push([[order.orderNum, order.rating]]);
+      } else {
+        orders[index].errorMessage = "Please choose the rating for the order";
+        this.setState({
+          orderHistory: orders,
+        });
+        return;
+      }
+    }
+
+    try {
+      await axios.post("http://localhost:3001/Customer/UpdateRatingAndReview", {
+        queryList: queryList,
+        valueList: valueList,
+      });
+      orders[index].ratingSubmitted = true;
+      orders[index].foods.map((food) => {
+        food.ReviewSubmitted = true;
+      });
+      this.setState({ orderHistory: orders });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  displaySubmitButton = (index) => {
+    return (
+      <div>
+        {!this.state.orderHistory[index].ratingSubmitted &&
+          this.state.orderHistory[index].order_status === "Food delivered" && (
+            <Button
+              className="reviewAndRatingButton"
+              onClick={() => {
+                this.submitReviewAndRating(index);
+              }}
+            >
+              {" "}
+              Confirm review and rating{" "}
+            </Button>
+          )}
+      </div>
+    );
+  };
+
+  displayErrorMessage = (index) => {
+    return <h6>{this.state.orderHistory[index].errorMessage}</h6>;
+  };
+
+  renderOrderCost = (order) => {
+    return (
+      <tr key={"totalCost - " + order.orderNum} className="orderTable">
+        <td>Total Cost</td>
+        <td></td>
+        <td>${order.cost}</td>
+        <td></td>
+      </tr>
+    );
+  };
+
+  renderFoodItem = (food, foodIndex, index) => {
+    return (
+      <tr key={foodIndex} className="orderTable">
+        <td>{food.FoodName}</td>
+        <td>{food.FoodQuantity}</td>
+        <td>${food.FoodCost}</td>
+        <td>{this.displayReviewInput(foodIndex, index)}</td>
+      </tr>
+    );
+  };
+
+  renderOrder = (order, index) => {
+    return (
+      <Card key={index}>
+        <Accordion.Toggle
+          as={Card.Header}
+          eventKey={index}
+          className="orderHeader"
+        >
+          <h6> Order Number: {order.orderNum}</h6>
+          <h6>Order status: {order.order_status}</h6>
+        </Accordion.Toggle>
+
+        <Accordion.Collapse eventKey={index}>
+          <Card.Body>
+            <div className="tableHeader">
+              <h4>{order.restaurantName}</h4>
+              {this.displayRatingInput(index, order)}
+            </div>
+
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th>Food Name</th>
+                  <th>Quantity</th>
+                  <th>Total Cost</th>
+                  <td>Review</td>
+                </tr>
+              </thead>
+              <tbody>
+                {order.foods.map((food, foodIndex) =>
+                  this.renderFoodItem(food, foodIndex, index)
+                )}
+                {this.renderOrderCost(order)}
+              </tbody>
+            </Table>
+            {this.displayErrorMessage(index)}
+            {this.displaySubmitButton(index)}
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    );
+  };
+
+  displayPostOrderTab = () => {
+    return (
+      <TabPanel className="postOrderTab">
+        <h2 className="title"> Order History </h2>
+
+        <Accordion className="orderListing">
+          {this.state.orderHistory.map((order, index) =>
+            this.renderOrder(order, index)
+          )}
+        </Accordion>
+
+        <div className="footer"></div>
+      </TabPanel>
+    );
+  };
+
+  displayPreregisteredCreditCardTab = () => {
+    return (
+      <TabPanel>
+        <h2 className="title"> Credit cards </h2>
+        <div className="container">
+          <Form
+            ref={(form) => (this.creditcardform = form)}
+            action="/"
+            onSubmit={this.addCreditCard}
+          >
+            <Row>
+              <FormGroup>
+                <Col>
+                  <Form.Label>Credit Cards Number: </Form.Label>
+                  <Form.Control
+                    name="card_number"
+                    required
+                    type="text"
+                    placeholder="XXXX-XXXX-XXXX-XXXX"
+                    pattern="\d{4}-\d{4}-\d{4}-\d{4}$"
+                  />
+                </Col>
+              </FormGroup>
+              <div>
+                <Button className="submit-button" type="submit" size="sm">
+                  Add Credit Card
+                </Button>
+              </div>
+            </Row>
+          </Form>
+        </div>
+        {this.state.registeredCreditCard.map((item, index) => (
+          <div key={index}>
+            <GoCreditCard size="100px" className="credit-card" />
+            {item.card_number}
+            <Button
+              className="deleteButton"
+              onClick={() => this.handleDelete(index)}
+            >
+              Delete
+            </Button>
+          </div>
+        ))}
+        <div className="footer"></div>
+      </TabPanel>
+    );
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand>Profile</NavbarBrand>
+          <NavbarBrand href="/Customer">
+            <MdArrowBack />
+          </NavbarBrand>
         </Navbar>
 
         <Col>
@@ -176,96 +467,11 @@ class Profile extends Component {
 
         <Tabs className="centered">
           <TabList id="tabs">
-            <Tab eventKey="postOrderHistory">Post Order History</Tab>
-            <Tab eventKey="preRegisteredCreditCard">
-              Pre-registered credit card
-            </Tab>
+            <Tab>Post Order History</Tab>
+            <Tab>Pre-registered credit card</Tab>
           </TabList>
-          <TabPanel>
-            <h2 className="title"> Order History </h2>
-            <ListGroup>
-              <ListGroupItem key={"title"}>
-                <Row>
-                  <Col className="order-list">Order Number</Col>
-                  <Col className="order-list">Restaurant Name</Col>
-                  <Col className="order-list">Food Name</Col>
-                  <Col className="order-list">Food Quantity</Col>
-                  <Col className="order-list">Cost</Col>
-                </Row>
-              </ListGroupItem>
-              {this.state.orderHistory.map((item, index) => (
-                <ListGroupItem key={index}>
-                  <Row>
-                    <Col className="order-list">{item.orderNum}</Col>
-                    <Col className="order-list">{item.restaurantName}</Col>
-                    <Col className="order-list"></Col>
-                    <Col className="order-list"></Col>
-                    <Col className="order-list"></Col>
-                  </Row>
-                  {item.foods.map((food) => (
-                    <Row>
-                      <Col className="order-list"></Col>
-                      <Col className="order-list"></Col>
-                      <Col className="order-list">{food.FoodName}</Col>
-                      <Col className="order-list">{food.FoodQuantity}</Col>
-                      <Col className="order-list">{food.FoodCost}</Col>
-                    </Row>
-                  ))}
-                  <Row>
-                    <Col className="order-list"></Col>
-                    <Col className="order-list"></Col>
-                    <Col className="order-list"></Col>
-                    <Col className="order-list">Total Cost</Col>
-                    <Col className="order-list">{item.cost}</Col>
-                  </Row>
-                </ListGroupItem>
-              ))}
-            </ListGroup>
-            <div className="footer"></div>
-          </TabPanel>
-          <TabPanel>
-            <h2 className="title"> Credit cards </h2>
-            <div className="container">
-              <Form
-                ref={(form) => (this.creditcardform = form)}
-                action="/"
-                onSubmit={this.addCreditCard}
-              >
-                <Row>
-                  <FormGroup>
-                    <Col>
-                      <Form.Label>Credit Cards Number: </Form.Label>
-                      <Form.Control
-                        name="card_number"
-                        required
-                        type="text"
-                        placeholder="XXXX-XXXX-XXXX-XXXX"
-                        pattern="\d{4}-\d{4}-\d{4}-\d{4}$"
-                      />
-                    </Col>
-                  </FormGroup>
-                  <div>
-                    <Button className="submit-button" type="submit" size="sm">
-                      Add Credit Card
-                    </Button>
-                  </div>
-                </Row>
-              </Form>
-            </div>
-            {this.state.registeredCreditCard.map((item, index) => (
-              <div key={index}>
-                <GoCreditCard size="100px" className="credit-card" />
-                {item.card_number}
-                <Button
-                  className="deleteButton"
-                  onClick={() => this.handleDelete(index)}
-                >
-                  Delete
-                </Button>
-              </div>
-            ))}
-            <div className="footer"></div>
-          </TabPanel>
+          {this.displayPostOrderTab()}
+          {this.displayPreregisteredCreditCardTab()}
         </Tabs>
       </div>
     );

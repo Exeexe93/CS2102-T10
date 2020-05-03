@@ -10,9 +10,8 @@ import {
   Dropdown,
   DropdownButton,
   FormGroup,
-  // FormControl,
-  // InputGroup,
 } from "react-bootstrap";
+import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import axios from "axios";
 
@@ -23,27 +22,58 @@ class Cart extends Component {
       customerName: "",
       cid: "",
       rewardPoints: 0,
+      rewardPointsUsed: 0,
       orders: [],
       creditCards: [],
+      errorUpdateFoods: [],
       paymentMethod: "cash",
       addCreditCard: "",
+      addDeliveryLocation: "",
+      errorMessage: "",
+      totalOrdersCost: 0,
+      promoDiscount: 0,
+      paymentCost: 0,
+      deliveryFee: 0,
+      discountedCost: 0,
+      promo_id: 0,
+      addressSelected: "",
+      addresses: [],
     };
   }
 
   static contextType = AccountContext;
 
-  getCreditCards = (value) => {
-    axios
-      .post("http://localhost:3001/Customer/GetTopFiveCreditCards", {
-        cid: value.state.cid,
-      })
-      .then((res) => {
-        let creditCards = res.data;
-        this.setState({
-          creditCards,
-        });
-      })
-      .catch((err) => console.error(err));
+  getCreditCards = async (value) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetTopFiveCreditCards",
+        {
+          cid: value.state.cid,
+        }
+      );
+      this.setState({
+        creditCards: response.data,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  getDeliveryLocations = async (value) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetFiveRecentDeliveryLocations",
+        {
+          cid: value.state.cid,
+        }
+      );
+      console.log(response.data);
+      this.setState({
+        addresses: response.data,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   getCartOrder = (value) => {
@@ -53,20 +83,32 @@ class Cart extends Component {
       })
       .then((res) => {
         let orders = res.data;
-        orders.map((data) =>
+        let singleOrderCost = 0;
+        let totalOrdersCost = 0;
+        orders.map((data) => {
           data.foods.map((food) => {
-            food["itemCost"] = this.calculateCost(
-              food.FoodCost,
-              food.FoodQuantity,
-              "individual"
-            );
+            const singleFoodCost = parseFloat(food.FoodCost.slice(1));
+            singleOrderCost += singleFoodCost;
+            let individualFoodCost = singleFoodCost / food.FoodQuantity;
+            food["itemCost"] = parseFloat(individualFoodCost.toFixed(2));
             food["originalQuantity"] = food.FoodQuantity;
-          })
+            food["FoodCost"] = singleFoodCost;
+          });
+          data["total_cost"] = singleOrderCost;
+          totalOrdersCost = totalOrdersCost + singleOrderCost;
+        });
+        const deliveryFee = parseFloat((totalOrdersCost * 0.05).toFixed(2));
+        const paymentCost = parseFloat(
+          (deliveryFee + totalOrdersCost).toFixed(2)
         );
+
         this.setState({
           orders: orders,
           cid: value.state.cid,
           customerName: value.state.name,
+          totalOrdersCost: totalOrdersCost,
+          paymentCost: paymentCost,
+          deliveryFee: deliveryFee,
         });
       })
       .catch((err) => console.error(err));
@@ -78,7 +120,7 @@ class Cart extends Component {
         name: value.state.name,
       })
       .then((res) => {
-        let rewardPoints = res.data[0].reward_points;
+        let rewardPoints = parseFloat(res.data[0].reward_points.toFixed(2));
         this.setState({
           rewardPoints,
         });
@@ -91,80 +133,99 @@ class Cart extends Component {
     this.getCartOrder(value);
     this.getCreditCards(value);
     this.getRewardPoint(value);
+    this.getDeliveryLocations(value);
   }
 
-  addCost = (total_cost, costToBeAdded) => {
-    const costInNum = parseFloat(costToBeAdded.slice(1));
-    return (total_cost += costInNum);
-  };
-
-  calculateCost = (cost, quantity, convertion) => {
-    const costInNum = parseFloat(cost.slice(1));
-    const total_price =
-      convertion === "total" ? costInNum * quantity : costInNum / quantity;
-    var formatter = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    return formatter.format(total_price.toFixed(2));
-  };
-
   calculateDeliveryFee = (total_cost) => {
-    let result = (total_cost * 0.05).toFixed(2);
-    return result;
+    return parseFloat((total_cost * 0.05).toFixed(2));
   };
 
   calculateRewardPoint = (total_cost) => {
-    let result = (total_cost * 0.1).toFixed(2);
+    let result = parseFloat((total_cost * 0.1).toFixed(2));
     return result;
   };
 
+  calculateDiscount = () => {
+    // To be continued
+    return 0;
+  };
+
   updateTotalValue = (event, food, foodIndex, index) => {
-    let item = food;
     let value = event.target.value;
     if (value) {
+      // Calculate total cost for the food based on quantity
       let orders = this.state.orders;
-      orders[index].foods[foodIndex].FoodCost = this.calculateCost(
-        food.itemCost,
-        value,
-        "total"
+      const FoodCost = (parseFloat(food.itemCost) * value).toFixed(2);
+      let costChanged = FoodCost - orders[index].foods[foodIndex].FoodCost;
+      costChanged = parseFloat(costChanged.toFixed(2));
+      const total_cost = parseFloat(
+        (orders[index].total_cost + costChanged).toFixed(2)
       );
+      const totalOrdersCost = parseFloat(
+        (this.state.totalOrdersCost + costChanged).toFixed(2)
+      );
+      const discountedCost = totalOrdersCost - this.calculateDiscount();
+      const deliveryFee = this.calculateDeliveryFee(discountedCost);
+      const paymentCost = parseFloat((discountedCost + deliveryFee).toFixed(2));
+
       orders[index].foods[foodIndex].FoodQuantity = value;
+      orders[index].total_cost = total_cost;
+      orders[index].foods[foodIndex].FoodCost = FoodCost;
       this.setState({
         orders,
+        totalOrdersCost,
+        discountedCost,
+        deliveryFee,
+        paymentCost,
       });
     }
   };
 
-  deleteOrder = (index) => {
-    axios
-      .post("http://localhost:3001/Customer/DeleteOrder", {
+  deleteOrder = async (index) => {
+    try {
+      await axios.post("http://localhost:3001/Customer/DeleteOrder", {
         oid: this.state.orders[index].orderNum,
-      })
-      .then((res) => {
-        let orders = this.state.orders;
-        orders.splice(index, 1);
-        this.setState({
-          orders,
-        });
-      })
-      .catch((err) => console.error(err));
+      });
+      let orders = this.state.orders;
+      orders.splice(index, 1);
+      this.setState({
+        orders,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  handleDelete = (foodIndex, index) => {
+  handleDelete = async (foodIndex, index) => {
     let orders = this.state.orders;
-    axios
-      .post("http://localhost:3001/Customer/DeleteFood", {
-        oid: orders[index].orderNum,
-        fid: orders[index].foods[foodIndex].FoodId,
-      })
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => console.error(err));
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/DeleteFood",
+        {
+          oid: orders[index].orderNum,
+          fid: orders[index].foods[foodIndex].FoodId,
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    }
+
+    const foodCost = orders[index].foods[foodIndex].FoodCost;
+    const orderCost = parseFloat(
+      (orders[index].total_cost - foodCost).toFixed(2)
+    );
+    const totalOrdersCost = parseFloat(
+      (this.state.totalOrdersCost - foodCost).toFixed(2)
+    );
+    const discountedCost = parseFloat(
+      (totalOrdersCost - this.calculateDiscount()).toFixed(2)
+    );
+    const deliveryFee = this.calculateDeliveryFee(discountedCost);
+    const paymentCost = parseFloat((discountedCost + deliveryFee).toFixed(2));
 
     orders[index].foods.splice(foodIndex, 1);
+    orders[index].total_cost = orderCost;
+
     if (orders[index].foods.length === 0) {
       // Empty order
       this.deleteOrder(index);
@@ -172,15 +233,32 @@ class Cart extends Component {
       // Order still has item in it
       this.setState({
         orders,
+        totalOrdersCost,
+        discountedCost,
+        deliveryFee,
+        paymentCost,
       });
     }
   };
 
+  renderOrderCost = (order) => {
+    return (
+      <tr key="orderCost" className="orderTable">
+        <td>Total Cost</td>
+        <td></td>
+        <td></td>
+        <td>${order.total_cost}</td>
+        <td></td>
+        <td></td>
+      </tr>
+    );
+  };
+
   renderFoodItem = (food, foodIndex, index) => {
     return (
-      <tr key={foodIndex}>
+      <tr key={foodIndex} className="orderTable">
         <td>{food.FoodName}</td>
-        <td>{food.itemCost}</td>
+        <td>${food.itemCost}</td>
         <td>
           <Form.Control
             pattern="[0-9]*"
@@ -190,7 +268,8 @@ class Cart extends Component {
             }
           />
         </td>
-        <td>{food.FoodCost}</td>
+        <td>${food.FoodCost}</td>
+        <td>{food.FoodLimit}</td>
         <td>
           <Button onClick={() => this.handleDelete(foodIndex, index)} size="sm">
             {" "}
@@ -217,6 +296,7 @@ class Cart extends Component {
                   <th>Price</th>
                   <th>Quantity</th>
                   <th>Total Cost</th>
+                  <th>Limit</th>
                   <th></th>
                 </tr>
               </thead>
@@ -224,6 +304,7 @@ class Cart extends Component {
                 {order.foods.map((food, foodIndex) =>
                   this.renderFoodItem(food, foodIndex, index)
                 )}
+                {this.renderOrderCost(order)}
               </tbody>
             </Table>
           </Card.Body>
@@ -232,92 +313,134 @@ class Cart extends Component {
     );
   };
 
-  updateFood = (food, orderNum) => {
+  updateFood = async (food, orderNum, queryList, valueList) => {
     if (food.originalQuantity !== food.FoodQuantity) {
-      console.log("quantity changed");
-      axios
-        .post("http://localhost:3001/Customer/UpdateFood", {
-          oid: orderNum,
-          fid: food.FoodId,
-          quantity: food.FoodQuantity,
-          total_price: food.FoodCost,
-        })
-        .then((res) => {
-          console.log(res.data);
-        })
-        .catch((err) => console.error(err));
+      if (queryList.length === 0) {
+        queryList.push(
+          "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2"
+        );
+        valueList[0] = [];
+      }
+
+      valueList[0].push([
+        orderNum,
+        food.FoodId,
+        food.FoodQuantity,
+        food.FoodCost,
+      ]);
     }
   };
 
-  updatePlaceDetails = (data) => {
-    axios
-      .post("http://localhost:3001/Customer/UpdatePlaceTable", {
-        oid: data.orderNum,
-        cid: this.state.cid,
-        address: "BLK 845 #03-16 TAMPINES ST 45 S201536",
-        payment_method:
-          this.state.paymentMethod === "cash" ? "cash" : "creditcard",
-        card_number: this.state.paymentMethod,
-      })
-      .then((res) => {
-        this.setState({
-          orders: [],
-        });
-      })
-      .catch((err) => console.error(err));
+  updatePlaceDetails = async (data, queryList, valueList) => {
+    if (this.state.paymentMethod !== "cash") {
+      queryList.push(
+        "UPDATE Places SET address = $3, payment_method = $4, card_number = $5 WHERE oid = $1 AND cid = $2"
+      );
+      valueList.push([
+        [
+          data.orderNum,
+          this.state.cid,
+          this.state.addressSelected,
+          "creditcard",
+          this.state.paymentMethod,
+        ],
+      ]);
+    } else {
+      queryList.push(
+        "UPDATE Places SET address = $3, payment_method = $4 WHERE oid = $1 AND cid = $2"
+      );
+      valueList.push([
+        [data.orderNum, this.state.cid, this.state.addressSelected, "cash"],
+      ]);
+    }
   };
 
-  updateRewardPoint = (total_cost) => {
-    axios
-      .post("http://localhost:3001/Customer/UpdateRewardPoint", {
-        cid: this.state.cid,
-        reward_points:
-          this.state.rewardPoints + this.calculateRewardPoint(total_cost),
-      })
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => console.error(err));
+  updateRewardPoint = (total_cost, queryList, valueList) => {
+    queryList.push(
+      "UPDATE Customers SET reward_points = TO_NUMBER($2,'9999.99') WHERE cid = $1"
+    );
+
+    let rewardPointLeft = parseFloat(
+      (
+        this.state.rewardPoints -
+        this.state.rewardPointsUsed +
+        this.calculateRewardPoint(total_cost)
+      ).toFixed(2)
+    );
+    console.log(rewardPointLeft);
+    valueList.push([[this.state.cid, rewardPointLeft]]);
   };
 
-  updateOrder = (data) => {
-    let total_cost = 0;
+  updateTimeStamp = (orderNum, queryList, valueList) => {
+    queryList.push(
+      "UPDATE Orders SET order_placed = (SELECT to_timestamp(to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')) WHERE oid = $1"
+    );
+    valueList.push([[orderNum]]);
+  };
+
+  updateOrder = async (data) => {
+    let queryList = [];
+    let valueList = [];
     data.foods.map((food) => {
-      this.updateFood(food, data.orderNum);
-      total_cost = this.addCost(total_cost, food.FoodCost);
+      this.updateFood(food, data.orderNum, queryList, valueList);
     });
 
-    // Update orders and Place tables after updating the Consists table
-    // Update total_price, delivery_fee, order_Placed, promo_used
-    axios
-      .post("http://localhost:3001/Customer/UpdateOrder", {
-        oid: data.orderNum,
-        order_status: "paid",
-        total_price: total_cost.toFixed(2),
-        delivery_fee: this.calculateDeliveryFee(total_cost),
-        promo_used: this.state.promo_id ? this.state.promo_id : "NIL",
-      })
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((err) => console.error(err));
+    if (this.state.promo_id === 0) {
+      queryList.push(
+        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+      );
+      valueList.push([
+        [data.orderNum, "paid", this.state.paymentCost, this.state.deliveryFee],
+      ]);
+    } else {
+      queryList.push(
+        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4, promo_used = $5 WHERE oid = $1"
+      );
+      valueList.push([
+        [
+          data.orderNum,
+          "paid",
+          this.state.paymentCost,
+          this.state.deliveryFee,
+          this.state.promo_id,
+        ],
+      ]);
+    }
 
-    // Update payment_method, address, card_number into Place table
-    this.updatePlaceDetails(data);
+    this.updateTimeStamp(data.orderNum, queryList, valueList);
+    this.updatePlaceDetails(data, queryList, valueList);
+    this.updateRewardPoint(this.state.paymentCost, queryList, valueList);
 
-    //Update rewards points
-    this.updateRewardPoint(total_cost);
+    // Send transaction
+    try {
+      await axios.post("http://localhost:3001/Customer/UpdateOrder", {
+        queryList: queryList,
+        valueList: valueList,
+      });
+
+      // Need to clear the respective order after transaction
+      this.setState({
+        orders: [],
+      });
+    } catch (err) {
+      console.error("Transaction failed!");
+    }
   };
 
   handleSubmit = (event) => {
     let form = event.target;
     event.preventDefault();
 
-    this.state.orders.map((data) => {
-      this.updateOrder(data);
-    });
-
-    this.orderForm.reset();
+    if (this.state.addressSelected === "") {
+      this.setState({
+        errorMessage: "Please choose a delivery location!",
+      });
+    } else {
+      this.state.orders.map((data) => {
+        this.updateOrder(data);
+      });
+      this.orderForm.reset();
+    }
   };
 
   paymentMethod = (card_number) => {
@@ -363,7 +486,6 @@ class Cart extends Component {
 
   addCreditCard = () => {
     let card = this.state.addCreditCard;
-    console.log(card);
     if (/\d{4}\-\d{4}\-\d{4}\-\d{4}$/.test(card)) {
       axios
         .post("http://localhost:3001/Customer/AddCreditCard", {
@@ -376,9 +498,19 @@ class Cart extends Component {
           this.setState({
             creditCards: result,
             paymentMethod: card,
+            errorMessage: "Credit card has been added!",
           });
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          this.setState({
+            errorMessage:
+              "Credit card has been registered! Please add a unregistered card!",
+          });
+        });
+    } else {
+      this.setState({
+        errorMessage: "Please input a valid 16 digit credit card number!",
+      });
     }
   };
 
@@ -415,11 +547,188 @@ class Cart extends Component {
     );
   };
 
+  updateRewardPointUsed = (event) => {
+    let value = event.target.value;
+    if (value) {
+      if (value > this.state.rewardPoints) {
+        this.setState({
+          errorMessage:
+            "Points deducted cannot be more than available reward Points!",
+        });
+      } else {
+        const paymentCost = parseFloat(
+          (
+            this.state.totalOrdersCost -
+            parseFloat(value) +
+            this.state.deliveryFee
+          ).toFixed(2)
+        );
+        this.setState({
+          rewardPointsUsed: value,
+          paymentCost: paymentCost,
+          errorMessage: "",
+        });
+      }
+    }
+  };
+
+  displayRewardPoints = () => {
+    return (
+      <div className="rewardPointContainer">
+        <h6 className="rewardPointTitle">Reward Points: </h6>
+        <h6>{this.state.rewardPoints}</h6>
+        <div className="rewardPointInput">
+          <Form.Control
+            pattern="[0-9]*(\.[0-9][0-9]|\.[0-9])*"
+            defaultValue="0"
+            onChange={(event) => this.updateRewardPointUsed(event)}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  displayErrorFoodList = () => {
+    return (
+      <div className="errorFoodList">
+        {this.state.errorUpdateFoods.map((food) => (
+          <h6 className="errorMessage">{food}</h6>
+        ))}
+      </div>
+    );
+  };
+
+  displayTotalOrdersCost = () => {
+    return (
+      <div className="totalCostContainer">
+        <h6 className="totalCostTitle">Total Price: </h6>
+        <h6>${this.state.totalOrdersCost}</h6>
+      </div>
+    );
+  };
+
+  displayPromoDiscount = () => {
+    return (
+      <div className="promoDiscountContainer">
+        <h6 className="promoDiscountTitle">Promo Discount: </h6>
+        <h6>- ${this.state.promoDiscount}</h6>
+      </div>
+    );
+  };
+
+  addDeliveryLocation = () => {
+    let address = this.state.addDeliveryLocation;
+    if (/[S]([0][1-9]|[1-7][0-9]|[8][0])\d{4}$/.test(address)) {
+      let addresses = this.state.addresses;
+      addresses.push({ location: address });
+      this.setState({
+        addresses,
+        addressSelected: address,
+        errorMessage: "Delivery location has been added!",
+      });
+    } else {
+      this.setState({
+        errorMessage: "Please input a valid address for delivery location",
+      });
+    }
+  };
+
+  displayAddDeliveryLocationInput = () => {
+    return (
+      <div className="container">
+        <Row>
+          <FormGroup>
+            <Col>
+              <Form.Label>Delivery Location: </Form.Label>
+              <Form.Control
+                name="deliveryLocation"
+                required={false}
+                type="text"
+                placeholder="Delivery Location"
+                onChange={(value) =>
+                  this.setState({ addDeliveryLocation: value.target.value })
+                }
+              />
+            </Col>
+          </FormGroup>
+          <div>
+            <Button
+              size="sm"
+              onClick={this.addDeliveryLocation}
+              className="addButton"
+            >
+              Add Delivery Location
+            </Button>
+          </div>
+        </Row>
+      </div>
+    );
+  };
+
+  selectDeliveryLocation = (address) => {
+    this.setState({
+      addressSelected: address,
+    });
+  };
+
+  displayDeliveryLocation = () => {
+    return (
+      <DropdownButton
+        className="deliveryLocation"
+        id="deliveryLocation"
+        title={
+          this.state.addressSelected !== ""
+            ? this.state.addressSelected
+            : "Delivery Location"
+        }
+      >
+        {this.state.addresses.map((address, index) => {
+          return (
+            <div key={index}>
+              {index !== 0 && <Dropdown.Divider key={index} />}
+              <Dropdown.Item
+                key={address.location}
+                eventKey={address.location}
+                onSelect={this.selectDeliveryLocation}
+              >
+                {address.location}
+              </Dropdown.Item>
+            </div>
+          );
+        })}
+      </DropdownButton>
+    );
+  };
+
+  displayDeliveryFee = () => {
+    return (
+      <div className="deliveryFeeContainer">
+        <h6 className="deliveryFeeTitle">Delivery Fee (5%): </h6>
+        <h6>${this.state.deliveryFee}</h6>
+      </div>
+    );
+  };
+
+  displayPaymentCost = () => {
+    return (
+      <div className="paymentCostContainer">
+        <h6 className="paymentCostTitle">Total: </h6>
+        <h6>
+          {this.state.paymentCost < 0
+            ? "- $" + Math.abs(this.state.paymentCost)
+            : "$" + this.state.paymentCost}
+        </h6>
+      </div>
+    );
+  };
+
   render() {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavbarBrand href="/CustomerMainPage">CustomerMainPage</NavbarBrand>
+          <NavbarBrand href="/Customer">
+            <MdArrowBack />
+          </NavbarBrand>
           <div className="icon-container"></div>
         </Navbar>
 
@@ -454,9 +763,22 @@ class Cart extends Component {
                   this.renderOrder(order, index)
                 )}
               </Accordion>
-              {/* {this.displayAddCreditCardInput()} */}
+              {this.displayTotalOrdersCost()}
+              {this.displayPromoDiscount()}
+              {this.displayRewardPoints()}
+              {this.displayDeliveryFee()}
+              {this.displayPaymentCost()}
+
+              {this.displayAddDeliveryLocationInput()}
+              {this.displayDeliveryLocation()}
+              {this.displayAddCreditCardInput()}
               {this.displayPaymentOptions()}
 
+              {this.state.errorMessage && (
+                <h6 className="errorMessage">{this.state.errorMessage}</h6>
+              )}
+              {this.state.errorUpdateFoods.length !== 0 &&
+                this.displayErrorFoodList()}
               <Button className="confirm_button" type="submit">
                 {" "}
                 Confirm{" "}

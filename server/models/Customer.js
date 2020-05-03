@@ -25,7 +25,7 @@ class Customer {
 
   static getOrders(cid, callback) {
     db.query(
-      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1",
+      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust, O.rating, C.review, C.fid from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -42,12 +42,26 @@ class Customer {
               restaurantName: foodItem.restaurantname,
               cost: foodItem.cost,
               foods: [],
+              rating: foodItem.rating,
+              ratingSubmitted: foodItem.rating ? true : false,
+              order_status: foodItem.deliver_to_cust
+                ? "Food delivered"
+                : foodItem.depart_for_delivery
+                ? "Delivery in progress"
+                : foodItem.arrive_at_rest
+                ? "Rider reaches the restaurant"
+                : foodItem.depart_for_rest
+                ? "Rider is on the way to restaurant"
+                : "Assigning rider for the order",
             });
           }
           output[i].foods.push({
             FoodName: foodItem.foodname,
             FoodQuantity: foodItem.quantity,
             FoodCost: foodItem.total_price,
+            FoodId: foodItem.fid,
+            Review: foodItem.review,
+            ReviewSubmitted: foodItem.review ? true : false,
           });
         });
         return callback(err, output);
@@ -71,6 +85,19 @@ class Customer {
   static getTopFiveCreditCards(cid, callback) {
     db.query(
       "SELECT card_number FROM CreditCards WHERE cid = $1 LIMIT 5",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static getFiveRecentDeliveryLocations(cid, callback) {
+    db.query(
+      "SELECT distinct address as location, MAX(order_placed) FROM Places LEFT JOIN Orders using(oid) WHERE cid = $1 AND order_status = 'paid' AND address IS NOT NULL GROUP BY address ORDER BY MAX(order_placed) DESC, address LIMIT 5",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -128,15 +155,15 @@ class Customer {
         if (err.error) {
           return callback(err, res);
         }
+
+        db.query("SELECT MAX(oid) FROM ORDERS", (err, res) => {
+          if (err.error) {
+            return callback(err, res);
+          }
+          return callback(err, { num: res[0].max });
+        });
       }
     );
-
-    db.query("SELECT MAX(oid) FROM ORDERS", (err, res) => {
-      if (err.error) {
-        return callback(err, res);
-      }
-      return callback(err, { num: res[0].max });
-    });
   }
 
   static placeOrder(oid, cid, callback) {
@@ -167,7 +194,7 @@ class Customer {
 
   static getCartOrder(cid, callback) {
     db.query(
-      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) WHERE cid = $1 and O.order_status = 'cart'",
+      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) WHERE cid = $1 and O.order_status = 'cart'",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -189,6 +216,7 @@ class Customer {
             FoodName: foodItem.name,
             FoodQuantity: foodItem.quantity,
             FoodCost: foodItem.total_price,
+            FoodLimit: foodItem.food_limit,
           });
         });
         return callback(err, output);
@@ -222,49 +250,12 @@ class Customer {
     );
   }
 
-  static updateOrder(
-    oid,
-    order_status,
-    total_price,
-    delivery_fee,
-    promo_used,
-    callback
-  ) {
-    if (promo_used !== "NIL") {
-      db.query(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4, promo_used = $5 WHERE oid = $1",
-        [oid, order_status, total_price, delivery_fee, promo_used],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          //return callback(err, res);
-        }
-      );
-    } else {
-      db.query(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1",
-        [oid, order_status, total_price, delivery_fee],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          //return callback(err, res);
-        }
-      );
-    }
-
-    // Update the timestamp
-    db.query(
-      "UPDATE Orders SET order_placed = (SELECT to_timestamp(to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS')) WHERE oid = $1",
-      [oid],
-      (err, res) => {
-        if (err.error) {
-          return callback(err, res);
-        }
-        return callback(err, res);
-      }
-    );
+  static updateOrder(queryList, valueList, callback) {
+    db.transaction(queryList, valueList, (err, res) => {
+      console.log(err.error);
+      if (err.error) return callback(err, res);
+      return callback(err, res);
+    });
   }
 
   static deleteOrder(oid, callback) {
@@ -274,52 +265,6 @@ class Customer {
       }
       return callback(err, res);
     });
-  }
-
-  static updatePlaceTable(
-    oid,
-    cid,
-    address,
-    payment_method,
-    card_number,
-    callback
-  ) {
-    if (card_number !== "cash") {
-      db.query(
-        "UPDATE Places SET address = $3, payment_method = $4, card_number = $5 WHERE oid = $1 AND cid = $2",
-        [oid, cid, address, payment_method, card_number],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          return callback(err, res);
-        }
-      );
-    } else {
-      db.query(
-        "UPDATE Places SET address = $3, payment_method = $4 WHERE oid = $1 AND cid = $2",
-        [oid, cid, address, payment_method],
-        (err, res) => {
-          if (err.error) {
-            return callback(err, res);
-          }
-          return callback(err, res);
-        }
-      );
-    }
-  }
-
-  static updateRewardPoint(cid, reward_points, callback) {
-    db.query(
-      "UPDATE Customers SET reward_points = reward_points + TO_NUMBER($2,'9999.99') WHERE cid = $1",
-      [cid, reward_points],
-      (err, res) => {
-        if (err.error) {
-          return callback(err, res);
-        }
-        return callback(err, res);
-      }
-    );
   }
 
   static checkOrderExists(cid, rest_id, callback) {
@@ -335,17 +280,14 @@ class Customer {
     );
   }
 
-  static updateFood(oid, fid, quantity, total_price, callback) {
-    db.query(
-      "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2",
-      [oid, fid, quantity, total_price],
-      (err, res) => {
-        if (err.error) {
-          return callback(err, res);
-        }
-        return callback(err, res);
-      }
-    );
+  static updateRatingAndReview(queryList, valueList, callback) {
+    console.log(queryList);
+    console.log(valueList);
+    db.transaction(queryList, valueList, (err, res) => {
+      console.log(err.error);
+      if (err.error) return callback(err, res);
+      return callback(err, res);
+    });
   }
 }
 

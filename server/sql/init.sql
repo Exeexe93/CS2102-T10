@@ -49,7 +49,8 @@ CREATE TABLE Customers (
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade,
 	card_number varchar(255),
-	primary key (cid, card_number)
+	primary key (cid, card_number),
+	unique(card_number)
 	--foreign key (cid) references Customers on delete cascade
 );
 
@@ -294,7 +295,9 @@ CREATE TABLE Places (
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
 	payment_method varchar(255),
-	primary key(oid, cid)
+	card_number varchar(255),
+	primary key(oid),
+	foreign key (card_number) references CreditCards (card_number)
 );
 
 -- Remove reviews table and add review as one of the attributes to Consists table
@@ -688,6 +691,14 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, '100', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, '50', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, '50', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, '20', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, '20', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 2, '20', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 2, '20', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 4, '20', 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

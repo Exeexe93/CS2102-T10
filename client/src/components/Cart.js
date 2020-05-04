@@ -30,7 +30,7 @@ class Cart extends Component {
       addCreditCard: "",
       addDeliveryLocation: "",
       errorMessage: "",
-      totalOrdersCost: 0,
+      rawCost: 0,
       promoDiscount: 0,
       paymentCost: 0,
       deliveryFee: 0,
@@ -88,7 +88,7 @@ class Cart extends Component {
       .then((res) => {
         let orders = res.data;
         let singleOrderCost = 0;
-        let totalOrdersCost = 0;
+        let rawCost = 0;
         orders.map((data) => {
           data.foods.map((food) => {
             const singleFoodCost = parseFloat(food.FoodCost.slice(1));
@@ -99,18 +99,16 @@ class Cart extends Component {
             food["FoodCost"] = singleFoodCost;
           });
           data["total_cost"] = singleOrderCost;
-          totalOrdersCost = totalOrdersCost + singleOrderCost;
+          rawCost = rawCost + singleOrderCost;
         });
-        const deliveryFee = this.calculateDeliveryFee(totalOrdersCost);
-        const paymentCost = this.limitToTwoDeciamlPlaces(
-          deliveryFee + totalOrdersCost
-        );
+        const deliveryFee = this.calculateDeliveryFee(rawCost);
+        const paymentCost = this.limitToTwoDeciamlPlaces(deliveryFee + rawCost);
 
         this.setState({
           orders: orders,
           cid: value.state.cid,
           customerName: value.state.name,
-          totalOrdersCost: totalOrdersCost,
+          rawCost: rawCost,
           paymentCost: paymentCost,
           deliveryFee: deliveryFee,
         });
@@ -172,10 +170,10 @@ class Cart extends Component {
         orders[index].total_cost + costChanged
       );
 
-      const totalOrdersCost = this.limitToTwoDeciamlPlaces(
-        this.state.totalOrdersCost + costChanged
+      const rawCost = this.limitToTwoDeciamlPlaces(
+        this.state.rawCost + costChanged
       );
-      const discountedCost = totalOrdersCost - this.calculateDiscount();
+      const discountedCost = rawCost - this.calculateDiscount();
       const deliveryFee = this.calculateDeliveryFee(discountedCost);
       const paymentCost = this.limitToTwoDeciamlPlaces(
         discountedCost + deliveryFee
@@ -186,7 +184,7 @@ class Cart extends Component {
       orders[index].foods[foodIndex].FoodCost = FoodCost;
       this.setState({
         orders,
-        totalOrdersCost,
+        rawCost,
         discountedCost,
         deliveryFee,
         paymentCost,
@@ -227,11 +225,9 @@ class Cart extends Component {
     const orderCost = this.limitToTwoDeciamlPlaces(
       orders[index].total_cost - foodCost
     );
-    const totalOrdersCost = this.limitToTwoDeciamlPlaces(
-      this.state.totalOrdersCost - foodCost
-    );
+    const rawCost = this.limitToTwoDeciamlPlaces(this.state.rawCost - foodCost);
     const discountedCost = this.limitToTwoDeciamlPlaces(
-      totalOrdersCost - this.calculateDiscount()
+      rawCost - this.calculateDiscount()
     );
     const deliveryFee = this.calculateDeliveryFee(discountedCost);
     const paymentCost = this.limitToTwoDeciamlPlaces(
@@ -248,7 +244,7 @@ class Cart extends Component {
       // Order still has item in it
       this.setState({
         orders,
-        totalOrdersCost,
+        rawCost,
         discountedCost,
         deliveryFee,
         paymentCost,
@@ -333,7 +329,7 @@ class Cart extends Component {
         "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
       );
       valueList.push([
-        [data.orderNum, "paid", this.state.paymentCost, this.state.deliveryFee],
+        [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
       ]);
     } else {
       queryList.push(
@@ -343,7 +339,7 @@ class Cart extends Component {
         [
           data.orderNum,
           "paid",
-          this.state.paymentCost,
+          this.state.rawCost,
           this.state.deliveryFee,
           this.state.promo_id,
         ],
@@ -356,15 +352,26 @@ class Cart extends Component {
 
     // Send transaction
     try {
-      await axios.post("http://localhost:3001/Customer/UpdateOrder", {
-        queryList: queryList,
-        valueList: valueList,
-      });
+      const response = await axios.post(
+        "http://localhost:3001/Customer/UpdateOrder",
+        {
+          queryList: queryList,
+          valueList: valueList,
+        }
+      );
 
-      // Need to clear the respective order after transaction
-      this.setState({
-        orders: [],
-      });
+      console.log(response.data);
+      if (response.data.where.includes("reject_order_below_threshold()")) {
+        this.setState({
+          errorMessage:
+            "Order's total price does not meet the minimum threshold",
+        });
+      } else {
+        // Need to clear the respective order after transaction
+        this.setState({
+          orders: [],
+        });
+      }
     } catch (err) {
       console.error("Transaction failed!");
     }
@@ -591,7 +598,7 @@ class Cart extends Component {
             const discount = conversionRate * maxRewardPointsUsed;
             const paymentCost = parseFloat(
               (
-                this.state.totalOrdersCost +
+                this.state.rawCost +
                 this.state.deliveryFee -
                 this.state.promoDiscount -
                 discount
@@ -634,11 +641,11 @@ class Cart extends Component {
     );
   };
 
-  displayTotalOrdersCost = () => {
+  displayRawCost = () => {
     return (
       <div className="totalCostContainer">
         <h6 className="totalCostTitle">Total Price: </h6>
-        <h6>${this.state.totalOrdersCost}</h6>
+        <h6>${this.state.rawCost}</h6>
       </div>
     );
   };
@@ -799,7 +806,7 @@ class Cart extends Component {
                   this.renderOrder(order, index)
                 )}
               </Accordion>
-              {this.displayTotalOrdersCost()}
+              {this.displayRawCost()}
               {this.displayPromoDiscount()}
               {this.displayRewardPoints()}
               {this.displayDeliveryFee()}

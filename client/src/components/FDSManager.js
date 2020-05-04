@@ -53,7 +53,16 @@ class FDSManager extends Component {
                 {hour: 19, num_orders: 0},
                 {hour: 20, num_orders: 0},
                 {hour: 21, num_orders: 0}
-            ]
+            ],
+            // Promotion
+            promotionStartTime: '',
+            promotionEndTime: '',
+            promoCategory: '',
+            promoType: '',
+            promoDetails: '',
+            discountValue: 0,
+            triggerValue: 0,
+            specificOrderSelected : false
         };
     }
 
@@ -434,6 +443,54 @@ class FDSManager extends Component {
             })
     }
 
+    // Promotion
+    renderPromoType = () => {
+        return ([
+            <option value="none" selected disabled hidden>Type</option>,
+            <option key='percent'>Percent</option>, 
+            <option key='flat-rate'>Flat Rate</option>
+            ])
+    }
+
+    renderPromoCategory = () => {
+        return ([
+            <option value="none" selected disabled hidden>Category</option>,
+            <option key='all-orders'>All orders</option>,
+            <option key='specific-orders'>Specific orders</option>,
+            <option key='new-customers'>New customers</option>
+        ])
+    }
+
+    renderSpecificOrder = () => {
+        return ([
+            <option value="none" selected disabled hidden>Order Type</option>,
+            <option key='main-dish'>Main Dish</option>,
+            <option key='side-dish'>Side Dish</option>,
+            <option key='drinks'>Drinks</option>,
+            <option key='dessert'>Dessert</option>
+        ]) 
+    }
+
+    onPromoTypeChanged = (e) => {
+        this.setState({
+            promoType : e.target.value
+        })
+    }
+
+    onPromoCategoryChanged = (e) => {
+        if (e.target.value === 'Specific orders') {
+            this.setState({
+                promoCategory : e.target.value,
+                specificOrderSelected : true
+            })
+        } else {
+            this.setState({
+                promoCategory : e.target.value,
+                specificOrderSelected : false
+            })
+        } 
+    }
+
     componentDidMount() {
         this.getName();
         this.getAllRidersName();
@@ -600,8 +657,20 @@ class FDSManager extends Component {
                         </tbody>
                     </Table>
                 </TabPanel>
-                <TabPanel>
-                    details for adding promotion
+                <TabPanel class="tab-panel" className="container">
+                    <Row>
+                        <Col xs="auto">
+                            <InputGroup>
+                            {/* Add 2 more selection for start-date end-date */}
+                                <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
+                                {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
+                                <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
+                                <InputGroupAddon addonType="append">
+                                    <Button color="primary" onClick="">Add Promotion</Button>
+                                </InputGroupAddon>
+                            </InputGroup>
+                        </Col>
+                    </Row>
                 </TabPanel>
             </Tabs>
 

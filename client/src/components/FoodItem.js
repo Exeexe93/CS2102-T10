@@ -373,55 +373,6 @@ class FoodItem extends Component {
     );
   };
 
-  displayMenuHeader = () => {
-    return (
-      <ListGroup horizontal>
-        <ListGroup.Item className="listName">Food Name</ListGroup.Item>
-        <ListGroup.Item className="listPrice">Price</ListGroup.Item>
-        <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-        <ListGroup.Item className="listPurchaseLimit">
-          Purchase Limit
-        </ListGroup.Item>
-        <ListGroup.Item className="listCategory">Category</ListGroup.Item>
-      </ListGroup>
-    );
-  };
-
-  displayMenuFoods = (item, index) => {
-    return (
-      <ListGroup key={index} horizontal>
-        <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
-        <ListGroup.Item className="listPrice">{item.price}</ListGroup.Item>
-        <ListGroup.Item className="listQuantity">
-          <Form.Group controlId={item.name}>
-            <Form.Control
-              as="select"
-              value={this.state.foodItem[index].actualQuantity}
-              onChange={(value) => this.handleQuantity(value, index)}
-            >
-              {item.amount.map((num, index) => {
-                return (
-                  <option key={index} value={num.value}>
-                    {num.value}
-                  </option>
-                );
-              })}
-            </Form.Control>
-          </Form.Group>
-        </ListGroup.Item>
-        <ListGroup.Item className="listQuantityLeft">
-          {item.food_limit}
-        </ListGroup.Item>
-        {/* <ListGroup.Item className="listLimit">
-        {item.food_limit}
-      </ListGroup.Item> */}
-        <ListGroup.Item className="listCategory">
-          {item.category}
-        </ListGroup.Item>
-      </ListGroup>
-    );
-  };
-
   displaySearchInput = () => {
     return (
       <div className="container">
@@ -500,11 +451,6 @@ class FoodItem extends Component {
 
         <div className="separator"></div>
         <ListGroup className="foodList">
-          {/* {this.displayMenuHeader()}
-          {this.state.filtered.map((item, index) =>
-            this.displayMenuFoods(item, index)
-          )} */}
-
           {this.displayMenuTable()}
 
           <div className="separator"></div>

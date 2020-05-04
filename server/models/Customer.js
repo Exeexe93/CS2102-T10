@@ -255,7 +255,6 @@ class Customer {
 
   static updateOrder(queryList, valueList, callback) {
     db.transaction(queryList, valueList, (err, res) => {
-      console.log(err.error);
       if (err.error) return callback(err, res);
       return callback(err, res);
     });
@@ -297,6 +296,19 @@ class Customer {
     db.query(
       "SELECT Foods.name as food_name, Customers.name as customer_name, Consists.review FROM Orders LEFT JOIN Consists using (oid) LEFT JOIN Foods using (fid) LEFT JOIN Places on Orders.oid = Places.oid LEFT JOIN Customers using (cid) WHERE Orders.rest_id = $1 GROUP BY Foods.name, Customers.name, Consists.review, Foods.category HAVING Consists.review IS NOT NULL ORDER BY CASE Foods.category WHEN 'Main Dish' THEN 1 WHEN 'Side Dish' THEN 2 WHEN 'Drink' THEN 3 WHEN 'Dessert' THEN 4 END",
       [rest_id],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static checkCart(cid, rest_id, callback) {
+    db.query(
+      "SELECT EXISTS (SELECT O.oid From PLACES as P LEFT JOIN ORDERS as O USING (oid) LEFT JOIN CONSISTS as C ON O.oid = C.oid WHERE P.cid = $1 AND O.order_status = 'cart' AND O.rest_id <> $2)",
+      [cid, rest_id],
       (err, res) => {
         if (err.error) {
           return callback(err, res);

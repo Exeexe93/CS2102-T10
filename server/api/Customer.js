@@ -113,7 +113,9 @@ router.post("/UpdateOrder", function (req, res) {
     req.body.queryList,
     req.body.valueList,
     (err, result) => {
-      if (err.error) return res.status(404).json(err);
+      if (err.error) {
+        return res.send(err.error);
+      }
       return res.status(200).json(result);
     }
   );
@@ -160,6 +162,13 @@ router.post("/UpdateRatingAndReview", function (req, res) {
 
 router.post("/GetReviews", function (req, res) {
   Customer.getReviews(req.body.rest_id, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/CheckCart", function (req, res) {
+  Customer.checkCart(req.body.cid, req.body.rest_id, (err, result) => {
     if (err.error) return res.status(404).json(err);
     return res.status(200).json(result);
   });

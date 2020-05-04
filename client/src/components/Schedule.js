@@ -19,7 +19,7 @@ class Schedule extends Component {
   }
 
   getScheduleComponent = () => {
-    if (this.props.location.isFTRider) {
+    if (this.props.location.state.isFTRider) {
       return (
         <FTSelectSchedule
           handleSubmit={this.handleFTSubmit}

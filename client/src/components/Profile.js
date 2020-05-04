@@ -318,7 +318,40 @@ class Profile extends Component {
       <tr key={"totalCost - " + order.orderNum} className="orderTable">
         <td>Total Cost</td>
         <td></td>
-        <td>${order.cost}</td>
+        <td>{order.cost}</td>
+        <td></td>
+      </tr>
+    );
+  };
+
+  renderPromoDiscount = (order) => {
+    return (
+      <tr key={"promoDiscount - " + order.orderNum} className="orderTable">
+        <td>Promo Discount</td>
+        <td></td>
+        <td>- {order.promoDiscount}</td>
+        <td></td>
+      </tr>
+    );
+  };
+
+  renderDeliveryFee = (order) => {
+    return (
+      <tr key={"deliveryFee - " + order.orderNum} className="orderTable">
+        <td>Delivery Fee</td>
+        <td></td>
+        <td>{order.deliveryFee}</td>
+        <td></td>
+      </tr>
+    );
+  };
+
+  renderRewardPointsUsed = (order) => {
+    return (
+      <tr key={"rewardPoints - " + order.orderNum} className="orderTable">
+        <td>Reward Points Used</td>
+        <td></td>
+        <td>- {order.pointsUsed}</td>
         <td></td>
       </tr>
     );
@@ -367,6 +400,10 @@ class Profile extends Component {
                 {order.foods.map((food, foodIndex) =>
                   this.renderFoodItem(food, foodIndex, index)
                 )}
+
+                {this.renderPromoDiscount(order)}
+                {this.renderDeliveryFee(order)}
+                {this.renderRewardPointsUsed(order)}
                 {this.renderOrderCost(order)}
               </tbody>
             </Table>

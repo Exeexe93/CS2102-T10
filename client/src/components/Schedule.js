@@ -13,14 +13,27 @@ class Schedule extends Component {
     super(props);
 
     this.state = {
-      scheduleComponent: this.props.location.isFTRider ? (
-        <FTSelectSchedule handleSubmit={this.handleFTSubmit} />
-      ) : (
-        <PTSelectSchedule handleSubmit={this.handlePTSubmit} />
-      ),
-      date: new Date(),
+      date: this.formatDate(new Date()),
     };
   }
+
+  getScheduleComponent = () => {
+    if (this.props.location.isFTRider) {
+      return (
+        <FTSelectSchedule
+          handleSubmit={this.handleFTSubmit}
+          selectedDate={this.state.date}
+        />
+      );
+    } else {
+      return (
+        <PTSelectSchedule
+          handleSubmit={this.handlePTSubmit}
+          selectedDate={this.state.date}
+        />
+      );
+    }
+  };
 
   handleFTSubmit = (e) => {
     e.preventDefault();
@@ -52,8 +65,17 @@ class Schedule extends Component {
     });
   };
 
+  // Format given Date object into a string of Format:
+  // DAY MONTH YEAR (e.g. 4 May 2020)
+  formatDate = (date) => {
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toLocaleDateString
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    const selectedDate = date.toLocaleDateString("en-GB", options);
+    return selectedDate;
+  };
+
   onDateSelection = (date) => {
-    this.setState({ date });
+    this.setState({ date: this.formatDate(date) });
   };
 
   render() {
@@ -77,11 +99,11 @@ class Schedule extends Component {
           <Calendar
             className="react-calendar"
             onClickDay={this.onDateSelection}
-            defaultValue={this.state.date}
+            defaultValue={new Date(this.state.date)}
           />
         </div>
 
-        {this.state.scheduleComponent}
+        {this.getScheduleComponent()}
       </div>
     );
   }

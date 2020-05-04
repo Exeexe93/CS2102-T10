@@ -1,3 +1,43 @@
 .PT-schedule-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
   text-align: center;
+}
+
+.pt-schedule-col {
+  background-color: transparent;
+  border-style: groove;
+  border-width: 8px;
+  border-color: lightskyblue;
+  width: 100%;
+}
+
+.pt-schedule-form {
+  margin: 0.5em;
+  text-align: center;
+}
+
+.pt-schedule-form label {
+  font-size: 24px;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.pt-schedule-form button {
+  width: 30%;
+  font-family: Helvetica, Arial;
+  font-size: 18px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  background: #78c5ef;
+  border-color: #78c5ef;
+}
+
+.pt-schedule-form button:hover {
+  color: #ffffff !important;
+  background: #51a0d5;
+  border-color: #51a0d5 !important;
+  border-radius: 8px;
+  transition: all 0.4s ease 0s;
 }

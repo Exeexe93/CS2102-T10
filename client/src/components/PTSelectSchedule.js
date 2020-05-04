@@ -23,25 +23,31 @@ class PTSelectSchedule extends Component {
 
     return (
       <div className="PT-schedule-container">
-        <h2>Select your preferred schedule!</h2>
+        <div className="pt-schedule-col">
+          <h1>Selected Schedule</h1>
+        </div>
 
-        <Form className="pt-schedule-form" onSubmit={this.props.handleSubmit}>
-          {checkboxContent.map((content, index) => (
-            <div>
-              <Label check>
-                <Input
-                  type="checkbox"
-                  key={index}
-                  name={"time"}
-                  value={content.value}
-                />
-                {content.text}
-              </Label>
-            </div>
-          ))}
+        <div className="pt-schedule-col">
+          <h1>Select your schedule for {this.props.selectedDate}</h1>
 
-          <button>Submit</button>
-        </Form>
+          <Form className="pt-schedule-form" onSubmit={this.props.handleSubmit}>
+            {checkboxContent.map((content, index) => (
+              <div>
+                <Label check>
+                  <Input
+                    type="checkbox"
+                    key={index}
+                    name={"time"}
+                    value={content.value}
+                  />
+                  {content.text}
+                </Label>
+              </div>
+            ))}
+
+            <button>Submit</button>
+          </Form>
+        </div>
       </div>
     );
   }

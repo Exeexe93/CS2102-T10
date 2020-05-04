@@ -1,0 +1,105 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3em;
+}
+
+.searchContainer {
+  display: flex;
+}
+
+.input {
+  width: 500px;
+  height: 70px;
+  font-size: 28px;
+
+  text-align: center;
+}
+
+.section {
+  margin-top: 1cm;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.header-centered {
+  text-align: center;
+}
+
+.foodList {
+  align-items: center;
+}
+
+.separator {
+  height: 30px;
+}
+
+.submitButton {
+  width: 120px;
+  height: 50px;
+  margin-bottom: 30px;
+}
+
+.listName {
+  width: 180px;
+  text-align: center;
+}
+
+.listPrice {
+  width: 100px;
+  text-align: center;
+}
+
+.listLimit {
+  width: 100px;
+  text-align: center;
+}
+
+.listQuantity {
+  width: 100px;
+  text-align: center;
+}
+
+.listQuantityLeft {
+  width: 100px;
+  text-align: center;
+}
+
+.listCategory {
+  width: 120px;
+  text-align: center;
+}
+
+.message {
+  color: blue;
+  margin-bottom: 30px;
+}
+
+.errorFoods {
+  color: blue;
+  margin-bottom: 20px;
+}
+
+.restaurantNameTitle {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.reviewTitle {
+  margin-top: 20px;
+}
+
+.reviewTableContainer {
+  width: 80%;
+}
+
+.reviewBody {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

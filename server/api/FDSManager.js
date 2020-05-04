@@ -96,4 +96,14 @@ router.get('/getAllRidersName', (req, res) => {
         return res.json(result);
     })
 })
-module.exports = router;
+
+router.post('/addPromo', (req, res) => {
+    FDSManagerModel.queryAddPromo(req.body.promoStart, req.body.promoEnd, req.body.promo_type, req.body.category, req.body.details,
+        req.body.discount_value, req.body.trigger_value, req.body.creator_id, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post addPromo");
+            return res.json(err);
+        }
+        return res.json(result);
+    })
+})

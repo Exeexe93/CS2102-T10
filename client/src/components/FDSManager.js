@@ -25,6 +25,7 @@ class FDSManager extends Component {
         this.state = {
             // Change to the FDSManager name here
             name: "",
+            id: "",
             displayMonth: '',
             displayYear: '',
             displayDay: '',
@@ -55,14 +56,21 @@ class FDSManager extends Component {
                 {hour: 21, num_orders: 0}
             ],
             // Promotion
-            promotionStartTime: '',
-            promotionEndTime: '',
+            promoStartDay: '',
+            promoStartMonth: '',
+            promoStartYear: '',
+            promoEndDay: '',           
+            promoEndMonth: '',
+            promoEndYear: '',
             promoCategory: '',
             promoType: '',
             promoDetails: '',
-            discountValue: 0,
-            triggerValue: 0,
-            specificOrderSelected : false
+            discountValue: '',
+            triggerValue: '',
+            details: '',
+            specificOrderSelected : false,
+            // Error message
+            errorMessage : ''
         };
     }
 
@@ -225,7 +233,6 @@ class FDSManager extends Component {
             this.handleQueryMonthOrdersCost();
             this.handleQueryMonthCustomersStats();
             this.handleQueryMonthlyRidersStats();
-            this.generateDays();
             this.setState({
                 displayMonth: this.state.month,
                 displayYear: this.state.year,
@@ -237,26 +244,25 @@ class FDSManager extends Component {
         }
     }
 
-    generateDays = () => {
-        if (this.state.day.length != 0) {
-            this.state.day = [];
-        }
+    generateDays = (month, year) => {
+        let returnDay = [];
         let daysInMonth = 0
-        this.state.month && this.state.year 
-            ? daysInMonth = new Date(this.state.year, this.state.month, 0).getDate() 
+        month && year 
+            ? daysInMonth = new Date(year, month, 0).getDate() 
             : daysInMonth = 0
         let i;
         for (i = 1; i <= daysInMonth; i++) {
-            this.state.day.push(i);
+            returnDay.push(i);
         }
-        console.log("from generate days: %d month %d year %d",daysInMonth, this.state.month, this.state.year)
-        return this.state.day;
+        console.log("from generate days: %d month %d year %d",daysInMonth, month, year)
+        return returnDay;
     }
 
-    renderDayDropdown = () => {
+    renderDayDropdown = (month, year) => {
+        let day = this.generateDays(month, year)
         let items = [];
         items.push(<option value="none" selected disabled hidden>Day</option>)
-        for (let i = 1; i <= this.state.day.length; i++) {
+        for (let i = 1; i <= day.length; i++) {
             items.push(<option key={i} value={i}>{i}</option>);
         }
         console.log("renderDayDropdown ran");
@@ -426,6 +432,7 @@ class FDSManager extends Component {
         .then(res => {
             this.setState({
                 name : res[0].name,
+                id : res[0].fds_id
             })
         })
     }
@@ -489,6 +496,172 @@ class FDSManager extends Component {
                 specificOrderSelected : false
             })
         } 
+    }
+
+    onSpecificOrderChanged = (e) => {
+        this.setState({
+            promoCategory : e.target.value
+        })
+    }
+
+    onPromoStartDayChanged = (e) => {
+        this.setState({
+            promoStartDay : e.target.value
+        })
+    }
+
+    onPromoStartMonthChanged = (e) => {
+        this.setState({
+            promoStartMonth : e.target.value
+        })
+        if (this.state.promoStartMonth && this.state.promoStartYear) {
+            this.renderDayDropdown(this.promoStartMonth, this.state.promoStartYear)
+        }
+    }
+
+    onPromoStartYearChanged = (e) => {
+        this.setState({
+            promoStartYear : e.target.value
+        })
+        if (this.state.promoStartMonth && this.state.promoStartYear) {
+            this.renderDayDropdown(this.promoStartMonth, this.state.promoStartYear)
+        }
+    }
+
+    onPromoEndDayChanged = (e) => {
+        this.setState({
+            promoEndDay : e.target.value
+        })
+    }
+
+    onPromoEndMonthChanged = (e) => {
+        this.setState({
+            promoEndMonth : e.target.value
+        })
+        if (this.state.promoEndMonth && this.state.promoEndYear) {
+            this.renderDayDropdown(this.promoEndMonth, this.state.promoEndYear)
+        }
+    }
+
+    onPromoEndYearChanged = (e) => {
+        this.setState({
+            promoEndYear : e.target.value
+        })
+        if (this.state.promoEndMonth && this.state.promoEndYear) {
+            this.renderDayDropdown(this.promoEndMonth, this.state.promoEndYear)
+        }
+    }
+
+    onDetailsChanged = (e) => {
+        this.setState({
+            details : e.target.value
+        })
+    }
+
+    renderMonthDropdown = () => {
+        let monthOptions = [<option value="none" selected disabled hidden>Month</option>]
+        for (let i = 1; i <= 12; i++) {
+            monthOptions.push(<option key={i} value={i}>{i}</option>)
+        }
+        return monthOptions;
+    }
+
+    renderYearDropdown = () => {
+        let yearOptions = [<option value="none" selected disabled hidden>Year</option>]
+        let date = new Date();
+        let currentYear = date.getFullYear();
+        for (let k = 2000; k <= currentYear; k++) {
+            yearOptions.push(<option key={k} value={k}>{k}</option>)
+        }
+        return yearOptions;
+    }
+
+    onPromoDiscountValueChanged = (e) => {
+        this.setState({
+            discountValue : e.target.value
+        })
+    }
+
+    onPromoMinValChanged = (e) => {
+        this.setState({
+            triggerValue : e.target.value
+        })
+    }
+
+    inputValidityCheck = () => {
+        let isValidTriggerVal = (this.state.triggerValue > 0) && !isNaN(this.state.triggerValue)
+        let isValidDiscountVal = (this.state.discountValue > 0) && !isNaN(this.state.discountValue)
+        let isStartDayPresent = this.state.promoStartDay
+        let isEndDayPresent = this.state.promoEndDay
+        let isCategoryPresent = this.state.promoCategory
+        let isTypePresent = this.state.promoType
+        let isDetailsPresent = this.state.details
+        let missingField = !isStartDayPresent && !isEndDayPresent && !isCategoryPresent && !isTypePresent && !isDetailsPresent
+        let isValidTriggerValueAndDiscountValue = isValidDiscountVal && isValidTriggerVal
+        let promoStartDay = new Date(this.state.promoStartYear, this.state.promoStartMonth - 1, this.state.promoStartDay)
+        let promoEndDay = new Date(this.state.promoEndYear, this.state.promoEndMonth - 1, this.state.promoEndDay)
+        let invaliPromotionEndDate = promoStartDay.getTime() > promoEndDay.getTime()
+        console.log("start: ",promoStartDay)
+        console.log("end: ",promoEndDay)
+        console.log("invalidpromoenddate: ", invaliPromotionEndDate)   
+        if (missingField) {
+            this.setState({
+                errorMessage : 'Fill in the fields please'
+            })
+            return false;
+        } else if (!isValidTriggerValueAndDiscountValue) {
+            this.setState({
+                errorMessage : 'Discount value and minimum value have to be positive integer'
+            })
+            return false;
+        } else if (invaliPromotionEndDate) {
+            this.setState({
+                errorMessage : 'Promo must end after it starts'
+            })
+            return false;
+        }
+        this.setState({
+            errorMessage : ''
+        })
+        return true;
+    }
+
+    formatDateForQuery = (day, month, year) => {
+        let formatDay = ''
+        let formatMonth = ''
+        if (day.length == 1) {
+            formatDay += '0'
+        }
+        if (month.length == 1) {
+            formatMonth += '0'
+        }
+        return formatDay + day + formatMonth + month + year + ''
+    }
+
+    handleAddPromo = () => {
+        if (this.inputValidityCheck()) {
+            let promoStart = this.formatDateForQuery(this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear)
+            let promoEnd = this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear)
+            console.log('promostart : %s\npromoend : %s', promoStart, promoEnd)
+            fetch('http://localhost:3001/FDSManager/addPromo', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    start_time: promoStart, 
+                    end_time: promoEnd,
+                    promo_type: this.state.promoType,
+                    category: this.state.promoCategory,
+                    details: this.state.details,
+                    discount_value: this.state.discountValue,
+                    trigger_value: this.state.triggerValue,
+                    creator_id: this.state.id
+                })
+            })
+            console.log('success')
+        }
+        console.log("Data needed\nStart Promo day %s/%s/%s\nEnd Promo day %s/%s/%s\nCategory: %s\nType: %s\nDetails: %s\nDiscountV: %s\nTrigger V:%s",
+            this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear, this.state.promoEndDay, this.state.promoEndMonth,
+            this.state.promoEndYear, this.state.promoCategory, this.state.promoType, this.state.details, this.state.discountValue, this.state.triggerValue);
     }
 
     componentDidMount() {
@@ -584,44 +757,46 @@ class FDSManager extends Component {
                         </Table>
                     </ListGroup>
                 </TabPanel>
-                <TabPanel class="tab-panel" className="container">
+                <TabPanel class="tab-panel">
                     <h2>Monthly Statistics</h2>
-                    <Table>
+                    <div className="container">
+                        <Table>
+                                <thead>
+                                    <tr>
+                                        <th>Report for Month</th>
+                                        <th>Report for Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                        <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                    </tr>
+                                </tbody>
+                        </Table>
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
-                                    <th>Report for Month</th>
-                                    <th>Report for Year</th>
+                                    <th key="rider_name">Rider name</th>
+                                    <th key="num_orders">Total delivered orders</th>
+                                    <th key="hours_worked">Total hours worked</th>
+                                    <th key="salary_earned">Total salary earned</th>
+                                    <th key="avg_delivery">Average delivery time</th>
+                                    <th key="total_rating_received">Total rating received</th>
+                                    <th key="avg_rating">Average rating received</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
-                                    <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
-                                </tr>
+                                {this.state.ridersStats.map(this.renderRidersStats)}
                             </tbody>
-                    </Table>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th key="rider_name">Rider name</th>
-                                <th key="num_orders">Total delivered orders</th>
-                                <th key="hours_worked">Total hours worked</th>
-                                <th key="salary_earned">Total salary earned</th>
-                                <th key="avg_delivery">Average delivery time</th>
-                                <th key="total_rating_received">Total rating received</th>
-                                <th key="avg_rating">Average rating received</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.ridersStats.map(this.renderRidersStats)}
-                        </tbody>
-                    </Table>
+                        </Table>
+                    </div>
                 </TabPanel>
                 <TabPanel class="tab-panel" className="container">
                     <Row>
                         <Col xs="auto">
                             <InputGroup>
-                                <Input type="select" onChange={this.onDayDropdownSelected}>{this.renderDayDropdown()}</Input>
+                                <Input type="select" onChange={this.onDayDropdownSelected}>{this.renderDayDropdown(this.state.displayMonth, this.state.displayYear)}</Input>
                                 <Input type="select" onChange={this.onAreaDropdownSelected}>{this.renderAreaDropdown()}</Input>
                                 <InputGroupAddon addonType="append">
                                     <Button color="primary" onClick={this.handleLocationQuery}>Enter</Button>
@@ -657,20 +832,45 @@ class FDSManager extends Component {
                         </tbody>
                     </Table>
                 </TabPanel>
-                <TabPanel class="tab-panel" className="container">
-                    <Row>
-                        <Col xs="auto">
-                            <InputGroup>
-                            {/* Add 2 more selection for start-date end-date */}
-                                <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
-                                {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
-                                <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
-                                <InputGroupAddon addonType="append">
-                                    <Button color="primary" onClick="">Add Promotion</Button>
-                                </InputGroupAddon>
-                            </InputGroup>
-                        </Col>
-                    </Row>
+                <TabPanel class="tab-panel">
+                    <InputGroup className="container">
+                        <h2>Start date</h2>
+                        <InputGroupAddon addonType="append">
+                            <Input type="select" onChange={this.onPromoStartDayChanged}>{this.renderDayDropdown(this.state.promoStartMonth, this.state.promoStartYear)}</Input>
+                            <Input type="select" onChange={this.onPromoStartMonthChanged}>{this.renderMonthDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoStartYearChanged}>{this.renderYearDropdown()}</Input>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <InputGroup className="container">
+                        <h2>End date</h2>
+                        <InputGroupAddon addonType="append">
+                            <Input type="select" onChange={this.onPromoEndDayChanged}>{this.renderDayDropdown(this.state.promoEndMonth, this.state.promoEndYear)}</Input>
+                            <Input type="select" onChange={this.onPromoEndMonthChanged}>{this.renderMonthDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoEndYearChanged}>{this.renderYearDropdown()}</Input>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <div className="container">
+                        <Row>
+                            <textarea placeholder="Details of discount..." onChange={this.onDetailsChanged}></textarea>
+                            <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>
+                            <Input placeholder="Minimum value to apply discount" onChange={this.onPromoMinValChanged}></Input>
+                        </Row>
+                        <Row>
+                            <Col xs="auto">
+                                <InputGroup>
+                                    <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
+                                    {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
+                                    <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
+                                    <InputGroupAddon addonType="append">
+                                        <Button color="primary" onClick={this.handleAddPromo}>Add Promotion</Button>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                    </div>
+                    <div>
+                        {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}
+                    </div>
                 </TabPanel>
             </Tabs>
 

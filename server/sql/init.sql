@@ -47,27 +47,32 @@ CREATE TABLE Customers (
 );
 
 CREATE TABLE CreditCards (
-	cid varchar(255) references Accounts(account_id) on delete cascade,
+	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	card_number varchar(255),
 	primary key (cid, card_number)
-	--foreign key (cid) references Customers on delete cascade
 );
 
 -- Promotion --
 CREATE TABLE Promos (
+	creator_id varchar(255),
 	promo_id serial,
-	account_id varchar(255) references Accounts(account_id) on delete cascade,
+	details text not null,
+	category varchar(255) not null,
+	promo_type varchar(255) not null,
+	discount_value integer not null,
+	trigger_value integer not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
-	discount integer not null,
-	promo_type varchar(255) not null,
-	primary key (promo_id)
+	primary key (promo_id, creator_id),
+	foreign key (creator_id) references Accounts 
+		on delete cascade
+		on update cascade
 );
 
-CREATE TABLE CustomerPromo (
-	cid varchar(255) references Customers(cid) on delete cascade,
-    promo_id serial primary key
-);
+-- CREATE TABLE CustomerPromo (
+-- 	cid varchar(255) references Customers(cid) on delete cascade,
+--     promo_id serial primary key
+-- );
 
 
 -- Riders relation here --
@@ -239,7 +244,7 @@ CREATE TABLE Uses (
 	promo_id integer NOT NULL,
 	amount money NOT NULL,
 	primary key (oid),
-	foreign key (oid) references Orders,
+	foreign key (oid) references Places,
 	foreign key (promo_id) references Promos
 );
 
@@ -294,7 +299,7 @@ CREATE TABLE Places (
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
 	payment_method varchar(255),
-	primary key(oid, cid)
+	primary key(oid)
 );
 
 -- Remove reviews table and add review as one of the attributes to Consists table

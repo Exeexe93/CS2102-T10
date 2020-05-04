@@ -117,6 +117,22 @@ class FDSManager {
             }
         )
     }
+
+    static queryAddPromo(promoStart, promoEnd, promo_type, category, details,
+        discount_value, trigger_value, creator_id, callback) {
+        db.query(
+            'INSERT into Promos(start_time, end_time, promo_type, category, details, discount_value, trigger_value, creator_id) ' + 
+            'VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+            [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryAddPromo:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
 }
 
 module.exports = FDSManager;

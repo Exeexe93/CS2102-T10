@@ -79,9 +79,6 @@ class FoodItem extends Component {
           rest_id: this.props.location.state.rest_id,
         }
       );
-      console.log("reviews: ");
-      console.log(res);
-      console.log(res.data);
       this.setState({
         reviews: res.data,
       });
@@ -206,6 +203,28 @@ class FoodItem extends Component {
     }
   };
 
+  checkCartContainOtherRestaurantOrder = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/CheckCart",
+        {
+          cid: this.state.cid,
+          rest_id: this.state.rest_id,
+        }
+      );
+      if (response.data[0].exists === true) {
+        this.setState({
+          message:
+            "You cannot add order if you have order from other restaurant in your cart",
+        });
+      } else {
+        this.updateOrderIfExists();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   addOrder = (event) => {
     event.preventDefault();
     this.setState({
@@ -214,7 +233,7 @@ class FoodItem extends Component {
       message: "",
     });
     // Check whether there are other order that has not paid which same restaurant as current
-    this.updateOrderIfExists();
+    this.checkCartContainOtherRestaurantOrder();
   };
 
   insertEmptyOrder = async (oid, fid, quantity, price) => {
@@ -228,7 +247,6 @@ class FoodItem extends Component {
         "http://localhost:3001/Customer/AddOrder",
         order
       );
-      console.log(response);
       return response.data.num;
     } catch (err) {
       console.error(err);
@@ -242,7 +260,6 @@ class FoodItem extends Component {
     };
     try {
       await axios.post("http://localhost:3001/Customer/PlaceOrder", details);
-      console.log("Place order");
     } catch (err) {
       console.error(err);
     }

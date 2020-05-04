@@ -305,6 +305,19 @@ class Customer {
       }
     );
   }
+
+  static checkCart(cid, rest_id, callback) {
+    db.query(
+      "SELECT EXISTS (SELECT O.oid From PLACES as P LEFT JOIN ORDERS as O USING (oid) LEFT JOIN CONSISTS as C ON O.oid = C.oid WHERE P.cid = $1 AND O.order_status = 'cart' AND O.rest_id <> $2)",
+      [cid, rest_id],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
 }
 
 module.exports = Customer;

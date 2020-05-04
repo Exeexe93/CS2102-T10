@@ -63,6 +63,18 @@ class Profile extends Component {
     fetch(request)
       .then((res) => res.json())
       .then((res) => {
+        let orderHistory = res;
+        orderHistory.map((order) => {
+          order["total_price"] =
+            "$" +
+            this.calculateOrderTotalPrice(
+              order.cost,
+              order.promoDiscount,
+              order.deliveryFee,
+              order.pointsUsed
+            );
+        });
+        console.log(orderHistory);
         this.setState({
           orderHistory: res,
         });
@@ -101,6 +113,20 @@ class Profile extends Component {
       customerName: value.state.name,
     });
   }
+
+  calculateOrderTotalPrice = (
+    rawCost,
+    promoDiscount,
+    deliveryFee,
+    rewardPointsOffset
+  ) => {
+    let total_price =
+      parseFloat(rawCost.slice(1)) +
+      parseFloat(deliveryFee.slice(1)) -
+      parseFloat(promoDiscount.slice(1)) -
+      rewardPointsOffset;
+    return parseFloat(total_price.toFixed(2));
+  };
 
   addCreditCard = (event) => {
     const form = event.target;
@@ -318,7 +344,7 @@ class Profile extends Component {
       <tr key={"totalCost - " + order.orderNum} className="orderTable">
         <td>Total Cost</td>
         <td></td>
-        <td>{order.cost}</td>
+        <td>{order.total_price}</td>
         <td></td>
       </tr>
     );
@@ -362,7 +388,7 @@ class Profile extends Component {
       <tr key={foodIndex} className="orderTable">
         <td>{food.FoodName}</td>
         <td>{food.FoodQuantity}</td>
-        <td>${food.FoodCost}</td>
+        <td>{food.FoodCost}</td>
         <td>{this.displayReviewInput(foodIndex, index)}</td>
       </tr>
     );

@@ -113,7 +113,9 @@ router.post("/UpdateOrder", function (req, res) {
     req.body.queryList,
     req.body.valueList,
     (err, result) => {
-      if (err.error) return res.status(404).json(err);
+      if (err.error) {
+        return res.send(err.error);
+      }
       return res.status(200).json(result);
     }
   );

@@ -49,13 +49,9 @@ CREATE TABLE Customers (
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	card_number varchar(255),
-<<<<<<< HEAD
-	primary key (cid, card_number)
-=======
 	primary key (cid, card_number),
 	unique(card_number)
 	--foreign key (cid) references Customers on delete cascade
->>>>>>> 3d2b04234ca795b0028dba77f60adb173b7712d1
 );
 
 -- Promotion --
@@ -245,6 +241,16 @@ CREATE TABLE Orders (
 	foreign key (rid) references Riders
 );
 
+CREATE TABLE Places (
+	oid integer references Orders(oid),
+	cid varchar(255) references Customers(cid),
+	address varchar(255),
+	payment_method varchar(255),
+	card_number varchar(255),
+	primary key(oid),
+	foreign key (card_number) references CreditCards (card_number)
+);
+
 CREATE TABLE Uses (
 	oid integer,
 	promo_id integer NOT NULL,
@@ -298,16 +304,6 @@ CREATE TABLE Consists (
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
-);
-
-CREATE TABLE Places (
-	oid integer references Orders(oid),
-	cid varchar(255) references Customers(cid),
-	address varchar(255),
-	payment_method varchar(255),
-	card_number varchar(255),
-	primary key(oid),
-	foreign key (card_number) references CreditCards (card_number)
 );
 
 -- Remove reviews table and add review as one of the attributes to Consists table

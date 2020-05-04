@@ -59,9 +59,11 @@ class FDSManager extends Component {
             promoStartDay: '',
             promoStartMonth: '',
             promoStartYear: '',
+            promoStartTime: '',
             promoEndDay: '',           
             promoEndMonth: '',
             promoEndYear: '',
+            promoEndTime: '',
             promoCategory: '',
             promoType: '',
             promoDetails: '',
@@ -588,6 +590,30 @@ class FDSManager extends Component {
         })
     }
 
+    renderTimeDropdown = () => {
+        let timeOption = [<option value="none" selected disabled hidden>Time</option>]
+        for (let i = 0; i < 24; i++) {
+            let timeToPush = ''
+            if (i < 10) {
+                timeToPush = '0'
+            }
+            timeOption.push(<option key={i} value={i}>{timeToPush + i + ':00:00'}</option>)
+        }
+        return timeOption;
+    }
+
+    onPromoStartTimeChanged = (e) => {
+        this.setState({
+            promoStartTime: e.target.value
+        }, () => {console.log("startTime: ",this.state.promoStartTime)})
+    }
+
+    onPromoEndTimeChanged = (e) => {
+        this.setState({
+            promoEndTime: e.target.value
+        })
+    }
+
     inputValidityCheck = () => {
         let isValidTriggerVal = (this.state.triggerValue > 0) && !isNaN(this.state.triggerValue)
         let isValidDiscountVal = (this.state.discountValue > 0) && !isNaN(this.state.discountValue)
@@ -626,37 +652,52 @@ class FDSManager extends Component {
         return true;
     }
 
-    formatDateForQuery = (day, month, year) => {
+    formatDateForQuery = (day, month, year, time) => {
         let formatDay = ''
         let formatMonth = ''
+        let formatTime = ''
         if (day.length == 1) {
             formatDay += '0'
         }
         if (month.length == 1) {
             formatMonth += '0'
         }
-        return formatDay + day + formatMonth + month + year + ''
+        if (time.length == 1) {
+            formatTime += '0'
+        }
+        formatTime += time + ':00:00'
+        return formatDay + day + formatMonth + month + year + " " + formatTime
+    }
+
+    getPromoStartAndEndTime = () => {
+        return Promise.all([this.formatDateForQuery(this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear, this.state.promoStartTime),
+            this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear, this.state.promoEndTime)])
     }
 
     handleAddPromo = () => {
         if (this.inputValidityCheck()) {
-            let promoStart = this.formatDateForQuery(this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear)
-            let promoEnd = this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear)
-            console.log('promostart : %s\npromoend : %s', promoStart, promoEnd)
-            fetch('http://localhost:3001/FDSManager/addPromo', {
-                method: 'post',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    start_time: promoStart, 
-                    end_time: promoEnd,
-                    promo_type: this.state.promoType,
-                    category: this.state.promoCategory,
-                    details: this.state.details,
-                    discount_value: this.state.discountValue,
-                    trigger_value: this.state.triggerValue,
-                    creator_id: this.state.id
+            this.getPromoStartAndEndTime()
+                .then(([start_time, end_time]) => {
+                    console.log('promostart : %s\npromoend : %s', start_time, end_time)
+                    fetch('http://localhost:3001/FDSManager/addPromo', {
+                        method: 'post',
+                        headers: { 'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            start_time: start_time, 
+                            end_time: end_time,
+                            promo_type: this.state.promoType,
+                            category: this.state.promoCategory,
+                            details: this.state.details,
+                            discount_value: this.state.discountValue,
+                            trigger_value: this.state.triggerValue,
+                            creator_id: this.state.id
+                        })
+                    })
+                    .then(res => {
+                        console.log("from insert promo");
+                        console.log(res)
+                    })
                 })
-            })
             console.log('success')
         }
         console.log("Data needed\nStart Promo day %s/%s/%s\nEnd Promo day %s/%s/%s\nCategory: %s\nType: %s\nDetails: %s\nDiscountV: %s\nTrigger V:%s",
@@ -839,6 +880,7 @@ class FDSManager extends Component {
                             <Input type="select" onChange={this.onPromoStartDayChanged}>{this.renderDayDropdown(this.state.promoStartMonth, this.state.promoStartYear)}</Input>
                             <Input type="select" onChange={this.onPromoStartMonthChanged}>{this.renderMonthDropdown()}</Input>
                             <Input type="select" onChange={this.onPromoStartYearChanged}>{this.renderYearDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoStartTimeChanged}>{this.renderTimeDropdown()}</Input>
                         </InputGroupAddon>
                     </InputGroup>
                     <InputGroup className="container">
@@ -847,6 +889,7 @@ class FDSManager extends Component {
                             <Input type="select" onChange={this.onPromoEndDayChanged}>{this.renderDayDropdown(this.state.promoEndMonth, this.state.promoEndYear)}</Input>
                             <Input type="select" onChange={this.onPromoEndMonthChanged}>{this.renderMonthDropdown()}</Input>
                             <Input type="select" onChange={this.onPromoEndYearChanged}>{this.renderYearDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoEndTimeChanged}>{this.renderTimeDropdown()}</Input>
                         </InputGroupAddon>
                     </InputGroup>
                     <div className="container">

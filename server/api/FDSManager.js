@@ -98,7 +98,7 @@ router.get('/getAllRidersName', (req, res) => {
 })
 
 router.post('/addPromo', (req, res) => {
-    FDSManagerModel.queryAddPromo(req.body.promoStart, req.body.promoEnd, req.body.promo_type, req.body.category, req.body.details,
+    FDSManagerModel.queryAddPromo(req.body.start_time, req.body.end_time, req.body.promo_type, req.body.category, req.body.details,
         req.body.discount_value, req.body.trigger_value, req.body.creator_id, (err, result) => {
         if (err.error) {
             console.log("Error occurred at FDSManager api post addPromo");

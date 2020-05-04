@@ -222,6 +222,7 @@ CREATE TABLE Orders (
 	rest_id integer not null,
 	order_status varchar(50) not null,
 	rating integer,
+	points_used integer default 0,
 	delivery_fee money,
 	total_price money,
 	order_placed timestamp,

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Container, Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
+import swal from "sweetalert";
 
 import Calendar from "react-calendar";
 import { MdHome } from "react-icons/md";
@@ -32,6 +33,7 @@ class Schedule extends Component {
         <PTSelectSchedule
           handleSubmit={this.handlePTSubmit}
           selectedDate={this.state.date}
+          selectedScheduleList={this.state.selectedScheduleList}
         />
       );
     }
@@ -39,7 +41,6 @@ class Schedule extends Component {
 
   handleFTSubmit = (e) => {
     e.preventDefault();
-
     const selectedDate = this.state.date;
     let selectedShift;
     const selectedRadio = document.querySelectorAll(
@@ -55,16 +56,13 @@ class Schedule extends Component {
     };
 
     const newScheduleList = this.state.selectedScheduleList.slice();
+    // Check for same date entry in schedule list
     const index = newScheduleList.findIndex((o) => o.date === selectedDate);
-
     if (index === -1) {
-      // Not found
       newScheduleList.push(selectedDateShift);
     } else {
-      // Found
       newScheduleList[index] = selectedDateShift;
     }
-
     // Sort date in ascending order
     newScheduleList.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -76,12 +74,45 @@ class Schedule extends Component {
   handlePTSubmit = (e) => {
     e.preventDefault();
 
-    console.log(this.state.date);
+    const selectedDate = this.state.date;
+    let selectedShift = [];
+    let hasSelectedShift = false;
 
     const checkboxes = document.querySelectorAll('input[name="time"]:checked');
     checkboxes.forEach((checkbox) => {
-      console.log(checkbox.value);
+      if (checkbox.checked) {
+        hasSelectedShift = true;
+        selectedShift.push(checkbox.value);
+        console.log("AAAA");
+        console.log(selectedShift);
+        console.log(checkbox.value);
+      }
     });
+
+    const selectedDateShift = {
+      date: selectedDate,
+      shift: selectedShift,
+    };
+
+    const newScheduleList = this.state.selectedScheduleList.slice();
+    // Check for same date entry in schedule list
+    const index = newScheduleList.findIndex((o) => o.date === selectedDate);
+    if (index === -1) {
+      newScheduleList.push(selectedDateShift);
+    } else {
+      newScheduleList[index] = selectedDateShift;
+    }
+
+    if (hasSelectedShift) {
+      // Sort date in ascending order
+      newScheduleList.sort((a, b) => new Date(a.date) - new Date(b.date));
+      this.setState({
+        selectedScheduleList: newScheduleList,
+      });
+    } else {
+      const date = this.state.date;
+      swal("Please select at least one shift for " + date);
+    }
   };
 
   handleHomeNavigation = () => {

@@ -22,6 +22,7 @@ class FTSelectSchedule extends Component {
             <FormGroup check>
               <Label check>
                 <Input
+                  required
                   type="radio"
                   name="ft-shift"
                   value="Shift 1: 10am to 2pm and 3pm to 7pm"

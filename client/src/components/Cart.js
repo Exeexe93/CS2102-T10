@@ -98,9 +98,10 @@ class Cart extends Component {
             food["originalQuantity"] = food.FoodQuantity;
             food["FoodCost"] = singleFoodCost;
           });
-          data["total_cost"] = singleOrderCost;
+          data["total_cost"] = this.limitToTwoDeciamlPlaces(singleOrderCost);
           rawCost = rawCost + singleOrderCost;
         });
+        rawCost = this.limitToTwoDeciamlPlaces(rawCost);
         const deliveryFee = this.calculateDeliveryFee(rawCost);
         const paymentCost = this.limitToTwoDeciamlPlaces(deliveryFee + rawCost);
 

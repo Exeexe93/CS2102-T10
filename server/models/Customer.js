@@ -25,7 +25,7 @@ class Customer {
 
   static getOrders(cid, callback) {
     db.query(
-      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust, O.rating, C.review, C.fid from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R using (rest_id) where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
+      "select O.oid, R.name as restaurantName, F.name as FoodName, C.quantity, C.total_price, O.total_price as Cost, O.order_placed, O.depart_for_rest, O.arrive_at_rest, O.depart_for_delivery, O.deliver_to_cust, O.rating, C.review, C.fid, O.delivery_fee, COALESCE(U.amount, '$0') AS money, O.points_used from places join consists as C using (oid) left join foods as F using (fid) left join Orders as O on O.oid = C.oid left join Restaurants as R on R.rest_id = O.rest_id left join Uses as U on O.oid = U.oid where cid = $1 AND O.order_status = 'paid' ORDER BY O.oid DESC",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -43,6 +43,9 @@ class Customer {
               cost: foodItem.cost,
               foods: [],
               rating: foodItem.rating,
+              pointsUsed: foodItem.points_used,
+              promoDiscount: foodItem.money,
+              deliveryFee: foodItem.delivery_fee,
               ratingSubmitted: foodItem.rating ? true : false,
               order_status: foodItem.deliver_to_cust
                 ? "Food delivered"
@@ -136,7 +139,7 @@ class Customer {
 
   static getRestaurantFoods(restaurantName, callback) {
     db.query(
-      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Menus using (rest_id) left join Foods as F using (menu_id) WHERE R.name = $1",
+      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Foods as F using (rest_id) WHERE R.name = $1",
       [restaurantName],
       (err, res) => {
         if (err.error) {
@@ -294,6 +297,19 @@ class Customer {
     db.query(
       "SELECT Foods.name as food_name, Customers.name as customer_name, Consists.review FROM Orders LEFT JOIN Consists using (oid) LEFT JOIN Foods using (fid) LEFT JOIN Places on Orders.oid = Places.oid LEFT JOIN Customers using (cid) WHERE Orders.rest_id = $1 GROUP BY Foods.name, Customers.name, Consists.review, Foods.category HAVING Consists.review IS NOT NULL ORDER BY CASE Foods.category WHEN 'Main Dish' THEN 1 WHEN 'Side Dish' THEN 2 WHEN 'Drink' THEN 3 WHEN 'Dessert' THEN 4 END",
       [rest_id],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static checkCart(cid, rest_id, callback) {
+    db.query(
+      "SELECT EXISTS (SELECT O.oid From PLACES as P LEFT JOIN ORDERS as O USING (oid) LEFT JOIN CONSISTS as C ON O.oid = C.oid WHERE P.cid = $1 AND O.order_status = 'cart' AND O.rest_id <> $2)",
+      [cid, rest_id],
       (err, res) => {
         if (err.error) {
           return callback(err, res);

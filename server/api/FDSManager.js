@@ -107,3 +107,5 @@ router.post('/addPromo', (req, res) => {
         return res.json(result);
     })
 })
+
+module.exports = router;

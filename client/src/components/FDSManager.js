@@ -450,7 +450,7 @@ class FDSManager extends Component {
             })
     }
 
-    // Promotion
+    // ================================================ Promotion ================================================
     renderPromoType = () => {
         return ([
             <option value="none" selected disabled hidden>Type</option>,

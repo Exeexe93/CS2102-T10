@@ -43,6 +43,10 @@ class Cart extends Component {
 
   static contextType = AccountContext;
 
+  limitToTwoDeciamlPlaces = (value) => {
+    return parseFloat(value.toFixed(2));
+  };
+
   getCreditCards = async (value) => {
     try {
       const response = await axios.post(
@@ -90,16 +94,16 @@ class Cart extends Component {
             const singleFoodCost = parseFloat(food.FoodCost.slice(1));
             singleOrderCost += singleFoodCost;
             let individualFoodCost = singleFoodCost / food.FoodQuantity;
-            food["itemCost"] = parseFloat(individualFoodCost.toFixed(2));
+            food["itemCost"] = this.limitToTwoDeciamlPlaces(individualFoodCost);
             food["originalQuantity"] = food.FoodQuantity;
             food["FoodCost"] = singleFoodCost;
           });
           data["total_cost"] = singleOrderCost;
           totalOrdersCost = totalOrdersCost + singleOrderCost;
         });
-        const deliveryFee = parseFloat((totalOrdersCost * 0.05).toFixed(2));
-        const paymentCost = parseFloat(
-          (deliveryFee + totalOrdersCost).toFixed(2)
+        const deliveryFee = this.calculateDeliveryFee(totalOrdersCost);
+        const paymentCost = this.limitToTwoDeciamlPlaces(
+          deliveryFee + totalOrdersCost
         );
 
         this.setState({
@@ -120,7 +124,9 @@ class Cart extends Component {
         name: value.state.name,
       })
       .then((res) => {
-        let rewardPoints = parseFloat(res.data[0].reward_points.toFixed(2));
+        let rewardPoints = this.limitToTwoDeciamlPlaces(
+          res.data[0].reward_points
+        );
         this.setState({
           rewardPoints,
         });
@@ -137,11 +143,13 @@ class Cart extends Component {
   }
 
   calculateDeliveryFee = (total_cost) => {
-    return parseFloat((total_cost * 0.05).toFixed(2));
+    const conversionRate = 0.05;
+    return this.limitToTwoDeciamlPlaces(total_cost * conversionRate);
   };
 
   calculateRewardPoint = (total_cost) => {
-    let result = parseFloat((total_cost * 0.1).toFixed(2));
+    const conversionRate = 0.1;
+    let result = this.limitToTwoDeciamlPlaces(total_cost * conversionRate);
     return result;
   };
 
@@ -155,18 +163,23 @@ class Cart extends Component {
     if (value) {
       // Calculate total cost for the food based on quantity
       let orders = this.state.orders;
-      const FoodCost = (parseFloat(food.itemCost) * value).toFixed(2);
-      let costChanged = FoodCost - orders[index].foods[foodIndex].FoodCost;
-      costChanged = parseFloat(costChanged.toFixed(2));
-      const total_cost = parseFloat(
-        (orders[index].total_cost + costChanged).toFixed(2)
+      const FoodCost = this.limitToTwoDeciamlPlaces(
+        parseFloat(food.itemCost) * value
       );
-      const totalOrdersCost = parseFloat(
-        (this.state.totalOrdersCost + costChanged).toFixed(2)
+      let costChanged = FoodCost - orders[index].foods[foodIndex].FoodCost;
+      costChanged = this.limitToTwoDeciamlPlaces(costChanged);
+      const total_cost = this.limitToTwoDeciamlPlaces(
+        orders[index].total_cost + costChanged
+      );
+
+      const totalOrdersCost = this.limitToTwoDeciamlPlaces(
+        this.state.totalOrdersCost + costChanged
       );
       const discountedCost = totalOrdersCost - this.calculateDiscount();
       const deliveryFee = this.calculateDeliveryFee(discountedCost);
-      const paymentCost = parseFloat((discountedCost + deliveryFee).toFixed(2));
+      const paymentCost = this.limitToTwoDeciamlPlaces(
+        discountedCost + deliveryFee
+      );
 
       orders[index].foods[foodIndex].FoodQuantity = value;
       orders[index].total_cost = total_cost;
@@ -211,17 +224,19 @@ class Cart extends Component {
     }
 
     const foodCost = orders[index].foods[foodIndex].FoodCost;
-    const orderCost = parseFloat(
-      (orders[index].total_cost - foodCost).toFixed(2)
+    const orderCost = this.limitToTwoDeciamlPlaces(
+      orders[index].total_cost - foodCost
     );
-    const totalOrdersCost = parseFloat(
-      (this.state.totalOrdersCost - foodCost).toFixed(2)
+    const totalOrdersCost = this.limitToTwoDeciamlPlaces(
+      this.state.totalOrdersCost - foodCost
     );
-    const discountedCost = parseFloat(
-      (totalOrdersCost - this.calculateDiscount()).toFixed(2)
+    const discountedCost = this.limitToTwoDeciamlPlaces(
+      totalOrdersCost - this.calculateDiscount()
     );
     const deliveryFee = this.calculateDeliveryFee(discountedCost);
-    const paymentCost = parseFloat((discountedCost + deliveryFee).toFixed(2));
+    const paymentCost = this.limitToTwoDeciamlPlaces(
+      discountedCost + deliveryFee
+    );
 
     orders[index].foods.splice(foodIndex, 1);
     orders[index].total_cost = orderCost;
@@ -241,77 +256,7 @@ class Cart extends Component {
     }
   };
 
-  renderOrderCost = (order) => {
-    return (
-      <tr key="orderCost" className="orderTable">
-        <td>Total Cost</td>
-        <td></td>
-        <td></td>
-        <td>${order.total_cost}</td>
-        <td></td>
-        <td></td>
-      </tr>
-    );
-  };
-
-  renderFoodItem = (food, foodIndex, index) => {
-    return (
-      <tr key={foodIndex} className="orderTable">
-        <td>{food.FoodName}</td>
-        <td>${food.itemCost}</td>
-        <td>
-          <Form.Control
-            pattern="[0-9]*"
-            defaultValue={food.FoodQuantity}
-            onChange={(event) =>
-              this.updateTotalValue(event, food, foodIndex, index)
-            }
-          />
-        </td>
-        <td>${food.FoodCost}</td>
-        <td>{food.FoodLimit}</td>
-        <td>
-          <Button onClick={() => this.handleDelete(foodIndex, index)} size="sm">
-            {" "}
-            Delete{" "}
-          </Button>
-        </td>
-      </tr>
-    );
-  };
-
-  renderOrder = (order, index) => {
-    return (
-      <Card key={index}>
-        <Accordion.Toggle as={Card.Header} eventKey={index} className="order">
-          Order Number: {order.orderNum}
-        </Accordion.Toggle>
-
-        <Accordion.Collapse eventKey={index}>
-          <Card.Body>
-            <Table striped bordered hover size="sm">
-              <thead>
-                <tr>
-                  <th>Food Name</th>
-                  <th>Price</th>
-                  <th>Quantity</th>
-                  <th>Total Cost</th>
-                  <th>Limit</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {order.foods.map((food, foodIndex) =>
-                  this.renderFoodItem(food, foodIndex, index)
-                )}
-                {this.renderOrderCost(order)}
-              </tbody>
-            </Table>
-          </Card.Body>
-        </Accordion.Collapse>
-      </Card>
-    );
-  };
+  // Prepare queries and values for transaction
 
   updateFood = async (food, orderNum, queryList, valueList) => {
     if (food.originalQuantity !== food.FoodQuantity) {
@@ -360,12 +305,10 @@ class Cart extends Component {
       "UPDATE Customers SET reward_points = TO_NUMBER($2,'9999.99') WHERE cid = $1"
     );
 
-    let rewardPointLeft = parseFloat(
-      (
-        this.state.rewardPoints -
+    let rewardPointLeft = this.limitToTwoDeciamlPlaces(
+      this.state.rewardPoints -
         this.state.rewardPointsUsed +
         this.calculateRewardPoint(total_cost)
-      ).toFixed(2)
     );
     console.log(rewardPointLeft);
     valueList.push([[this.state.cid, rewardPointLeft]]);
@@ -441,6 +384,80 @@ class Cart extends Component {
       });
       this.orderForm.reset();
     }
+  };
+
+  // Display the respective components to user
+
+  renderOrderCost = (order) => {
+    return (
+      <tr key="orderCost" className="orderTable">
+        <td>Total Cost</td>
+        <td></td>
+        <td></td>
+        <td>${order.total_cost}</td>
+        <td></td>
+        <td></td>
+      </tr>
+    );
+  };
+
+  renderFoodItem = (food, foodIndex, index) => {
+    return (
+      <tr key={foodIndex} className="orderTable">
+        <td>{food.FoodName}</td>
+        <td>${food.itemCost}</td>
+        <td>
+          <Form.Control
+            pattern="[0-9]*"
+            defaultValue={food.FoodQuantity}
+            onChange={(event) =>
+              this.updateTotalValue(event, food, foodIndex, index)
+            }
+          />
+        </td>
+        <td>${food.FoodCost}</td>
+        <td>{food.FoodLimit}</td>
+        <td>
+          <Button onClick={() => this.handleDelete(foodIndex, index)} size="sm">
+            {" "}
+            Delete{" "}
+          </Button>
+        </td>
+      </tr>
+    );
+  };
+
+  renderOrder = (order, index) => {
+    return (
+      <Card key={index}>
+        <Accordion.Toggle as={Card.Header} eventKey={index} className="order">
+          Order Number: {order.orderNum}
+        </Accordion.Toggle>
+
+        <Accordion.Collapse eventKey={index}>
+          <Card.Body>
+            <Table striped bordered hover size="sm">
+              <thead>
+                <tr>
+                  <th>Food Name</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total Cost</th>
+                  <th>Limit</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {order.foods.map((food, foodIndex) =>
+                  this.renderFoodItem(food, foodIndex, index)
+                )}
+                {this.renderOrderCost(order)}
+              </tbody>
+            </Table>
+          </Card.Body>
+        </Accordion.Collapse>
+      </Card>
+    );
   };
 
   paymentMethod = (card_number) => {
@@ -576,6 +593,7 @@ class Cart extends Component {
               (
                 this.state.totalOrdersCost +
                 this.state.deliveryFee -
+                this.state.promoDiscount -
                 discount
               ).toFixed(2)
             );
@@ -599,7 +617,6 @@ class Cart extends Component {
           <Form.Control
             pattern="^[0-9]+(\.[0-9]{1,2})?$"
             defaultValue="0"
-            // value={this.state.rewardPointsUsed}
             onChange={(event) => this.updateRewardPointUsed(event)}
           />
         </div>

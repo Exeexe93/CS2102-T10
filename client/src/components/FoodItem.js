@@ -379,10 +379,9 @@ class FoodItem extends Component {
         <ListGroup.Item className="listName">Food Name</ListGroup.Item>
         <ListGroup.Item className="listPrice">Price</ListGroup.Item>
         <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-        <ListGroup.Item className="listQuantityLeft">
-          Quantity Left
+        <ListGroup.Item className="listPurchaseLimit">
+          Purchase Limit
         </ListGroup.Item>
-        {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
         <ListGroup.Item className="listCategory">Category</ListGroup.Item>
       </ListGroup>
     );
@@ -438,6 +437,58 @@ class FoodItem extends Component {
     );
   };
 
+  displayFood = (food, foodIndex) => {
+    return (
+      <tr key={foodIndex} className="orderTable">
+        <td>{food.name}</td>
+        <td>{food.price}</td>
+        <td>
+          <Form.Group controlId={food.name}>
+            <Form.Control
+              className="form"
+              as="select"
+              value={this.state.foodItem[foodIndex].actualQuantity}
+              onChange={(value) => this.handleQuantity(value, foodIndex)}
+            >
+              {food.amount.map((num, foodIndex) => {
+                return (
+                  <option key={foodIndex} value={num.value}>
+                    {num.value}
+                  </option>
+                );
+              })}
+            </Form.Control>
+          </Form.Group>
+        </td>
+        <td>{food.food_limit}</td>
+        <td>{food.category}</td>
+      </tr>
+    );
+  };
+
+  displayMenuTable = () => {
+    return (
+      <div className="menuTable">
+        <Table striped bordered hover size="sm">
+          <thead>
+            <tr>
+              <th>Food Name</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Purchase Limit</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.filtered.map((food, foodIndex) =>
+              this.displayFood(food, foodIndex)
+            )}
+          </tbody>
+        </Table>
+      </div>
+    );
+  };
+
   displayMenu = () => {
     return (
       <TabPanel>
@@ -449,10 +500,13 @@ class FoodItem extends Component {
 
         <div className="separator"></div>
         <ListGroup className="foodList">
-          {this.displayMenuHeader()}
+          {/* {this.displayMenuHeader()}
           {this.state.filtered.map((item, index) =>
             this.displayMenuFoods(item, index)
-          )}
+          )} */}
+
+          {this.displayMenuTable()}
+
           <div className="separator"></div>
           {this.state.message && (
             <h4 className="message">{this.state.message}</h4>

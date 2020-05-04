@@ -65,7 +65,7 @@ body {
   text-align: center;
 }
 
-.listQuantityLeft {
+.listPurchaseLimit {
   width: 100px;
   text-align: center;
 }
@@ -102,4 +102,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.menuTable {
+  width: 80%;
+}
+
+.form {
+  text-align: center;
 }

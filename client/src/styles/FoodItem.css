@@ -45,36 +45,6 @@ body {
   margin-bottom: 30px;
 }
 
-.listName {
-  width: 180px;
-  text-align: center;
-}
-
-.listPrice {
-  width: 100px;
-  text-align: center;
-}
-
-.listLimit {
-  width: 100px;
-  text-align: center;
-}
-
-.listQuantity {
-  width: 100px;
-  text-align: center;
-}
-
-.listQuantityLeft {
-  width: 100px;
-  text-align: center;
-}
-
-.listCategory {
-  width: 120px;
-  text-align: center;
-}
-
 .message {
   color: blue;
   margin-bottom: 30px;
@@ -102,4 +72,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.menuTable {
+  width: 80%;
+}
+
+.form {
+  text-align: center;
 }

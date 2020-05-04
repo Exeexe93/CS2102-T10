@@ -14,6 +14,7 @@ class Schedule extends Component {
 
     this.state = {
       date: this.formatDate(new Date()),
+      selectedScheduleList: [],
     };
   }
 
@@ -23,6 +24,7 @@ class Schedule extends Component {
         <FTSelectSchedule
           handleSubmit={this.handleFTSubmit}
           selectedDate={this.state.date}
+          selectedScheduleList={this.state.selectedScheduleList}
         />
       );
     } else {
@@ -38,13 +40,36 @@ class Schedule extends Component {
   handleFTSubmit = (e) => {
     e.preventDefault();
 
-    console.log(this.state.date);
-
-    const selected = document.querySelectorAll(
+    const selectedDate = this.state.date;
+    let selectedShift;
+    const selectedRadio = document.querySelectorAll(
       'input[name="ft-shift"]:checked'
     );
-    selected.forEach((selectedRadio) => {
-      console.log(selectedRadio.value);
+    selectedRadio.forEach((radio) => {
+      selectedShift = radio.value;
+    });
+
+    const selectedDateShift = {
+      date: selectedDate,
+      shift: selectedShift,
+    };
+
+    const newScheduleList = this.state.selectedScheduleList.slice();
+    const index = newScheduleList.findIndex((o) => o.date === selectedDate);
+
+    if (index === -1) {
+      // Not found
+      newScheduleList.push(selectedDateShift);
+    } else {
+      // Found
+      newScheduleList[index] = selectedDateShift;
+    }
+
+    // Sort date in ascending order
+    newScheduleList.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    this.setState({
+      selectedScheduleList: newScheduleList,
     });
   };
 

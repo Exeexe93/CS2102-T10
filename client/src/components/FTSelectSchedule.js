@@ -13,6 +13,15 @@ class FTSelectSchedule extends Component {
       <div className="ft-schedule-container">
         <div className="ft-schedule-col">
           <h1>Selected Schedule</h1>
+          {this.props.selectedScheduleList.map((schedule, index) => {
+            return (
+              <div key={index} className="ft-selected-schedule">
+                <h3>{index + 1})</h3>
+                <h3>{schedule.date}</h3>
+                <h3>{schedule.shift}</h3>
+              </div>
+            );
+          })}
         </div>
 
         <div className="ft-schedule-col">

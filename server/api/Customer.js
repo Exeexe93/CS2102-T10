@@ -193,4 +193,11 @@ router.post("/UpdateCustomerDetails", function (req, res) {
   );
 });
 
+router.post("/GetCustomerName", function (req, res) {
+  Customer.getCustomerName(req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 module.exports = router;

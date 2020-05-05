@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
-import { Navbar, NavbarBrand, Col, Row, Jumbotron } from "reactstrap";
+import { Navbar, NavLink, Col, Row, Jumbotron } from "reactstrap";
 import {
   FormGroup,
   Form,
@@ -40,8 +40,8 @@ class Profile extends Component {
       );
       console.log(response.data);
       this.setState({
-        customerName: response.name,
-        password: response.data.account_pass,
+        // customerName: response.data[0].name,
+        password: response.data[0].account_pass,
       });
     } catch (err) {
       console.error(err);
@@ -72,6 +72,7 @@ class Profile extends Component {
   };
 
   getOrderList = (cid) => {
+    console.log(cid);
     var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
@@ -128,7 +129,7 @@ class Profile extends Component {
     this.getCreditCards(value.state.cid);
     this.setState({
       cid: value.state.cid,
-      // customerName: value.state.name,
+      customerName: value.state.name,
     });
   }
 
@@ -561,7 +562,7 @@ class Profile extends Component {
             defaultValue={this.state.customerName}
             placeholder="Name"
           />
-          <Form.Label>Restaurant Order Threshold: </Form.Label>
+          <Form.Label>Password: </Form.Label>
           <Form.Control
             className="passwordInput"
             name="password"
@@ -611,16 +612,27 @@ class Profile extends Component {
     );
   };
 
+  handleHomePage = () => {
+    console.log("Press");
+    console.log(this.state.cid);
+    this.props.history.push({
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    });
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
+          <NavLink href="" onClick={this.handleHomePage}>
             <div className="backIcon">
               <MdArrowBack />
-              To Main Page
+              To Home Page
             </div>
-          </NavbarBrand>
+          </NavLink>
         </Navbar>
 
         <Col>

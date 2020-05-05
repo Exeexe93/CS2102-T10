@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavLink, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -780,13 +780,25 @@ class Cart extends Component {
     );
   };
 
+  handleHomePage = () => {
+    this.props.history.push({
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    });
+  };
+
   render() {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <NavLink href="" onClick={this.handleHomePage} className="backIcon">
+            <div>
+              <MdArrowBack />
+              To Home Page
+            </div>
+          </NavLink>
           <div className="icon-container"></div>
         </Navbar>
 

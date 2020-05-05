@@ -136,6 +136,11 @@
   color: lightskyblue;
 }
 
+.backIcon {
+  color: white;
+  font-size: 22px;
+}
+
 .personalInfoTab {
   display: flex;
   flex-direction: column;

@@ -319,9 +319,11 @@ class Customer {
 
   static getCustomerDetails(cid, callback) {
     db.query(
-      "SELECT account_pass, name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE cid = $1",
+      "SELECT account_pass, name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE account_id = $1",
       [cid],
       (err, res) => {
+        console.log("VALUE......");
+        console.log(res);
         if (err.error) {
           return callback(err, res);
         }
@@ -348,6 +350,19 @@ class Customer {
             return callback(err, res);
           }
         );
+      }
+    );
+  }
+
+  static getCustomerName(cid, callback) {
+    db.query(
+      "SELECT name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE cid = $1",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
       }
     );
   }

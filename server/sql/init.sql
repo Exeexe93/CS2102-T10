@@ -89,7 +89,7 @@ CREATE TABLE FTRiders (
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid), 
-    foreign key (rid) references Riders on delete cascade
+    foreign key (rid) references Riders on delete cascade on update cascade
 );
 
 CREATE TABLE PTRiders (

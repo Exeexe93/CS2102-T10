@@ -234,7 +234,9 @@ class FTRiderMainPage extends Component {
   };
 
   // Ongoing order depart to restaurant button is clicked
-  handleDepartToRestaurant = (order_number) => {};
+  handleDepartToRestaurant = (order_number) => {
+    //TODO
+  };
 
   // Ongoing order arrive at restaurant button is clicked
   handleArriveAtRestaurant = (order_number) => {
@@ -262,6 +264,16 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  // Ongoing order depart to customer location button is clicked
+  handleDepartToDeliveryLocation = (order_number) => {
+    //TODO
+  };
+
+  // Ongoing order delivered to customer button is clicked
+  handleOrderDelivered = (order_number) => {
+    //TODO
+  };
+
   displayErrorStatus = () => {
     return swal("Unable to update status", "Please Try Again!", "error");
   };
@@ -269,12 +281,6 @@ class FTRiderMainPage extends Component {
   displaySuccessStatus = () => {
     return swal("Successfully updated status", "", "success");
   };
-
-  // Ongoing order depart to customer location button is clicked
-  handleDepartToDeliveryLocation = (order_number) => {};
-
-  // Ongoing order delivered to customer button is clicked
-  handleOrderDelivered = (order_number) => {};
 
   renderOngoingDelivery = () => {
     if (this.state.ongoing_order !== null) {

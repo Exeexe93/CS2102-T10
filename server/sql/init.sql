@@ -220,7 +220,6 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
-	promo_id references Promos(promo_id) on delete cascade on update cascade,
     primary key(rest_id) 
 );
 

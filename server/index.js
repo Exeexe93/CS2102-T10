@@ -19,6 +19,7 @@ app.use("/RestaurantStaff", require("./api/Restaurantstaff.js"));
 app.use("/Customer", require("./api/Customer.js"));
 app.use("/FDSManager", require("./api/FDSManager.js"));
 app.use("/Login", require("./api/Login.js"));
+app.use("/Rider", require("./api/Rider.js"));
 app.use("/FTRider", require("./api/FTRider.js"));
 app.use("/PTRider", require("./api/PTRider.js"));
 app.use("/Signup", require("./api/Signup.js"));

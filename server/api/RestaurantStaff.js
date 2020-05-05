@@ -45,6 +45,21 @@ router.post("/deleteFood", (request, response) => {
   });
 });
 
+router.post("/updateFood", (request, response) => {
+  const fid = request.body.food_id;
+  const name = request.body.name;
+  const price = request.body.price;
+  const food_limit = request.body.food_limit;
+  const quantity = request.body.quantity;
+  const category = request.body.category;
+  RestaurantStaff.updateFood(fid, name, price, food_limit, quantity, category, (err, result) => {
+    if (err) {
+      return response.json(err);
+    }
+    return response.json(result);
+  });
+});
+
 router.post("/getNumOfOrders", (request, response) => {
   RestaurantStaff.getNumOfOrders(request.body.rest_id, (err, result) => {
     if (err) {

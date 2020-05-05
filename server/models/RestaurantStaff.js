@@ -13,7 +13,7 @@ class RestaurantStaff {
   }
 
   static getFoodItems(rest_id, callback) {
-      db.query("SELECT * FROM Foods WHERE rest_id = $1", [rest_id], (err, res) => {
+      db.query("SELECT * FROM Foods WHERE rest_id = $1 ORDER BY name", [rest_id], (err, res) => {
       if (err.error) {
         console.err("Could not get food items: ", err);
         return callback(err);
@@ -48,6 +48,16 @@ class RestaurantStaff {
     return callback(res);
   });
   }
+
+  static updateFood(fid, name, price, food_limit, quantity, category, callback) {
+    db.query("UPDATE Foods SET name = $1, price = $2, food_limit = $3, quantity = $4, category = $5 WHERE fid = $6", 
+      [name, price, food_limit, quantity, category, fid], (err, res) => {
+        if (err.error) {
+          return callback(err);
+        }
+        return callback(res);
+      });
+    }
 
   static getNumOfOrders(rest_id, callback) {
     db.query("SELECT COUNT(rest_id) FROM Orders WHERE rest_id = $1 AND order_status = 'paid'", [rest_id], (err, res) => {
@@ -98,7 +108,7 @@ class RestaurantStaff {
   }
 
   static getPromo(rest_id, callback) {
-    db.query("SELECT to_char(start_time, 'DD-Mon-YYYY') as start_time, to_char(end_time, 'DD-Mon-YYYY') as end_time, details, discount_value, trigger_value FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = $1",
+    db.query("SELECT to_char(start_time, 'DD-Mon-YYYY') as start_time, to_char(end_time, 'DD-Mon-YYYY') as end_time, details, discount_value, trigger_value, promo_type, promo_id FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = $1",
       [rest_id], (err, res) => {
         if (err.error) {
           console.err("Could not add promotion: ", err);

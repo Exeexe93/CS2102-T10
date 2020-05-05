@@ -136,3 +136,12 @@
 .errorMessage {
   color: red;
 }
+
+.backIcon:hover {
+  color: lightskyblue;
+}
+
+.backIcon {
+  color: white;
+  font-size: 22px;
+}

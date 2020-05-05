@@ -6,6 +6,7 @@ import { MdPerson } from "react-icons/md";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { AccountContext } from "./AccountProvider.js";
+import axios from "axios";
 
 class Customer extends Component {
   constructor(props) {
@@ -13,14 +14,40 @@ class Customer extends Component {
     this.state = {
       restaurantList: [],
       filtered: [],
-      customerName: "Florida",
-      cid: "1b39d987-c6b0-4493-bb95-96e51af734b2",
+      customerName: "",
+      cid: "",
     };
 
     this.handleChange.bind(this);
   }
 
   static contextType = AccountContext;
+
+  getCustomerName = async () => {
+    let state = this.context;
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetCustomerName",
+        {
+          cid: this.props.location.state.account_id,
+        }
+      );
+      if (response.data[0].name) {
+        state.setCidAndName(
+          this.props.location.state.account_id,
+          response.data[0].name
+        );
+        this.setState({
+          customerName: response.data[0].name,
+          cid: this.props.location.state.account_id,
+        });
+      } else {
+        throw "Cannot get name back";
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   getRestaurantList = () => {
     fetch("http://localhost:3001/Customer/")
@@ -35,22 +62,24 @@ class Customer extends Component {
   };
 
   componentDidMount() {
-    let state = this.context;
-    state.setCidAndName(this.state.cid, this.state.customerName);
+    this.getCustomerName();
     this.getRestaurantList();
   }
 
   handleProfile = () => {
     this.props.history.push({
       pathname: "/Profile",
-      state: { customerName: this.state.customerName, cid: this.state.cid },
+      // state: { customerName: this.state.customerName, cid: this.state.cid },
     });
   };
 
   handleCart = () => {
     this.props.history.push({
       pathname: "/Cart",
-      cid: this.state.cid,
+      // state: {
+      //   customerName: this.state.customerName,
+      //   account_id: this.props.location.state.account_id,
+      // },
     });
   };
 

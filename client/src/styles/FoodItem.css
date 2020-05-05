@@ -81,3 +81,12 @@ body {
 .form {
   text-align: center;
 }
+
+.backIcon:hover {
+  color: lightskyblue;
+}
+
+.backIcon {
+  color: white;
+  font-size: 22px;
+}

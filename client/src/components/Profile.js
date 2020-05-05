@@ -25,10 +25,28 @@ class Profile extends Component {
       rewardPoints: 0,
       registeredCreditCard: [],
       orderHistory: [],
+      isInEditMode: false,
+      password: "",
     };
   }
 
   static contextType = AccountContext;
+
+  getCustomerDetails = async (cid) => {
+    try {
+      const response = await axios(
+        "http://localhost:3001/Customer/GetCustomerDetails",
+        { cid: cid }
+      );
+      console.log(response.data);
+      this.setState({
+        customerName: response.name,
+        password: response.data.account_pass,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   getRewardPoints = (customerName) => {
     var request = new Request(
@@ -104,12 +122,13 @@ class Profile extends Component {
 
   componentDidMount() {
     let value = this.context;
+    this.getCustomerDetails(value.state.cid);
     this.getRewardPoints(value.state.name);
     this.getOrderList(value.state.cid);
     this.getCreditCards(value.state.cid);
     this.setState({
       cid: value.state.cid,
-      customerName: value.state.name,
+      // customerName: value.state.name,
     });
   }
 
@@ -504,12 +523,103 @@ class Profile extends Component {
     );
   };
 
+  changeEditMode = () => {
+    this.setState({ isInEditMode: !this.state.isInEditMode });
+  };
+
+  handleUpdate = async (event) => {
+    let form = event.target;
+    event.preventDefault();
+    let customerName = form.elements.name.value;
+    let password = form.elements.password.value;
+    this.setState({
+      customerName: customerName,
+      password: password,
+      isInEditMode: false,
+    });
+    try {
+      await axios.post("http://localhost:3001/Customer/updateCustomerDetails", {
+        cid: this.state.cid,
+        name: customerName,
+        account_pass: password,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  renderEditView = () => {
+    return (
+      <form onSubmit={this.handleUpdate}>
+        <FormGroup>
+          <Form.Label>Name: </Form.Label>
+          <Form.Control
+            className="nameInput"
+            name="name"
+            required={true}
+            type="text"
+            defaultValue={this.state.customerName}
+            placeholder="Name"
+          />
+          <Form.Label>Restaurant Order Threshold: </Form.Label>
+          <Form.Control
+            className="passwordInput"
+            name="password"
+            required={true}
+            type="password"
+            defaultValue={this.state.password}
+            placeholder="Password"
+          />
+          <Button type="submit"> Update </Button>{" "}
+          <Button onClick={this.handleCancel}> Cancel </Button>
+        </FormGroup>
+      </form>
+    );
+  };
+
+  renderDefaultView = () => {
+    return (
+      <div>
+        <h3>Name: {this.state.customerName}</h3>
+        <h3>Password:{this.state.password}</h3>
+      </div>
+    );
+  };
+
+  handleCancel = () => {
+    this.setState({ isInEditMode: false });
+  };
+
+  displayPersonalInfoTab = () => {
+    return (
+      <TabPanel className="personalInfoTab">
+        <h2 align="center" className="personalInfoTitle">
+          <span> Personal Information </span>
+          {this.state.isInEditMode ? (
+            ""
+          ) : (
+            <Button onClick={this.changeEditMode}>Update Profile</Button>
+          )}
+        </h2>
+        <h3>
+          {" "}
+          {this.state.isInEditMode
+            ? this.renderEditView()
+            : this.renderDefaultView()}{" "}
+        </h3>
+      </TabPanel>
+    );
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
           <NavbarBrand href="/Customer">
-            <MdArrowBack />
+            <div className="backIcon">
+              <MdArrowBack />
+              To Main Page
+            </div>
           </NavbarBrand>
         </Navbar>
 
@@ -529,9 +639,11 @@ class Profile extends Component {
           <TabList id="tabs">
             <Tab>Post Order History</Tab>
             <Tab>Pre-registered credit card</Tab>
+            <Tab>Personal's information</Tab>
           </TabList>
           {this.displayPostOrderTab()}
           {this.displayPreregisteredCreditCardTab()}
+          {this.displayPersonalInfoTab()}
         </Tabs>
       </div>
     );

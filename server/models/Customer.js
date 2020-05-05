@@ -316,6 +316,41 @@ class Customer {
       }
     );
   }
+
+  static getCustomerDetails(cid, callback) {
+    db.query(
+      "SELECT account_pass, name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE cid = $1",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static updateCustomerDetails(cid, name, account_pass, callback) {
+    db.query(
+      "UPDATE Accounts SET account_pass = $2 WHERE account_id = $1",
+      [cid, account_pass],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        db.query(
+          "UPDATE Customers SET name = $2 WHERE cid = $1",
+          [cid, name],
+          (err, res) => {
+            if (err.error) {
+              return callback(err, res);
+            }
+            return callback(err, res);
+          }
+        );
+      }
+    );
+  }
 }
 
 module.exports = Customer;

@@ -49,9 +49,16 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-// const db = require("./database/index.js");
+const db = require("./database/index.js");
 // db.query(
-//   "SELECT name, SUM(Consists.quantity) as TotalQuantity FROM Foods INNER JOIN Consists USING (fid) WHERE rest_id = 1 GROUP BY fid ORDER BY totalQuantity desc LIMIT 5",
+//   "UPDATE Restaurants SET name = 'exeexe', order_threshold = 20.20, address = 'asd' WHERE rest_id = 1",
+//   (value, output) => {
+//     console.log(output);
+//   },
+// );
+
+// db.query(
+//   "SELECT to_char(start_time, 'DD/MM/YYYY') as start_time, to_char(end_time, 'DD/MM/YYYY') as end_time, details, discount_value, trigger_value FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = 1",
 //   (value, output) => {
 //     console.log(output);
 //   },

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import "../styles/RestaurantStaffMainPage.css";
-import { Link } from "react-router-dom";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import FormGroup from 'react-bootstrap/FormGroup'
@@ -8,6 +7,10 @@ import { Col } from 'reactstrap';
 import { Table } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
 import axios from 'axios';
+import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
+import { MdPerson, MdDataUsage, MdRestaurant, MdRestaurantMenu } from "react-icons/md";
+import { RiLogoutBoxLine } from "react-icons/ri";
+import { FaBullhorn } from "react-icons/fa";
 
 class RestaurantStaffMainPage extends Component {
     constructor(props) {
@@ -87,69 +90,138 @@ class RestaurantStaffMainPage extends Component {
         });
     }
 
+    handleProfileNavigation = () => {
+        this.props.history.push({
+            pathname: '/RestaurantProfile',
+            state: {
+                account_id: this.props.location.state.account_id,
+                rest_id: this.state.restaurantDetails.rest_id,
+                name: this.state.restaurantDetails.name,
+                order_threshold: this.state.restaurantDetails.order_threshold,
+                address: this.state.restaurantDetails.address
+          }
+        });
+    };
+      
+    handlePromotionNavigation = () => {
+        this.props.history.push({
+            pathname: '/RestaurantPromotions',
+            state: {
+                account_id: this.props.location.state.account_id,
+                rest_id: this.state.restaurantDetails.rest_id
+            }
+        });
+    };
+    
+    handleSummaryNavigation = () => {
+        this.props.history.push({
+            pathname: '/RestaurantSummaryPage',
+            state: {
+                account_id: this.props.location.state.account_id,
+                rest_id: this.state.restaurantDetails.rest_id
+            }
+        });
+    };
+
     render() {
         return (
-            <div className="content">
-                <div className="container">
-                    <div className="header">
-                        <h1> {this.state.restaurantDetails.name} {' '}
-                        <Link to={{
-                            pathname: '/RestaurantSummaryPage',
-                            state: { account_id: this.props.location.state.account_id, rest_id: this.state.restaurantDetails.rest_id }
-                            }}>
-                            <Button variant={"primary"}>Summary Info</Button>
-                        </Link>
+            <div>
+                <Navbar className="navbar" color="dark" dark>
+                    <NavbarBrand>Home Page</NavbarBrand>
+
+                    <Nav className="mr-auto">
+                        <NavLink href="" onClick={this.handleProfileNavigation} className="link">
+                            <MdPerson />
+                            <span> Restaurant Profile </span>
+                        </NavLink>
+
+                        <NavLink href="" onClick={this.handlePromotionNavigation} className="link">
+                         <FaBullhorn />
+                            <span> Promotional Campaigns </span>
+                        </NavLink>
+
+                        <NavLink href="" onClick={this.handleSummaryNavigation} className="link">
+                         <MdDataUsage />
+                            <span> Summary Info </span>
+                        </NavLink>
+
+                    </Nav>
+    
+                    <Nav>
+                        <NavLink href="/Login" className="link">
+                            <RiLogoutBoxLine />
+                            <span> Logout </span>
+                        </NavLink>
+                    </Nav>
+                </Navbar>
+            
+                <Jumbotron>
+                    <div className="centered-container">
+                        <h1 className="display-3">
+                            <MdRestaurant />
+                            <span>{this.state.restaurantDetails.name}</span>
+                            <MdRestaurant />
                         </h1>
-                        <br/>
                     </div>
+                </Jumbotron>
+
+                <div className="content">
                     <div>
-                        <form ref={ form => this.foodForm = form} onSubmit = {this.handleSubmit}>
-                            <FormGroup>
-                                <Row>
-                                    <Col>
-                                        <Form.Label>Food: </Form.Label>
-                                        <Form.Control name = "foodName" required={true} type="text" placeholder="Food name"/>
-                                    </Col>
-                                    <Col>
-                                        <Form.Label>Price: </Form.Label>
-                                        <Form.Control name = "foodPrice" required={true} type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price"/>
-                                    </Col>
-                                    <Col>
-                                        <Form.Label>Quantity: </Form.Label>
-                                        <Form.Control name = "foodQuantity" required={true} type="number" min="1" placeholder="Food quantity"/>
-                                    </Col>
-                                    <Col>
-                                        <Form.Label>Category: </Form.Label>
-                                        <Form.Control name = "foodCategory" required={true} type="text" placeholder="Food category"/>
-                                    </Col>
-                                    <Col>
-                                        <Form.Label>Limit: </Form.Label>
-                                        <Form.Control name = "foodLimit" required={true} type="number" min="1" placeholder="Food limit"/>
-                                    </Col>
-                                    <div>
-                                    <Button className="submit-button" type="submit" size="sm"> Add Item </Button>
-                                    </div>
-                                </Row>
-                            </FormGroup>
-                        </form>
+                        <h1 align="center" className="display-4">
+                            <MdRestaurantMenu />
+                            <span> Main Menu </span>
+                            <MdRestaurantMenu />
+                        </h1>
+
+                        <div>
+                            <form ref={ form => this.foodForm = form} onSubmit = {this.handleSubmit}>
+                                <FormGroup>
+                                    <Row>
+                                        <Col>
+                                            <Form.Label>Food: </Form.Label>
+                                            <Form.Control name = "foodName" required={true} type="text" placeholder="Food name"/>
+                                        </Col>
+                                        <Col>
+                                            <Form.Label>Price: </Form.Label>
+                                            <Form.Control name = "foodPrice" required={true} type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price"/>
+                                        </Col>
+                                        <Col>
+                                            <Form.Label>Quantity: </Form.Label>
+                                            <Form.Control name = "foodQuantity" required={true} type="number" min="1" placeholder="Food quantity"/>
+                                        </Col>
+                                        <Col>
+                                            <Form.Label>Category: </Form.Label>
+                                            <Form.Control name = "foodCategory" required={true} type="text" placeholder="Food category"/>
+                                        </Col>
+                                        <Col>
+                                            <Form.Label>Limit: </Form.Label>
+                                            <Form.Control name = "foodLimit" required={true} type="number" min="1" placeholder="Food limit"/>
+                                        </Col>
+                                        <div>
+                                        <Button className="submit-button" type="submit" size="sm"> Add Item </Button>
+                                        </div>
+                                    </Row>
+                                </FormGroup>
+                            </form>
+                        </div>
+                        <br/>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Food Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Category</th>
+                                    <th>Food Limit</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {this.state.foodItems.map(this.renderItem)}
+                            </tbody>
+                        </Table>
                     </div>
-                    <br/>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Food Name</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Category</th>
-                                <th>Food Limit</th>
-                                <th>Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.foodItems.map(this.renderItem)}
-                        </tbody>
-                    </Table>
                 </div>
             </div>
         );

@@ -2,7 +2,7 @@ const db = require("../database/index.js");
 
 class Schedule {
   // Get MWS for current month
-  static getMWS(month, callback) {
+  static getMWS(rid, month, callback) {
     // FTWorks => Has
     db.query("", [], (err, res) => {
       if (err.error) {

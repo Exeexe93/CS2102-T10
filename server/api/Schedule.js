@@ -3,7 +3,9 @@ const Schedule = require("../models/Schedule");
 const router = express.Router();
 
 router.get("/getMWS", (request, response) => {
-  Schedule.getMWS((err, result) => {
+  const rid = request.body.rid;
+  const month = request.body.month;
+  Schedule.getMWS(rid, month, (err, result) => {
     if (err.error) {
       return response.status(404).json(err);
     }

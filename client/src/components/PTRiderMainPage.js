@@ -1,13 +1,6 @@
 import React, { Component } from "react";
 
-import {
-  Container,
-  Navbar,
-  NavbarBrand,
-  Nav,
-  NavLink,
-  Jumbotron,
-} from "reactstrap";
+import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
 
 import "../styles/PTRiderMainPage.css";
 

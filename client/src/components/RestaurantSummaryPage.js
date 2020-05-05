@@ -86,7 +86,7 @@ class RestaurantSummaryPage extends Component {
                         </ul>
                     </h4>
                     <br/>
-                    <h2><u>Promotion Campaign's Statistics</u></h2>
+                    <h3><u>Promotion Campaign's Statistics</u></h3>
                     <p>
                     2. For each promotional campaign, the duration (in terms of the number of days/hours) of the
                     campaign, and the average number of orders received during the promotion (i.e., the ratio of

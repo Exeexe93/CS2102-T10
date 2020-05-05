@@ -51,16 +51,9 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-const db = require("./database/index.js");
+// const db = require("./database/index.js");
 // db.query(
-//   "UPDATE Restaurants SET name = 'exeexe', order_threshold = 20.20, address = 'asd' WHERE rest_id = 1",
-//   (value, output) => {
-//     console.log(output);
-//   },
-// );
-
-// db.query(
-//   "SELECT to_char(start_time, 'DD/MM/YYYY') as start_time, to_char(end_time, 'DD/MM/YYYY') as end_time, details, discount_value, trigger_value FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = 1",
+//   "SELECT * FROM Foods ORDER BY fid",
 //   (value, output) => {
 //     console.log(output);
 //   },

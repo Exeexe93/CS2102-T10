@@ -19,7 +19,8 @@ class RestaurantPromotions extends Component {
             promos: [],
             rest_id: this.props.location.state.rest_id,
             startDate: null,
-            endDate: null
+            endDate: null,
+            promotion_type: "percent"
         }
     }
 
@@ -39,9 +40,9 @@ class RestaurantPromotions extends Component {
         let new_promo = {
             creator_id: this.props.location.state.account_id,
             details: form.elements.promotion_details.value,
-            category: "restaurant",
-            promo_type: "percentage",
-            discount_value: Math.round(form.elements.discount_percent.value),
+            category: "all-orders",
+            promo_type: this.state.promotion_type,
+            discount_value: Math.round(form.elements.discount.value),
             trigger_value: "$" + parseFloat(form.elements.minimum_spending.value).toFixed(2),
             start_time: this.state.startDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-'),
             end_time: this.state.endDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')
@@ -74,12 +75,48 @@ class RestaurantPromotions extends Component {
                 <td>{promo.start_time}</td>
                 <td>{promo.end_time}</td>
                 <td>{promo.details}</td>
-                <td>{promo.discount_value}%</td>
+                <td>{promo.promo_type === "percent" ? "Percentage" : "Flatrate"}</td>
+                <td>{promo.promo_type === "flat-rate" ? "$" : ""}{promo.discount_value}{promo.promo_type === "percent" ? "%" : ""}</td>
                 <td>{promo.trigger_value}</td>
             </tr>
         )
     }
     
+    handleSelect = event => {
+        if (event.target.value === "Percentage") {
+            this.setState({promotion_type: "percent"})
+        } else if (event.target.value === "Flatrate") {
+            this.setState({promotion_type: "flat-rate"})
+        }
+    }
+
+    renderPercentForm = () => {
+        return <div>
+            <Form.Label>Discount Percent: </Form.Label>
+            <InputGroup>
+                <Form.Control name = "discount" required={true} type="number" min="1" max="100" step="1" data-number-to-fixed="0" placeholder="Discount Percent"/>
+                <InputGroup.Prepend>
+                    <InputGroup.Text id="inputGroupPrepend">%</InputGroup.Text>
+                </InputGroup.Prepend>
+            </InputGroup>
+        </div>
+    }
+
+    renderFlatrateForm = () => {
+        return <div>
+            <Form.Label>Discount Flatrate: </Form.Label>
+            <InputGroup>
+                <InputGroup.Prepend>
+                    <InputGroup.Text id="inputGroupPrepend">$</InputGroup.Text>
+                </InputGroup.Prepend>
+                <Form.Control name = "discount" required={true} type="number" min="1" step="1" data-number-to-fixed="0" placeholder="Discount Flatrate"/>
+            </InputGroup>
+            <Form.Text className="text-muted">
+                    Flatrate discount must be a whole number.
+            </Form.Text>
+        </div>
+    }
+
     render() {
         return(
             <div>
@@ -120,13 +157,13 @@ class RestaurantPromotions extends Component {
                                 <Form.Label>Promotion Details: </Form.Label>
                                 <Form.Control name = "promotion_details" required={true} type="text" placeholder="Promotion Details" as="textarea" rows="3"/>
                                 <h1/>
-                                <Form.Label>Discount Percent: </Form.Label>
-                                <InputGroup>
-                                <Form.Control name = "discount_percent" required={true} type="number" min="1" max="100" step="1" data-number-to-fixed="0" placeholder="Discount Percent"/>
-                                <InputGroup.Prepend>
-                                        <InputGroup.Text id="inputGroupPrepend">%</InputGroup.Text>
-                                </InputGroup.Prepend>
-                                </InputGroup>
+                                <Form.Label>Promotion Type: </Form.Label>
+                                    <Form.Control as="select" custom onChange={this.handleSelect}>
+                                        <option>Percentage</option>
+                                        <option>Flatrate</option>
+                                    </Form.Control>
+                                <h1/>
+                                {this.state.promotion_type === "percent" ? this.renderPercentForm() : this.renderFlatrateForm()}
                                 <h1/>
                                 <Form.Label> Minimum Spending: </Form.Label>
                                 <InputGroup>
@@ -150,7 +187,8 @@ class RestaurantPromotions extends Component {
                                     <th>Start Date</th>
                                     <th>End Date</th>
                                     <th>Details</th>
-                                    <th>Discount Amount</th>
+                                    <th>Promo Type</th>
+                                    <th>Discount</th>
                                     <th>Minimum Spending</th>
                                 </tr>
                             </thead>

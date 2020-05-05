@@ -278,6 +278,7 @@ CREATE TABLE Foods (
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
+	availability boolean default true,
     foreign key (rest_id) references Restaurants on delete cascade
 );
 
@@ -403,7 +404,44 @@ ON Orders
 FOR EACH ROW 
 EXECUTE FUNCTION update_food_quantity();
 
--- Need a trigger for 
+-- Need a trigger to check if the food quantity is negative value when update or insert
+CREATE OR REPLACE FUNCTION reject_negative_food_quantity()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity < 0 THEN
+	RAISE exception 'The quantity of the food ordered (%) cannot be negative', NEW.quantity; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_negative_food_quantity ON Foods;
+CREATE TRIGGER check_negative_food_quantity
+BEFORE UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION reject_negative_food_quantity();
+
+-- Need a trigger to check set food availability to false when food quantity become zero during update or insert
+CREATE OR REPLACE FUNCTION zero_quantity_set_food_unavailable()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity = 0 AND OLD.availability = true THEN
+		UPDATE Foods 
+		SET availability = false
+		WHERE fid = NEW.fid; 
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_food_availability ON Foods;
+CREATE TRIGGER check_food_availability
+AFTER UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION zero_quantity_set_food_unavailable();
+
 
 -- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
 
@@ -412,8 +450,6 @@ EXECUTE FUNCTION update_food_quantity();
 -- need a trigger to check for FTRiders 5 shift is in 1 WWS.
 
 -- need a trigger to check for FTRiders, 4 WWS is equivalent.
-
--- need a trigger to check
 
 -- need a trigger to ensure everytime a MWS is added, Has table is added with the MWS instance to capture  total participation constraint
  
@@ -754,24 +790,24 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, '1000', 'Side Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, '100', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, '50', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, '50', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 4, '20', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, 100, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, 50, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

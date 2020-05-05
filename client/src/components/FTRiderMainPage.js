@@ -136,7 +136,10 @@ class FTRiderMainPage extends Component {
   handleViewSchedule = () => {
     this.props.history.push({
       pathname: "/FTRiderMainPage/schedule",
-      isFTRider: this.state.isFTRider,
+      state: {
+        isFTRider: this.state.isFTRider,
+        id: this.state.id,
+      },
     });
   };
 

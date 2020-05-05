@@ -57,7 +57,6 @@ class Database {
       callback({}, "Success Transaction.");
     } catch (err) {
       await db.query("ROLLBACK");
-      console.error(err.stack);
       callback({ error: err }, null);
     } finally {
       db.release();

@@ -455,9 +455,6 @@ EXECUTE FUNCTION zero_quantity_set_food_unavailable();
  
 -- need a trigger to ensure everytime a WWS is added, Contains table is added with the WWS isntance to capture the total participation constraint
 
--- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
--- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
-
 -- Data insertions
 -- Accounts
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', '1/10/2019', 'FDSManager');

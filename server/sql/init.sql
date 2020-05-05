@@ -239,7 +239,8 @@ CREATE TABLE Orders (
 	depart_for_delivery timestamp,
 	deliver_to_cust timestamp,
 	primary key (oid),
-	foreign key (rid) references Riders
+	foreign key (rid) references Riders,
+	foreign key (rest_id) references Restaurants(rest_id)
 );
 
 CREATE TABLE Places (

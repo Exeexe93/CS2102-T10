@@ -70,6 +70,22 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  getOngoingOrder = () => {
+    fetch("http://localhost:3001/Rider/getOngoingOrder", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => {
+        return res ? res.json() : [null];
+      })
+      .then((res) => {
+        this.setState({
+          ongoing_order: res[0],
+        });
+      });
+  };
+
   getPendingOrders = () => {
     fetch("http://localhost:3001/PTRider/getPendingOrders")
       .then((res) => {
@@ -125,6 +141,7 @@ class PTRiderMainPage extends Component {
   };
 
   handleViewSalary = () => {
+    // TODO
     // this.props.history.push("/PTriderMainPage/salary");
   };
 
@@ -174,8 +191,16 @@ class PTRiderMainPage extends Component {
           );
         } else {
           swal("Added Order " + order_number + "!", "", "success");
-          //TODO
           // Place Order into Accepted Job List
+          this.setState({
+            ongoing_order: {
+              order_number: orderInfo.order_number,
+              cname: orderInfo.cname,
+              delivery_location: orderInfo.delivery_location,
+              restaurant_name: orderInfo.restaurant_name,
+              restaurant_location: orderInfo.restaurant_location,
+            },
+          });
         }
       })
       .catch((err) => {
@@ -188,9 +213,16 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  renderOngoingDelivery = () => {
+    if (this.state.ongoing_order !== null) {
+      return <OngoingOrder orderInfo={this.state.ongoing_order}></OngoingOrder>;
+    }
+  };
+
   componentDidMount() {
     this.getName();
     this.getAvgRating();
+    this.getOngoingOrder();
     this.getPendingOrders();
     this.getCompletedOrders();
   }
@@ -250,7 +282,7 @@ class PTRiderMainPage extends Component {
         </Jumbotron>
 
         <h1>Ongoing Delivery</h1>
-        <OngoingOrder></OngoingOrder>
+        {this.renderOngoingDelivery()}
 
         <OrderList
           key={"pending-orders-" + this.state.orders.length}

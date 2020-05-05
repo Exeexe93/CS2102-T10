@@ -10,6 +10,8 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
 import CompletedOrderList from "./CompletedOrderList";
+import swal from "sweetalert";
+import OngoingOrder from "./OngoingOrder";
 
 class PTRiderMainPage extends Component {
   constructor(props) {
@@ -21,6 +23,7 @@ class PTRiderMainPage extends Component {
       orders: [],
       completed_orders: [],
       avg_rating: 0,
+      ongoing_order: null,
     };
   }
 
@@ -141,6 +144,50 @@ class PTRiderMainPage extends Component {
     });
   };
 
+  handleAcceptPendingOrder = (orderInfo) => {
+    // Only 1 Job can be accepted at any given time
+    if (this.state.ongoing_order !== null) {
+      swal(
+        "Unable to accept order " + order_number + "!",
+        "Please complete your ongoing order!",
+        "error"
+      );
+      return;
+    }
+    const order_number = orderInfo.order_number;
+    // Add timestamp to order_placed in Orders table
+    fetch("http://localhost:3001/Rider/acceptOrder", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+        rid: this.state.id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          swal(
+            "Unable to accept order " + order_number + "!",
+            "Please try again!",
+            "error"
+          );
+        } else {
+          swal("Added Order " + order_number + "!", "", "success");
+          //TODO
+          // Place Order into Accepted Job List
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        swal(
+          "Unable to accept order " + order_number + "!",
+          "Please try again!",
+          "error"
+        );
+      });
+  };
+
   componentDidMount() {
     this.getName();
     this.getAvgRating();
@@ -202,10 +249,14 @@ class PTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
+        <h1>Ongoing Delivery</h1>
+        <OngoingOrder></OngoingOrder>
+
         <OrderList
           key={"pending-orders-" + this.state.orders.length}
           orders={this.state.orders}
           title={"Pending Orders"}
+          handleAcceptOrder={this.handleAcceptPendingOrder}
         />
 
         <CompletedOrderList

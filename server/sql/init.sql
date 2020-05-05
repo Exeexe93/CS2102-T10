@@ -245,6 +245,7 @@ CREATE TABLE Orders (
 	depart_for_delivery timestamp,
 	deliver_to_cust timestamp,
 	primary key (oid),
+	foreign key (rest_id) references Restaurants(rest_id),
 	foreign key (rid) references Riders
 		on delete cascade
 		on update cascade

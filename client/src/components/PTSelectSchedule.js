@@ -38,6 +38,11 @@ class PTSelectSchedule extends Component {
               </div>
             );
           })}
+          <div className="pt-schedule-form">
+            <button onClick={this.props.handleSubmitUpdateSchedule}>
+              Submit Schedule
+            </button>
+          </div>
         </div>
 
         <div className="pt-schedule-col">
@@ -45,7 +50,7 @@ class PTSelectSchedule extends Component {
 
           <Form className="pt-schedule-form" onSubmit={this.props.handleSubmit}>
             {checkboxContent.map((content, index) => (
-              <div>
+              <div key={index + content.text}>
                 <Label check>
                   <Input
                     type="checkbox"

@@ -74,7 +74,6 @@ class Profile extends Component {
               order.pointsUsed
             );
         });
-        console.log(orderHistory);
         this.setState({
           orderHistory: res,
         });

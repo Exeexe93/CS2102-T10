@@ -71,7 +71,6 @@ class Cart extends Component {
           cid: value.state.cid,
         }
       );
-      console.log(response.data);
       this.setState({
         addresses: response.data,
       });
@@ -257,6 +256,7 @@ class Cart extends Component {
 
   updateFood = async (food, orderNum, queryList, valueList) => {
     if (food.originalQuantity !== food.FoodQuantity) {
+      console.log("Food: " + food.FoodName + "(" + food.FoodQuantity + ")");
       if (queryList.length === 0) {
         queryList.push(
           "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2"
@@ -360,20 +360,29 @@ class Cart extends Component {
           valueList: valueList,
         }
       );
-
       console.log(response.data);
-      if (response.data.where.includes("reject_order_below_threshold()")) {
-        this.setState({
-          errorMessage:
-            "Order's total price does not meet the minimum threshold",
-        });
-      } else {
-        // Need to clear the respective order after transaction
-        this.setState({
-          orders: [],
-        });
+      if (response.data) {
+        if (response.data.where) {
+          if (response.data.where.includes("reject_order_below_threshold")) {
+            this.setState({
+              errorMessage:
+                "Order's total price does not meet the minimum threshold",
+            });
+          } else if (response.data.where.includes("reject_above_food_limit")) {
+            // Need to clear the respective order after transaction
+            this.setState({
+              errorMessage:
+                "Please make sure that the food quantity does not exceed the purchase limit",
+            });
+          }
+        } else {
+          this.setState({
+            orders: [],
+          });
+        }
       }
     } catch (err) {
+      console.log(err);
       console.error("Transaction failed!");
     }
   };
@@ -438,12 +447,17 @@ class Cart extends Component {
   renderOrder = (order, index) => {
     return (
       <Card key={index}>
-        <Accordion.Toggle as={Card.Header} eventKey={index} className="order">
+        <Accordion.Toggle
+          as={Card.Header}
+          eventKey={index}
+          className="orderTitle"
+        >
           Order Number: {order.orderNum}
         </Accordion.Toggle>
 
         <Accordion.Collapse eventKey={index}>
           <Card.Body>
+            <h3>{order.restaurantName}</h3>
             <Table striped bordered hover size="sm">
               <thead>
                 <tr>
@@ -451,7 +465,7 @@ class Cart extends Component {
                   <th>Price</th>
                   <th>Quantity</th>
                   <th>Total Cost</th>
-                  <th>Limit</th>
+                  <th>Purchase Limit</th>
                   <th></th>
                 </tr>
               </thead>
@@ -802,7 +816,7 @@ class Cart extends Component {
               onSubmit={this.handleSubmit}
               action="/"
             >
-              <Accordion className="orderListing">
+              <Accordion>
                 {this.state.orders.map((order, index) =>
                   this.renderOrder(order, index)
                 )}

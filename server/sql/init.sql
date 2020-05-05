@@ -40,7 +40,7 @@ CREATE TABLE Accounts (
 -- Customers relation here--
 
 CREATE TABLE Customers (
-	cid varchar(255) references Accounts(account_id) on delete cascade,
+	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	reward_points integer,
 	primary key (cid)
@@ -79,21 +79,21 @@ CREATE TABLE Promos (
 
 -- Riders relation here --
 CREATE TABLE Riders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key (rid)
 );
 
 CREATE TABLE FTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid), 
-    foreign key (rid) references Riders on delete cascade
+    foreign key (rid) references Riders on delete cascade on update cascade
 );
 
 CREATE TABLE PTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid)
@@ -210,7 +210,7 @@ CREATE TABLE FTWorks(
 );
 
 CREATE TABLE FDSManagers (
-	fds_id varchar(255) references Accounts(account_id) on delete cascade,
+	fds_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key(fds_id)
 ); 
@@ -220,6 +220,7 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
+	promo_id references Promos(promo_id) on delete cascade on update cascade,
     primary key(rest_id) 
 );
 
@@ -281,7 +282,7 @@ CREATE TABLE Salaries (
 );
 
 CREATE TABLE RestaurantStaffs (
-	staff_id varchar(255) references Accounts(account_id) on delete cascade,
+	staff_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
     rest_id serial references Restaurants(rest_id),
     primary key(staff_id)
 );
@@ -294,7 +295,7 @@ CREATE TABLE Foods (
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
-    foreign key (rest_id) references Restaurants on delete cascade
+    foreign key (rest_id) references Restaurants on delete cascade on update cascade
 );
 
 CREATE TABLE Consists (

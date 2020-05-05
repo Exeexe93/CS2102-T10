@@ -677,48 +677,52 @@ class FDSManager extends Component {
             this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear, this.state.promoEndTime)])
     }
 
-    handleAddPromo = () => {
-        if (this.inputValidityCheck()) {
-            this.getPromoStartAndEndTime()
-                .then(([start_time, end_time]) => {
-                    console.log('promostart : %s\npromoend : %s', start_time, end_time)
-                    fetch('http://localhost:3001/FDSManager/addPromo', {
-                        method: 'post',
-                        headers: { 'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            start_time: start_time, 
-                            end_time: end_time,
-                            promo_type: this.state.promoType,
-                            category: this.state.promoCategory,
-                            details: this.state.details,
-                            discount_value: this.state.discountValue,
-                            trigger_value: this.state.triggerValue,
-                            creator_id: this.state.id
-                        })
-                    })
-                    .then(res => {
-                        // TODO check error message display alert for error message
-                        swal("Promotion added", "Click ok to continue", "success")
-                        console.log("from insert promo");
-                        console.log(res)
-                    })
+    queryAddPromo = () => {
+        return this.getPromoStartAndEndTime()
+        .then(([start_time, end_time]) => {
+            console.log('promostart : %s\npromoend : %s', start_time, end_time)
+            fetch('http://localhost:3001/FDSManager/addPromo', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    start_time: start_time, 
+                    end_time: end_time,
+                    promo_type: this.state.promoType,
+                    category: this.state.promoCategory,
+                    details: this.state.details,
+                    discount_value: this.state.discountValue,
+                    trigger_value: this.state.triggerValue,
+                    creator_id: this.state.id
                 })
-            console.log('success')
+            })
+            .then(res => {
+                // TODO check error message display alert for error message
+                swal("Promotion added", "Click ok to continue", "success")
+                console.log("from insert promo");
+                console.log(res)
+            })
+        })
+    }
+
+    handleAddPromoButton = () => {
+        if (this.inputValidityCheck()) {
+            this.queryAddPromo().then((res) => {
+                this.getAllActivePromotion();
+            })
         }
-        console.log("Data needed\nStart Promo day %s/%s/%s\nEnd Promo day %s/%s/%s\nCategory: %s\nType: %s\nDetails: %s\nDiscountV: %s\nTrigger V:%s",
-            this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear, this.state.promoEndDay, this.state.promoEndMonth,
-            this.state.promoEndYear, this.state.promoCategory, this.state.promoType, this.state.details, this.state.discountValue, this.state.triggerValue);
     }
 
     renderActivePromotionBody = (promo, index) => {
-        console.log("body:", this.state.id)
-        console.log("my active promo:", promo)
         return (
             <tr key={index}>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{promo.promo_id}</td>
+                <td>{promo.details}</td>
+                <td>{promo.category}</td>
+                <td>{promo.promo_type}</td>
+                <td>{promo.discount_value}</td>
+                <td>{promo.trigger_value}</td>
+                <td>{promo.start_time}</td>
+                <td>{promo.end_time}</td>
             </tr>
         )
     }
@@ -971,7 +975,7 @@ class FDSManager extends Component {
                                     {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
                                     <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
                                     <InputGroupAddon addonType="append">
-                                        <Button color="primary" onClick={this.handleAddPromo}>Add Promotion</Button>
+                                        <Button color="primary" onClick={this.handleAddPromoButton}>Add Promotion</Button>
                                     </InputGroupAddon>
                                 </InputGroup>
                             </Col>

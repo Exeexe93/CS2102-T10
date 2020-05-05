@@ -102,7 +102,17 @@ router.post('/addPromo', (req, res) => {
         req.body.discount_value, req.body.trigger_value, req.body.creator_id, (err, result) => {
         if (err.error) {
             console.log("Error occurred at FDSManager api post addPromo");
-            return res.json(err);
+            return res.status(404).json(err);
+        }
+        return res.json(result);
+    })
+})
+
+router.post('/getActivePromo', (req, res) => {
+    FDSManagerModel.queryGetActivePromo(req.body.creator_id, (err, result) => {
+        if (err.error) {
+            console.log("Error occurred at FDSManager api post getActivePromo");
+            return res.status(404).json(err);
         }
         return res.json(result);
     })

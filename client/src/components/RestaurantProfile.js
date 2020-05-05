@@ -36,7 +36,7 @@ class RestaurantProfile extends Component {
         let form = event.target;
         event.preventDefault();
         let restaurantName = form.elements.restaurantName.value;
-        let order_threshold = form.elements.order_threshold.value;
+        let order_threshold = parseFloat(form.elements.order_threshold.value).toFixed(2);
         let address = form.elements.address.value;
         this.setState({
             restaurantName: restaurantName,

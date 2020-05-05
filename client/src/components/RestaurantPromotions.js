@@ -41,8 +41,8 @@ class RestaurantPromotions extends Component {
             details: form.elements.promotion_details.value,
             category: "restaurant",
             promo_type: "percentage",
-            discount_value: form.elements.discount_percent.value,
-            trigger_value: "$" + form.elements.minimum_spending.value,
+            discount_value: Math.round(form.elements.discount_percent.value),
+            trigger_value: "$" + parseFloat(form.elements.minimum_spending.value).toFixed(2),
             start_time: this.state.startDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-'),
             end_time: this.state.endDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')
         }

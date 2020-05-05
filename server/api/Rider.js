@@ -54,6 +54,16 @@ router.post("/updateStatusArriveAtRestaurant", (request, response) => {
   });
 });
 
+router.post("/updateStatusDepartForRestaurant", (request, response) => {
+  const oid = request.body.oid;
+  Rider.updateStatusDepartForRestaurant(oid, (err, result) => {
+    if (err.error) {
+      return response.status(404).json(err);
+    }
+    return response.status(200).json(result);
+  });
+});
+
 router.post("/getStatusDepartForDelivery", (request, response) => {
   const oid = request.body.oid;
   Rider.getStatusDepartForDelivery(oid, (err, result) => {

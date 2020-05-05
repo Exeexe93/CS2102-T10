@@ -62,6 +62,20 @@ class Rider {
     );
   }
 
+  static updateStatusDepartForRestaurant(oid, callback) {
+    db.query(
+      "UPDATE Orders SET depart_for_rest = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
+      [oid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain status: ", err);
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
   static updateStatusArriveAtRestaurant(oid, callback) {
     db.query(
       "UPDATE Orders SET arrive_at_rest = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",

@@ -24,6 +24,7 @@ class PTRiderMainPage extends Component {
       completed_orders: [],
       avg_rating: 0,
       ongoing_order: null,
+      ongoing_order_status_text: "Arrive At Restaurant",
     };
   }
 
@@ -140,6 +141,23 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  // Update ongoing order status for depart for restaurant
+  updateStatusDepartForRestaurant = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDepartForRestaurant", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        }
+      });
+  };
+
   // Update ongoing order status for arrival at restaurant in DB
   updateStatusArriveAtRestaurant = (order_number) => {
     fetch("http://localhost:3001/Rider/updateStatusArriveAtRestaurant", {
@@ -220,6 +238,9 @@ class PTRiderMainPage extends Component {
               restaurant_location: orderInfo.restaurant_location,
             },
           });
+          // TODO
+          // Update DB depart_for_rest
+          this.updateStatusDepartForRestaurant(order_number);
         }
       })
       .catch((err) => {
@@ -232,45 +253,29 @@ class PTRiderMainPage extends Component {
       });
   };
 
-  // Ongoing order depart to restaurant button is clicked
-  handleDepartToRestaurant = (order_number) => {
-    //TODO
-  };
-
-  // Ongoing order arrive at restaurant button is clicked
-  handleArriveAtRestaurant = (order_number) => {
-    // Check depart for restaurant status
-    fetch("http://localhost:3001/Rider/getStatusDepartForRestaurant", {
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        oid: order_number,
-      }),
-    })
-      .then((res) => res.json())
-      .then((res) => {
-        if (res.error) {
-          this.displayErrorStatus();
-        } else {
-          const depart_for_restaurant = res[0].depart_for_rest;
-          if (depart_for_restaurant === null) {
-            this.displayErrorStatus();
-          } else {
-            // Update arrival at restaurant status in DB
-            this.updateStatusArriveAtRestaurant(order_number);
-          }
-        }
+  handleStatusUpdate = (order_number) => {
+    const status_text = this.state.ongoing_order_status_text;
+    if (status_text === "Arrive At Restaurant") {
+      // TODO
+      // Update text to "Depart from restaurant to delivery location"
+      this.setState({
+        ongoing_order_status_text:
+          "Depart from restaurant to delivery location",
       });
-  };
-
-  // Ongoing order depart to customer location button is clicked
-  handleDepartToDeliveryLocation = (order_number) => {
-    //TODO
-  };
-
-  // Ongoing order delivered to customer button is clicked
-  handleOrderDelivered = (order_number) => {
-    //TODO
+      // Update DB Order arrive_at_rest
+      this.updateStatusArriveAtRestaurant(order_number);
+    } else if (status_text === "Depart from restaurant to delivery location") {
+      // TODO
+      // Update text to "Order Delivered"
+      this.setState({
+        ongoing_order_status_text: "Order Delivered",
+      });
+      // Update DB Order depart_for_delivery
+    } else if (status_text === "Order delivered") {
+      // TODO
+      // Update Ongoing order to Completed Order
+      // Update DB Order deliver_to_cust
+    }
   };
 
   displayErrorStatus = () => {
@@ -286,10 +291,8 @@ class PTRiderMainPage extends Component {
       return (
         <OngoingOrder
           orderInfo={this.state.ongoing_order}
-          handleDepartToRestaurant={this.handleDepartToRestaurant}
-          handleArriveAtRestaurant={this.handleArriveAtRestaurant}
-          handleDepartToDeliveryLocation={this.handleDepartToDeliveryLocation}
-          handleOrderDelivered={this.handleOrderDelivered}
+          orderStatusText={this.state.ongoing_order_status_text}
+          handleStatusUpdate={this.handleStatusUpdate}
         ></OngoingOrder>
       );
     }

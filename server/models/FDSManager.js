@@ -134,6 +134,20 @@ class FDSManager {
 
         )
     }
+
+    static queryGetActivePromo(creator_id, callback) {
+        db.query(
+            'select * from Promos where creator_id = $1 and extract(day from (end_time - current_timestamp)) > 0;',
+            [creator_id],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryGetActivePromo:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
 }
 
 module.exports = FDSManager;

@@ -34,13 +34,13 @@ class Profile extends Component {
 
   getCustomerDetails = async (cid) => {
     try {
-      const response = await axios(
+      const response = await axios.post(
         "http://localhost:3001/Customer/GetCustomerDetails",
-        { cid: cid }
+        {
+          cid: cid,
+        }
       );
-      console.log(response.data);
       this.setState({
-        // customerName: response.data[0].name,
         password: response.data[0].account_pass,
       });
     } catch (err) {
@@ -72,7 +72,6 @@ class Profile extends Component {
   };
 
   getOrderList = (cid) => {
-    console.log(cid);
     var request = new Request("http://localhost:3001/Customer/GetOrders", {
       method: "POST",
       headers: new Headers({ "Content-Type": "application/json" }),
@@ -613,8 +612,6 @@ class Profile extends Component {
   };
 
   handleHomePage = () => {
-    console.log("Press");
-    console.log(this.state.cid);
     this.props.history.push({
       pathname: "/Customer",
       state: {

@@ -322,8 +322,6 @@ class Customer {
       "SELECT account_pass, name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE account_id = $1",
       [cid],
       (err, res) => {
-        console.log("VALUE......");
-        console.log(res);
         if (err.error) {
           return callback(err, res);
         }

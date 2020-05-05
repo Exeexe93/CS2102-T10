@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
-import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
+import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson, MdArrowBack } from "react-icons/md";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavLink, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button, Table } from "react-bootstrap";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import axios from "axios";
@@ -510,13 +510,27 @@ class FoodItem extends Component {
     );
   };
 
+  handleHomePage = () => {
+    this.props.history.push({
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    });
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Navbar dark color="dark">
+            <NavLink href="" onClick={this.handleHomePage}>
+              <div className="backIcon">
+                <MdArrowBack />
+                To Home Page
+              </div>
+            </NavLink>
+          </Navbar>
           <div className="icon-container">
             <GiShoppingCart
               size="3em"

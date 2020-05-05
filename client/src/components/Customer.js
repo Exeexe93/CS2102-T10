@@ -32,14 +32,18 @@ class Customer extends Component {
           cid: this.props.location.state.account_id,
         }
       );
-      state.setCidAndName(
-        this.props.location.state.account_id,
-        response.data[0].name
-      );
-      this.setState({
-        customerName: response.data[0].name,
-        cid: this.props.location.state.account_id,
-      });
+      if (response.data[0].name) {
+        state.setCidAndName(
+          this.props.location.state.account_id,
+          response.data[0].name
+        );
+        this.setState({
+          customerName: response.data[0].name,
+          cid: this.props.location.state.account_id,
+        });
+      } else {
+        throw "Cannot get name back";
+      }
     } catch (err) {
       console.error(err);
     }

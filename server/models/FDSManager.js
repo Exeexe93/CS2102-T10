@@ -134,6 +134,20 @@ class FDSManager {
 
         )
     }
+
+    static queryGetActivePromo(creator_id, callback) {
+        db.query(
+            'select promo_id, details, category, promo_type, discount_value, trigger_value, to_char(start_time, \'dd-mm-yyyy HH24:MI:SS\') as start_time, to_char(end_time, \'dd-mm-yyyy HH24:MI:SS\') as end_time from Promos where creator_id = $1 and extract(day from (end_time - current_timestamp)) > 0;',
+            [creator_id],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryGetActivePromo:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
 }
 
 module.exports = FDSManager;

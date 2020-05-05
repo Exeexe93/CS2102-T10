@@ -40,7 +40,7 @@ CREATE TABLE Accounts (
 -- Customers relation here--
 
 CREATE TABLE Customers (
-	cid varchar(255) references Accounts(account_id) on delete cascade,
+	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	reward_points integer,
 	primary key (cid)
@@ -62,7 +62,7 @@ CREATE TABLE Promos (
 	category varchar(255) not null,
 	promo_type varchar(255) not null,
 	discount_value integer not null,
-	trigger_value integer not null,
+	trigger_value money not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
 	primary key (promo_id, creator_id),
@@ -79,21 +79,21 @@ CREATE TABLE Promos (
 
 -- Riders relation here --
 CREATE TABLE Riders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key (rid)
 );
 
 CREATE TABLE FTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid), 
-    foreign key (rid) references Riders on delete cascade
+    foreign key (rid) references Riders on delete cascade on update cascade
 );
 
 CREATE TABLE PTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid)
@@ -210,7 +210,7 @@ CREATE TABLE FTWorks(
 );
 
 CREATE TABLE FDSManagers (
-	fds_id varchar(255) references Accounts(account_id) on delete cascade,
+	fds_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key(fds_id)
 ); 
@@ -220,6 +220,7 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
+	promo_id references Promos(promo_id) on delete cascade on update cascade,
     primary key(rest_id) 
 );
 
@@ -281,7 +282,7 @@ CREATE TABLE Salaries (
 );
 
 CREATE TABLE RestaurantStaffs (
-	staff_id varchar(255) references Accounts(account_id) on delete cascade,
+	staff_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
     rest_id serial references Restaurants(rest_id),
     primary key(staff_id)
 );
@@ -294,7 +295,8 @@ CREATE TABLE Foods (
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
-    foreign key (rest_id) references Restaurants on delete cascade
+	availability boolean default true,
+    foreign key (rest_id) references Restaurants on delete cascade on update cascade
 );
 
 CREATE TABLE Consists (
@@ -352,11 +354,100 @@ $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS check_order_meets_threshold ON ORDERS;
 CREATE TRIGGER check_order_meets_threshold
-BEFORE UPDATE 
+BEFORE UPDATE OR INSERT
 ON Orders
 FOR EACH ROW 
 EXECUTE FUNCTION reject_order_below_threshold();
 
+-- Need a trigger to check if it exceed the limit for individual food when update and insert into Consists.
+CREATE OR REPLACE FUNCTION reject_above_food_limit()
+	RETURNS trigger AS $$
+DECLARE
+	food_limit Foods.food_limit%TYPE;
+BEGIN
+	SELECT F.food_limit INTO food_limit FROM Foods AS F WHERE F.fid = NEW.fid;
+	If NEW.quantity > food_limit THEN
+	RAISE exception 'The quantity of the food ordered (%) is more than the food limit (%)', NEW.quantity, food_limit; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_food_quantity_below_limit ON ORDERS;
+CREATE TRIGGER check_food_quantity_below_limit
+BEFORE UPDATE OR INSERT 
+ON Consists
+FOR EACH ROW 
+EXECUTE FUNCTION reject_above_food_limit();
+
+-- Need a trigger to decrease the food quantity after one person paid for the order
+CREATE OR REPLACE FUNCTION update_food_quantity()
+	RETURNS trigger AS $$
+DECLARE 
+	checkCursor CURSOR FOR SELECT C.fid, C.quantity FROM Consists as C WHERE C.oid = NEW.oid;
+	checkRow RECORD;
+BEGIN
+	If NEW.order_status = 'paid' AND OLD.order_status = 'cart' THEN
+		OPEN checkCursor;
+		
+		LOOP
+			FETCH checkCursor INTO checkRow;
+			EXIT WHEN NOT FOUND;
+
+			UPDATE Foods 
+			SET quantity = quantity - checkRow.quantity
+			WHERE fid = checkRow.fid;
+		END LOOP;
+		CLOSE checkCursor;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_quantity_after_place_order ON ORDERS;
+CREATE TRIGGER update_quantity_after_place_order
+BEFORE UPDATE 
+ON Orders
+FOR EACH ROW 
+EXECUTE FUNCTION update_food_quantity();
+
+-- Need a trigger to check if the food quantity is negative value when update or insert
+CREATE OR REPLACE FUNCTION reject_negative_food_quantity()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity < 0 THEN
+	RAISE exception 'The quantity of the food ordered (%) cannot be negative', NEW.quantity; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_negative_food_quantity ON Foods;
+CREATE TRIGGER check_negative_food_quantity
+BEFORE UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION reject_negative_food_quantity();
+
+-- Need a trigger to check set food availability to false when food quantity become zero during update or insert
+CREATE OR REPLACE FUNCTION zero_quantity_set_food_unavailable()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity = 0 AND OLD.availability = true THEN
+		UPDATE Foods 
+		SET availability = false
+		WHERE fid = NEW.fid; 
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_food_availability ON Foods;
+CREATE TRIGGER check_food_availability
+AFTER UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION zero_quantity_set_food_unavailable();
 
 
 -- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
@@ -367,26 +458,21 @@ EXECUTE FUNCTION reject_order_below_threshold();
 
 -- need a trigger to check for FTRiders, 4 WWS is equivalent.
 
--- need a trigger to check
-
 -- need a trigger to ensure everytime a MWS is added, Has table is added with the MWS instance to capture  total participation constraint
  
 -- need a trigger to ensure everytime a WWS is added, Contains table is added with the WWS isntance to capture the total participation constraint
-
--- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
--- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
 -- Data insertions
 -- Accounts
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', '1/10/2019', 'FDSManager');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '3d2DMKr5PrT', '10/6/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', '2/24/2020', 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', '24/2/2020', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fs1xGBE', '2/8/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', '3/30/2020', 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', '30/3/2020', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'q66zcDrm5a', '5/9/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', '1/30/2020', 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', '30/1/2020', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'wIB1JM', '3/4/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', '9/26/2019', 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', '26/9/2019', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'uKELoF', '3/10/2019', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'v2LCrbUvLg', '6/4/2019', 'Customer');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'E9GxvyFbdtjS', '1/10/2019', 'RestaurantStaff');
@@ -397,7 +483,7 @@ insert into Accounts (account_id, account_pass, date_created, account_type) valu
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 'us3Xhu', '6/2/2019', 'RestaurantStaff');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 'z28nCgK9SWYb', '12/2/2020', 'RestaurantStaff');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 'icIkX2ay5Ar', '11/3/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', '2/18/2019', 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', '18/2/2019', 'RestaurantStaff');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('fd1001b8-2503-4685-9661-fff922fa7798', 'Rx6d5HKor', '2/11/2019', 'RestaurantStaff');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'ksswfSyZo', '12/5/2019', 'FTRider');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('f016b0e5-e404-4abf-a824-de805c3e122d', '1F4mKCrVx', '12/5/2019', 'FTRider');
@@ -424,8 +510,8 @@ insert into Accounts (account_id, account_pass, date_created, account_type) valu
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'x5BpVKoIjiUX', '2/10/2019', 'PTRider');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'XgFgRDStIRa', '9/4/2019', 'PTRider');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'u0PxpGApRTmO', '7/5/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', '1/15/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', '7/30/2019', 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', '15/1/2019', 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', '30/7/2019', 'PTRider');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'S3LpbBAcSbM', '12/5/2019', 'PTRider');
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'LA2aqb4x', '12/5/2019', 'PTRider');
 
@@ -685,7 +771,7 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf
 
 -- Orders
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$0.25', '$5.10', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$1.01', '$20.20', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$4.45', '$89.00', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00');
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5);
@@ -708,24 +794,24 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, '100', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, '50', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, '50', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 4, '20', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, 100, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, 50, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

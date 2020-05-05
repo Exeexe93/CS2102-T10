@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import '../styles/FDSManager.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-dropdown/style.css';
+import swal from 'sweetalert';
 
 import { Table } from "react-bootstrap";
 
@@ -71,6 +72,7 @@ class FDSManager extends Component {
             triggerValue: '',
             details: '',
             specificOrderSelected : false,
+            activePromo: [],
             // Error message
             errorMessage : ''
         };
@@ -423,7 +425,7 @@ class FDSManager extends Component {
         // TODO implement get fdsmanager name here if got time
         let account_id = { accountid : this.props.location.state.account_id}
         console.log("getName ran")
-        fetch('http://localhost:3001/FDSManager/getName', {
+        return fetch('http://localhost:3001/FDSManager/getName', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify(account_id)
@@ -432,6 +434,7 @@ class FDSManager extends Component {
             return res.json();
         })
         .then(res => {
+            console.log('aaaaaaaaa.: ', res[0].fds_id);
             this.setState({
                 name : res[0].name,
                 id : res[0].fds_id
@@ -441,15 +444,15 @@ class FDSManager extends Component {
 
     getAllRidersName = () => {
         fetch('http://localhost:3001/FDSManager/getAllRidersName')
-            .then(res => {
-                return res.json()
+        .then(res => {
+            return res.json()
+        })
+        .then(res => {
+            this.setState({
+                ridersStats : res,
+                ridersName : res
             })
-            .then(res => {
-                this.setState({
-                    ridersStats : res,
-                    ridersName : res
-                })
-            })
+        })
     }
 
     // ================================================ Promotion ================================================
@@ -674,39 +677,105 @@ class FDSManager extends Component {
             this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear, this.state.promoEndTime)])
     }
 
-    handleAddPromo = () => {
-        if (this.inputValidityCheck()) {
-            this.getPromoStartAndEndTime()
-                .then(([start_time, end_time]) => {
-                    console.log('promostart : %s\npromoend : %s', start_time, end_time)
-                    fetch('http://localhost:3001/FDSManager/addPromo', {
-                        method: 'post',
-                        headers: { 'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            start_time: start_time, 
-                            end_time: end_time,
-                            promo_type: this.state.promoType,
-                            category: this.state.promoCategory,
-                            details: this.state.details,
-                            discount_value: this.state.discountValue,
-                            trigger_value: this.state.triggerValue,
-                            creator_id: this.state.id
-                        })
-                    })
-                    .then(res => {
-                        console.log("from insert promo");
-                        console.log(res)
-                    })
+    queryAddPromo = () => {
+        return this.getPromoStartAndEndTime()
+        .then(([start_time, end_time]) => {
+            console.log('promostart : %s\npromoend : %s', start_time, end_time)
+            fetch('http://localhost:3001/FDSManager/addPromo', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    start_time: start_time, 
+                    end_time: end_time,
+                    promo_type: this.state.promoType,
+                    category: this.state.promoCategory,
+                    details: this.state.details,
+                    discount_value: this.state.discountValue,
+                    trigger_value: this.state.triggerValue,
+                    creator_id: this.state.id
                 })
-            console.log('success')
+            })
+            .then(res => {
+                // TODO check error message display alert for error message
+                swal("Promotion added", "Click ok to continue", "success")
+                console.log("from insert promo");
+                console.log(res)
+            })
+        })
+    }
+
+    handleAddPromoButton = () => {
+        if (this.inputValidityCheck()) {
+            this.queryAddPromo().then((res) => {
+                this.getAllActivePromotion();
+            })
         }
-        console.log("Data needed\nStart Promo day %s/%s/%s\nEnd Promo day %s/%s/%s\nCategory: %s\nType: %s\nDetails: %s\nDiscountV: %s\nTrigger V:%s",
-            this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear, this.state.promoEndDay, this.state.promoEndMonth,
-            this.state.promoEndYear, this.state.promoCategory, this.state.promoType, this.state.details, this.state.discountValue, this.state.triggerValue);
+    }
+
+    renderActivePromotionBody = (promo, index) => {
+        return (
+            <tr key={index}>
+                <td>{promo.promo_id}</td>
+                <td>{promo.details}</td>
+                <td>{promo.category}</td>
+                <td>{promo.promo_type}</td>
+                <td>{promo.discount_value}</td>
+                <td>{promo.trigger_value}</td>
+                <td>{promo.start_time}</td>
+                <td>{promo.end_time}</td>
+            </tr>
+        )
+    }
+
+    renderActivePromotion = () => {
+        return (
+            <Table striped bordered hover>
+            <thead>
+                <tr>
+                    <th key="promo-id">Promo ID</th>
+                    <th key="details">Promo Details</th>
+                    <th key="category">Promo Category</th>
+                    <th key="type">Promo Type</th>
+                    <th key="discount-value">Discount Value</th>
+                    <th key="min-amt">Minimum amount spent for promo</th>
+                    <th key="start-time">Promo Start Time</th>
+                    <th key="end-time">Promo End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {this.state.activePromo.map(this.renderActivePromotionBody)}
+            </tbody>
+        </Table>
+        )
+    }
+
+    getAllActivePromotion = () => {
+        console.log("before passing", this.state.id)
+        fetch('http://localhost:3001/FDSManager/getActivePromo', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                creator_id : this.state.id
+            })
+        })
+        .then(res => {
+            return res.json()
+        })
+        .then(res => {
+            console.log("id from getAllActivePromotion: ", this.state.id)
+            this.setState({
+                activePromo : res
+            }, () => {
+                console.log(res);
+            })
+        }) 
     }
 
     componentDidMount() {
-        this.getName();
+        this.getName().then((res) => {
+            console.log(".then: ",res);
+            this.getAllActivePromotion();
+        })
         this.getAllRidersName();
     }
 
@@ -721,6 +790,7 @@ class FDSManager extends Component {
                     <Col>
                         <Jumbotron>
                             <h1 className="display-3">Welcome { this.state.name }</h1>
+                            <h2>{this.state.id}</h2>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
                             <div class="input-group">
                             <input className="enter_button" 
@@ -905,11 +975,12 @@ class FDSManager extends Component {
                                     {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
                                     <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
                                     <InputGroupAddon addonType="append">
-                                        <Button color="primary" onClick={this.handleAddPromo}>Add Promotion</Button>
+                                        <Button color="primary" onClick={this.handleAddPromoButton}>Add Promotion</Button>
                                     </InputGroupAddon>
                                 </InputGroup>
                             </Col>
                         </Row>
+                        {this.renderActivePromotion()}
                     </div>
                     <div>
                         {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}

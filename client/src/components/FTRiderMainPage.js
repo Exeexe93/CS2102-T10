@@ -137,6 +137,25 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  // Update ongoing order status for arrival at restaurant in DB
+  updateStatusArriveAtRestaurant = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusArriveAtRestaurant", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
   handleViewSalary = () => {
     // TODO
     // if (this.state.isFTRider) {
@@ -214,9 +233,60 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  // Ongoing order depart to restaurant button is clicked
+  handleDepartToRestaurant = (order_number) => {};
+
+  // Ongoing order arrive at restaurant button is clicked
+  handleArriveAtRestaurant = (order_number) => {
+    // Check depart for restaurant status
+    fetch("http://localhost:3001/Rider/getStatusDepartForRestaurant", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          const depart_for_restaurant = res[0].depart_for_rest;
+          if (depart_for_restaurant === null) {
+            this.displayErrorStatus();
+          } else {
+            // Update arrival at restaurant status in DB
+            this.updateStatusArriveAtRestaurant(order_number);
+          }
+        }
+      });
+  };
+
+  displayErrorStatus = () => {
+    return swal("Unable to update status", "Please Try Again!", "error");
+  };
+
+  displaySuccessStatus = () => {
+    return swal("Successfully updated status", "", "success");
+  };
+
+  // Ongoing order depart to customer location button is clicked
+  handleDepartToDeliveryLocation = (order_number) => {};
+
+  // Ongoing order delivered to customer button is clicked
+  handleOrderDelivered = (order_number) => {};
+
   renderOngoingDelivery = () => {
     if (this.state.ongoing_order !== null) {
-      return <OngoingOrder orderInfo={this.state.ongoing_order}></OngoingOrder>;
+      return (
+        <OngoingOrder
+          orderInfo={this.state.ongoing_order}
+          handleDepartToRestaurant={this.handleDepartToRestaurant}
+          handleArriveAtRestaurant={this.handleArriveAtRestaurant}
+          handleDepartToDeliveryLocation={this.handleDepartToDeliveryLocation}
+          handleOrderDelivered={this.handleOrderDelivered}
+        ></OngoingOrder>
+      );
     }
   };
 

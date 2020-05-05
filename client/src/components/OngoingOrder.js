@@ -56,10 +56,26 @@ class OngoingOrder extends Component {
         </div>
 
         <div className="ongoing-order-button-row">
-          <button>Depart for the restaurant to collect order</button>
-          <button>Arrive at restaurant</button>
-          <button>Depart from restaurant to delivery location</button>
-          <button>Order delivered</button>
+          <button
+            onClick={() => this.props.handleDepartToRestaurant(order_number)}
+          >
+            Depart for the restaurant to collect order
+          </button>
+          <button
+            onClick={() => this.props.handleArriveAtRestaurant(order_number)}
+          >
+            Arrive at restaurant
+          </button>
+          <button
+            onClick={() =>
+              this.props.handleDepartToDeliveryLocation(order_number)
+            }
+          >
+            Depart from restaurant to delivery location
+          </button>
+          <button onClick={() => this.props.handleOrderDelivered(order_number)}>
+            Order delivered
+          </button>
         </div>
       </div>
     );

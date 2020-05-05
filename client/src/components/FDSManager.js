@@ -4,11 +4,14 @@ import '../styles/FDSManager.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-dropdown/style.css';
 import swal from 'sweetalert';
+import { RiLogoutBoxLine } from "react-icons/ri";
 
 import { Table } from "react-bootstrap";
 
 import {
     Navbar,
+    NavLink,
+    Nav,
     NavbarBrand,
     Col, 
     Jumbotron,
@@ -71,8 +74,8 @@ class FDSManager extends Component {
             discountValue: '',
             triggerValue: '',
             details: '',
-            specificOrderSelected : false,
             activePromo: [],
+            deliveryPromo: true,
             // Error message
             errorMessage : ''
         };
@@ -460,16 +463,18 @@ class FDSManager extends Component {
         return ([
             <option value="none" selected disabled hidden>Type</option>,
             <option key='percent'>Percent</option>, 
-            <option key='flat-rate'>Flat Rate</option>
+            <option key='flat-rate'>Flat Rate</option>,
+            <option key='delivery'>Delivery</option>
             ])
     }
 
     renderPromoCategory = () => {
         return ([
             <option value="none" selected disabled hidden>Category</option>,
-            <option key='all-orders'>All orders</option>,
-            <option key='specific-orders'>Specific orders</option>,
-            <option key='new-customers'>New customers</option>
+            <option key='all-orders'>All</option>,
+            <option key="first-orders">First Order</option>, 
+            <option key='new-customers'>Inactive Customers</option>,
+            <option key='loyal-customers'>Loyal Customers</option>
         ])
     }
 
@@ -484,23 +489,23 @@ class FDSManager extends Component {
     }
 
     onPromoTypeChanged = (e) => {
-        this.setState({
-            promoType : e.target.value
-        })
-    }
-
-    onPromoCategoryChanged = (e) => {
-        if (e.target.value === 'Specific orders') {
+        if (e.target.value === 'Delivery') {
             this.setState({
-                promoCategory : e.target.value,
-                specificOrderSelected : true
+                promoType : e.target.value,
+                deliveryPromo: false
             })
         } else {
             this.setState({
-                promoCategory : e.target.value,
-                specificOrderSelected : false
+                promoType : e.target.value,
+                deliveryPromo: true
             })
-        } 
+        }
+    }
+
+    onPromoCategoryChanged = (e) => {
+        this.setState({
+            promoCategory : e.target.value,
+        })
     }
 
     onSpecificOrderChanged = (e) => {
@@ -784,13 +789,18 @@ class FDSManager extends Component {
         return (
             <Tabs className='centered'>
                 <Navbar dark color="dark">
-                    <NavbarBrand href="/FDSManager">FDSManager</NavbarBrand>
+                    <NavbarBrand>FDSManager</NavbarBrand>
+                    <Nav>
+                        <NavLink href="/Login" className="link">
+                            <RiLogoutBoxLine />
+                            <span> Logout</span>
+                        </NavLink>
+                    </Nav>
                 </Navbar>
                 <Row>
                     <Col>
                         <Jumbotron>
                             <h1 className="display-3">Welcome { this.state.name }</h1>
-                            <h2>{this.state.id}</h2>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
                             <div class="input-group">
                             <input className="enter_button" 
@@ -965,14 +975,13 @@ class FDSManager extends Component {
                     <div className="container">
                         <Row>
                             <textarea placeholder="Details of discount..." onChange={this.onDetailsChanged}></textarea>
-                            <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>
-                            <Input placeholder="Minimum value to apply discount" onChange={this.onPromoMinValChanged}></Input>
+                            {this.state.deliveryPromo && <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>}
+                            {this.state.deliveryPromo && <Input placeholder="Minimum value to apply discount" onChange={this.onPromoMinValChanged}></Input>}
                         </Row>
                         <Row>
                             <Col xs="auto">
                                 <InputGroup>
                                     <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
-                                    {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
                                     <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
                                     <InputGroupAddon addonType="append">
                                         <Button color="primary" onClick={this.handleAddPromoButton}>Add Promotion</Button>

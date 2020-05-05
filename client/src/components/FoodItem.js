@@ -166,7 +166,7 @@ class FoodItem extends Component {
             let isFound = false;
             cartItems.map((cartItem) => {
               if (item.fid === cartItem.fid) {
-                // Update oid, fid, quantity, total_price to be continued
+                // Update oid, fid, quantity, total_price
                 this.updateFood(
                   cartItem.oid,
                   cartItem.fid,
@@ -309,7 +309,7 @@ class FoodItem extends Component {
         }
       );
 
-      if (response.data.detail) {
+      if (response.data.where.includes("reject_above_food_limit")) {
         let errorFoods = this.state.errorUpdateFoods;
         errorFoods.push(this.state.foodItem[index].name);
         this.setState({
@@ -412,6 +412,7 @@ class FoodItem extends Component {
           </Form.Group>
         </td>
         <td>{food.food_limit}</td>
+        <td>{food.quantity}</td>
         <td>{food.category}</td>
       </tr>
     );
@@ -427,6 +428,7 @@ class FoodItem extends Component {
               <th>Price</th>
               <th>Quantity</th>
               <th>Purchase Limit</th>
+              <th>Quantity Left</th>
               <th>Category</th>
             </tr>
           </thead>

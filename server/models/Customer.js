@@ -139,7 +139,7 @@ class Customer {
 
   static getRestaurantFoods(restaurantName, callback) {
     db.query(
-      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Foods as F using (rest_id) WHERE R.name = $1",
+      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Foods as F using (rest_id) WHERE R.name = $1 AND F.availability = true",
       [restaurantName],
       (err, res) => {
         if (err.error) {
@@ -197,7 +197,7 @@ class Customer {
 
   static getCartOrder(cid, callback) {
     db.query(
-      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) WHERE cid = $1 and O.order_status = 'cart'",
+      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit, R.name as restaurantName FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) LEFT JOIN Restaurants as R on R.rest_id = O.rest_id WHERE cid = $1 and O.order_status = 'cart'",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -211,6 +211,7 @@ class Customer {
             i++;
             output.push({
               orderNum: foodItem.oid,
+              restaurantName: foodItem.restaurantname,
               foods: [],
             });
           }
@@ -255,6 +256,7 @@ class Customer {
 
   static updateOrder(queryList, valueList, callback) {
     db.transaction(queryList, valueList, (err, res) => {
+      console.log(err);
       if (err.error) return callback(err, res);
       return callback(err, res);
     });
@@ -283,10 +285,7 @@ class Customer {
   }
 
   static updateRatingAndReview(queryList, valueList, callback) {
-    console.log(queryList);
-    console.log(valueList);
     db.transaction(queryList, valueList, (err, res) => {
-      console.log(err.error);
       if (err.error) return callback(err, res);
       return callback(err, res);
     });

@@ -227,7 +227,7 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
-    primary key(rest_id) 
+    primary key(rest_id)
 );
 
 CREATE TABLE Orders (
@@ -547,7 +547,7 @@ CREATE TRIGGER add_promo_trigger
 	ON Promos
 	FOR EACH ROW
 	EXECUTE FUNCTION add_promo();
-	
+
 -- Data insertions
 -- Accounts
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', to_date('1/10/2019', 'dd/mm/yyyy'), 'FDSManager');

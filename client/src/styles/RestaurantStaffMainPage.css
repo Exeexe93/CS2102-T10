@@ -12,8 +12,20 @@
 }
 
 .submit-button {
-    min-height: 54%;
+    min-height: 53%;
     min-width: 120%;
     position:relative;
     margin-top:32px;
   }
+
+.update-button {
+    min-height: 53%;
+    position:relative;
+    margin-top:32px;
+}
+
+.cancel-button {
+    min-height: 53%;
+    position:relative;
+    margin-top:32px;
+}

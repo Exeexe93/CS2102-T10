@@ -139,7 +139,7 @@ class Customer {
 
   static getRestaurantFoods(restaurantName, callback) {
     db.query(
-      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Foods as F using (rest_id) WHERE R.name = $1",
+      "SELECT F.name, F.category, F.quantity, F.price, F.food_limit, F.fid FROM Restaurants as R left join Foods as F using (rest_id) WHERE R.name = $1 AND F.availability = true",
       [restaurantName],
       (err, res) => {
         if (err.error) {

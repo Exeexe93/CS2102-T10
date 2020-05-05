@@ -117,6 +117,37 @@ class FDSManager {
             }
         )
     }
+
+    static queryAddPromo(promoStart, promoEnd, promo_type, category, details,
+        discount_value, trigger_value, creator_id, callback) {
+            console.log("promoStart %s\npromoEnd %s", promoStart, promoEnd);
+        db.query(
+            'INSERT into Promos(start_time, end_time, promo_type, category, details, discount_value, trigger_value, creator_id) ' + 
+            'VALUES (to_timestamp($1, \'ddmmyyyy HH24:MI:SS\'), to_timestamp($2, \'ddmmyyyy HH24:MI:SS\'), $3, $4, $5, $6, $7, $8)',
+            [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryAddPromo:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
+
+    static queryGetActivePromo(creator_id, callback) {
+        db.query(
+            'select promo_id, details, category, promo_type, discount_value, trigger_value, to_char(start_time, \'dd-mm-yyyy HH24:MI:SS\') as start_time, to_char(end_time, \'dd-mm-yyyy HH24:MI:SS\') as end_time from Promos where creator_id = $1 and extract(day from (end_time - current_timestamp)) > 0;',
+            [creator_id],
+            (err, res) => {
+                if (err.error) {
+                    console.log("Error occurred at FDSManagerModel#queryGetActivePromo:", err.error);
+                }
+                callback(err, res);
+            }
+
+        )
+    }
 }
 
 module.exports = FDSManager;

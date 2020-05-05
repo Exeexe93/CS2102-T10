@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import '../styles/FDSManager.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-dropdown/style.css';
+import swal from 'sweetalert';
 
 import { Table } from "react-bootstrap";
 
@@ -25,6 +26,7 @@ class FDSManager extends Component {
         this.state = {
             // Change to the FDSManager name here
             name: "",
+            id: "",
             displayMonth: '',
             displayYear: '',
             displayDay: '',
@@ -53,7 +55,26 @@ class FDSManager extends Component {
                 {hour: 19, num_orders: 0},
                 {hour: 20, num_orders: 0},
                 {hour: 21, num_orders: 0}
-            ]
+            ],
+            // Promotion
+            promoStartDay: '',
+            promoStartMonth: '',
+            promoStartYear: '',
+            promoStartTime: '',
+            promoEndDay: '',           
+            promoEndMonth: '',
+            promoEndYear: '',
+            promoEndTime: '',
+            promoCategory: '',
+            promoType: '',
+            promoDetails: '',
+            discountValue: '',
+            triggerValue: '',
+            details: '',
+            specificOrderSelected : false,
+            activePromo: [],
+            // Error message
+            errorMessage : ''
         };
     }
 
@@ -216,7 +237,6 @@ class FDSManager extends Component {
             this.handleQueryMonthOrdersCost();
             this.handleQueryMonthCustomersStats();
             this.handleQueryMonthlyRidersStats();
-            this.generateDays();
             this.setState({
                 displayMonth: this.state.month,
                 displayYear: this.state.year,
@@ -228,26 +248,25 @@ class FDSManager extends Component {
         }
     }
 
-    generateDays = () => {
-        if (this.state.day.length != 0) {
-            this.state.day = [];
-        }
+    generateDays = (month, year) => {
+        let returnDay = [];
         let daysInMonth = 0
-        this.state.month && this.state.year 
-            ? daysInMonth = new Date(this.state.year, this.state.month, 0).getDate() 
+        month && year 
+            ? daysInMonth = new Date(year, month, 0).getDate() 
             : daysInMonth = 0
         let i;
         for (i = 1; i <= daysInMonth; i++) {
-            this.state.day.push(i);
+            returnDay.push(i);
         }
-        console.log("from generate days: %d month %d year %d",daysInMonth, this.state.month, this.state.year)
-        return this.state.day;
+        console.log("from generate days: %d month %d year %d",daysInMonth, month, year)
+        return returnDay;
     }
 
-    renderDayDropdown = () => {
+    renderDayDropdown = (month, year) => {
+        let day = this.generateDays(month, year)
         let items = [];
         items.push(<option value="none" selected disabled hidden>Day</option>)
-        for (let i = 1; i <= this.state.day.length; i++) {
+        for (let i = 1; i <= day.length; i++) {
             items.push(<option key={i} value={i}>{i}</option>);
         }
         console.log("renderDayDropdown ran");
@@ -406,7 +425,7 @@ class FDSManager extends Component {
         // TODO implement get fdsmanager name here if got time
         let account_id = { accountid : this.props.location.state.account_id}
         console.log("getName ran")
-        fetch('http://localhost:3001/FDSManager/getName', {
+        return fetch('http://localhost:3001/FDSManager/getName', {
             method: 'post',
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify(account_id)
@@ -415,27 +434,348 @@ class FDSManager extends Component {
             return res.json();
         })
         .then(res => {
+            console.log('aaaaaaaaa.: ', res[0].fds_id);
             this.setState({
                 name : res[0].name,
+                id : res[0].fds_id
             })
         })
     }
 
     getAllRidersName = () => {
         fetch('http://localhost:3001/FDSManager/getAllRidersName')
-            .then(res => {
-                return res.json()
+        .then(res => {
+            return res.json()
+        })
+        .then(res => {
+            this.setState({
+                ridersStats : res,
+                ridersName : res
             })
-            .then(res => {
-                this.setState({
-                    ridersStats : res,
-                    ridersName : res
+        })
+    }
+
+    // ================================================ Promotion ================================================
+    renderPromoType = () => {
+        return ([
+            <option value="none" selected disabled hidden>Type</option>,
+            <option key='percent'>Percent</option>, 
+            <option key='flat-rate'>Flat Rate</option>
+            ])
+    }
+
+    renderPromoCategory = () => {
+        return ([
+            <option value="none" selected disabled hidden>Category</option>,
+            <option key='all-orders'>All orders</option>,
+            <option key='specific-orders'>Specific orders</option>,
+            <option key='new-customers'>New customers</option>
+        ])
+    }
+
+    renderSpecificOrder = () => {
+        return ([
+            <option value="none" selected disabled hidden>Order Type</option>,
+            <option key='main-dish'>Main Dish</option>,
+            <option key='side-dish'>Side Dish</option>,
+            <option key='drinks'>Drinks</option>,
+            <option key='dessert'>Dessert</option>
+        ]) 
+    }
+
+    onPromoTypeChanged = (e) => {
+        this.setState({
+            promoType : e.target.value
+        })
+    }
+
+    onPromoCategoryChanged = (e) => {
+        if (e.target.value === 'Specific orders') {
+            this.setState({
+                promoCategory : e.target.value,
+                specificOrderSelected : true
+            })
+        } else {
+            this.setState({
+                promoCategory : e.target.value,
+                specificOrderSelected : false
+            })
+        } 
+    }
+
+    onSpecificOrderChanged = (e) => {
+        this.setState({
+            promoCategory : e.target.value
+        })
+    }
+
+    onPromoStartDayChanged = (e) => {
+        this.setState({
+            promoStartDay : e.target.value
+        })
+    }
+
+    onPromoStartMonthChanged = (e) => {
+        this.setState({
+            promoStartMonth : e.target.value
+        })
+        if (this.state.promoStartMonth && this.state.promoStartYear) {
+            this.renderDayDropdown(this.promoStartMonth, this.state.promoStartYear)
+        }
+    }
+
+    onPromoStartYearChanged = (e) => {
+        this.setState({
+            promoStartYear : e.target.value
+        })
+        if (this.state.promoStartMonth && this.state.promoStartYear) {
+            this.renderDayDropdown(this.promoStartMonth, this.state.promoStartYear)
+        }
+    }
+
+    onPromoEndDayChanged = (e) => {
+        this.setState({
+            promoEndDay : e.target.value
+        })
+    }
+
+    onPromoEndMonthChanged = (e) => {
+        this.setState({
+            promoEndMonth : e.target.value
+        })
+        if (this.state.promoEndMonth && this.state.promoEndYear) {
+            this.renderDayDropdown(this.promoEndMonth, this.state.promoEndYear)
+        }
+    }
+
+    onPromoEndYearChanged = (e) => {
+        this.setState({
+            promoEndYear : e.target.value
+        })
+        if (this.state.promoEndMonth && this.state.promoEndYear) {
+            this.renderDayDropdown(this.promoEndMonth, this.state.promoEndYear)
+        }
+    }
+
+    onDetailsChanged = (e) => {
+        this.setState({
+            details : e.target.value
+        })
+    }
+
+    renderMonthDropdown = () => {
+        let monthOptions = [<option value="none" selected disabled hidden>Month</option>]
+        for (let i = 1; i <= 12; i++) {
+            monthOptions.push(<option key={i} value={i}>{i}</option>)
+        }
+        return monthOptions;
+    }
+
+    renderYearDropdown = () => {
+        let yearOptions = [<option value="none" selected disabled hidden>Year</option>]
+        let date = new Date();
+        let currentYear = date.getFullYear();
+        for (let k = 2000; k <= currentYear; k++) {
+            yearOptions.push(<option key={k} value={k}>{k}</option>)
+        }
+        return yearOptions;
+    }
+
+    onPromoDiscountValueChanged = (e) => {
+        this.setState({
+            discountValue : e.target.value
+        })
+    }
+
+    onPromoMinValChanged = (e) => {
+        this.setState({
+            triggerValue : e.target.value
+        })
+    }
+
+    renderTimeDropdown = () => {
+        let timeOption = [<option value="none" selected disabled hidden>Time</option>]
+        for (let i = 0; i < 24; i++) {
+            let timeToPush = ''
+            if (i < 10) {
+                timeToPush = '0'
+            }
+            timeOption.push(<option key={i} value={i}>{timeToPush + i + ':00:00'}</option>)
+        }
+        return timeOption;
+    }
+
+    onPromoStartTimeChanged = (e) => {
+        this.setState({
+            promoStartTime: e.target.value
+        }, () => {console.log("startTime: ",this.state.promoStartTime)})
+    }
+
+    onPromoEndTimeChanged = (e) => {
+        this.setState({
+            promoEndTime: e.target.value
+        })
+    }
+
+    inputValidityCheck = () => {
+        let isValidTriggerVal = (this.state.triggerValue > 0) && !isNaN(this.state.triggerValue)
+        let isValidDiscountVal = (this.state.discountValue > 0) && !isNaN(this.state.discountValue)
+        let isStartDayPresent = this.state.promoStartDay
+        let isEndDayPresent = this.state.promoEndDay
+        let isCategoryPresent = this.state.promoCategory
+        let isTypePresent = this.state.promoType
+        let isDetailsPresent = this.state.details
+        let missingField = !isStartDayPresent && !isEndDayPresent && !isCategoryPresent && !isTypePresent && !isDetailsPresent
+        let isValidTriggerValueAndDiscountValue = isValidDiscountVal && isValidTriggerVal
+        let promoStartDay = new Date(this.state.promoStartYear, this.state.promoStartMonth - 1, this.state.promoStartDay)
+        let promoEndDay = new Date(this.state.promoEndYear, this.state.promoEndMonth - 1, this.state.promoEndDay)
+        let invaliPromotionEndDate = promoStartDay.getTime() > promoEndDay.getTime()
+        console.log("start: ",promoStartDay)
+        console.log("end: ",promoEndDay)
+        console.log("invalidpromoenddate: ", invaliPromotionEndDate)   
+        if (missingField) {
+            this.setState({
+                errorMessage : 'Fill in the fields please'
+            })
+            return false;
+        } else if (!isValidTriggerValueAndDiscountValue) {
+            this.setState({
+                errorMessage : 'Discount value and minimum value have to be positive integer'
+            })
+            return false;
+        } else if (invaliPromotionEndDate) {
+            this.setState({
+                errorMessage : 'Promo must end after it starts'
+            })
+            return false;
+        }
+        this.setState({
+            errorMessage : ''
+        })
+        return true;
+    }
+
+    formatDateForQuery = (day, month, year, time) => {
+        let formatDay = ''
+        let formatMonth = ''
+        let formatTime = ''
+        if (day.length == 1) {
+            formatDay += '0'
+        }
+        if (month.length == 1) {
+            formatMonth += '0'
+        }
+        if (time.length == 1) {
+            formatTime += '0'
+        }
+        formatTime += time + ':00:00'
+        return formatDay + day + formatMonth + month + year + " " + formatTime
+    }
+
+    getPromoStartAndEndTime = () => {
+        return Promise.all([this.formatDateForQuery(this.state.promoStartDay, this.state.promoStartMonth, this.state.promoStartYear, this.state.promoStartTime),
+            this.formatDateForQuery(this.state.promoEndDay, this.state.promoEndMonth, this.state.promoEndYear, this.state.promoEndTime)])
+    }
+
+    queryAddPromo = () => {
+        return this.getPromoStartAndEndTime()
+        .then(([start_time, end_time]) => {
+            console.log('promostart : %s\npromoend : %s', start_time, end_time)
+            fetch('http://localhost:3001/FDSManager/addPromo', {
+                method: 'post',
+                headers: { 'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    start_time: start_time, 
+                    end_time: end_time,
+                    promo_type: this.state.promoType,
+                    category: this.state.promoCategory,
+                    details: this.state.details,
+                    discount_value: this.state.discountValue,
+                    trigger_value: this.state.triggerValue,
+                    creator_id: this.state.id
                 })
             })
+            .then(res => {
+                // TODO check error message display alert for error message
+                swal("Promotion added", "Click ok to continue", "success")
+                console.log("from insert promo");
+                console.log(res)
+            })
+        })
+    }
+
+    handleAddPromoButton = () => {
+        if (this.inputValidityCheck()) {
+            this.queryAddPromo().then((res) => {
+                this.getAllActivePromotion();
+            })
+        }
+    }
+
+    renderActivePromotionBody = (promo, index) => {
+        return (
+            <tr key={index}>
+                <td>{promo.promo_id}</td>
+                <td>{promo.details}</td>
+                <td>{promo.category}</td>
+                <td>{promo.promo_type}</td>
+                <td>{promo.discount_value}</td>
+                <td>{promo.trigger_value}</td>
+                <td>{promo.start_time}</td>
+                <td>{promo.end_time}</td>
+            </tr>
+        )
+    }
+
+    renderActivePromotion = () => {
+        return (
+            <Table striped bordered hover>
+            <thead>
+                <tr>
+                    <th key="promo-id">Promo ID</th>
+                    <th key="details">Promo Details</th>
+                    <th key="category">Promo Category</th>
+                    <th key="type">Promo Type</th>
+                    <th key="discount-value">Discount Value</th>
+                    <th key="min-amt">Minimum amount spent for promo</th>
+                    <th key="start-time">Promo Start Time</th>
+                    <th key="end-time">Promo End Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {this.state.activePromo.map(this.renderActivePromotionBody)}
+            </tbody>
+        </Table>
+        )
+    }
+
+    getAllActivePromotion = () => {
+        console.log("before passing", this.state.id)
+        fetch('http://localhost:3001/FDSManager/getActivePromo', {
+            method: 'post',
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                creator_id : this.state.id
+            })
+        })
+        .then(res => {
+            return res.json()
+        })
+        .then(res => {
+            console.log("id from getAllActivePromotion: ", this.state.id)
+            this.setState({
+                activePromo : res
+            }, () => {
+                console.log(res);
+            })
+        }) 
     }
 
     componentDidMount() {
-        this.getName();
+        this.getName().then((res) => {
+            console.log(".then: ",res);
+            this.getAllActivePromotion();
+        })
         this.getAllRidersName();
     }
 
@@ -450,6 +790,7 @@ class FDSManager extends Component {
                     <Col>
                         <Jumbotron>
                             <h1 className="display-3">Welcome { this.state.name }</h1>
+                            <h2>{this.state.id}</h2>
                             <p className="lead">You can view all the stats below, Have fun working!</p>
                             <div class="input-group">
                             <input className="enter_button" 
@@ -527,44 +868,46 @@ class FDSManager extends Component {
                         </Table>
                     </ListGroup>
                 </TabPanel>
-                <TabPanel class="tab-panel" className="container">
+                <TabPanel class="tab-panel">
                     <h2>Monthly Statistics</h2>
-                    <Table>
+                    <div className="container">
+                        <Table>
+                                <thead>
+                                    <tr>
+                                        <th>Report for Month</th>
+                                        <th>Report for Year</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
+                                        <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
+                                    </tr>
+                                </tbody>
+                        </Table>
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
-                                    <th>Report for Month</th>
-                                    <th>Report for Year</th>
+                                    <th key="rider_name">Rider name</th>
+                                    <th key="num_orders">Total delivered orders</th>
+                                    <th key="hours_worked">Total hours worked</th>
+                                    <th key="salary_earned">Total salary earned</th>
+                                    <th key="avg_delivery">Average delivery time</th>
+                                    <th key="total_rating_received">Total rating received</th>
+                                    <th key="avg_rating">Average rating received</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>{this.state.displayMonth ? this.state.displayMonth : 0}</td>
-                                    <td>{this.state.displayYear ? this.state.displayYear : 0}</td>
-                                </tr>
+                                {this.state.ridersStats.map(this.renderRidersStats)}
                             </tbody>
-                    </Table>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th key="rider_name">Rider name</th>
-                                <th key="num_orders">Total delivered orders</th>
-                                <th key="hours_worked">Total hours worked</th>
-                                <th key="salary_earned">Total salary earned</th>
-                                <th key="avg_delivery">Average delivery time</th>
-                                <th key="total_rating_received">Total rating received</th>
-                                <th key="avg_rating">Average rating received</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {this.state.ridersStats.map(this.renderRidersStats)}
-                        </tbody>
-                    </Table>
+                        </Table>
+                    </div>
                 </TabPanel>
                 <TabPanel class="tab-panel" className="container">
                     <Row>
                         <Col xs="auto">
                             <InputGroup>
-                                <Input type="select" onChange={this.onDayDropdownSelected}>{this.renderDayDropdown()}</Input>
+                                <Input type="select" onChange={this.onDayDropdownSelected}>{this.renderDayDropdown(this.state.displayMonth, this.state.displayYear)}</Input>
                                 <Input type="select" onChange={this.onAreaDropdownSelected}>{this.renderAreaDropdown()}</Input>
                                 <InputGroupAddon addonType="append">
                                     <Button color="primary" onClick={this.handleLocationQuery}>Enter</Button>
@@ -600,8 +943,48 @@ class FDSManager extends Component {
                         </tbody>
                     </Table>
                 </TabPanel>
-                <TabPanel>
-                    details for adding promotion
+                <TabPanel class="tab-panel">
+                    <InputGroup className="container">
+                        <h2>Start date</h2>
+                        <InputGroupAddon addonType="append">
+                            <Input type="select" onChange={this.onPromoStartDayChanged}>{this.renderDayDropdown(this.state.promoStartMonth, this.state.promoStartYear)}</Input>
+                            <Input type="select" onChange={this.onPromoStartMonthChanged}>{this.renderMonthDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoStartYearChanged}>{this.renderYearDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoStartTimeChanged}>{this.renderTimeDropdown()}</Input>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <InputGroup className="container">
+                        <h2>End date</h2>
+                        <InputGroupAddon addonType="append">
+                            <Input type="select" onChange={this.onPromoEndDayChanged}>{this.renderDayDropdown(this.state.promoEndMonth, this.state.promoEndYear)}</Input>
+                            <Input type="select" onChange={this.onPromoEndMonthChanged}>{this.renderMonthDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoEndYearChanged}>{this.renderYearDropdown()}</Input>
+                            <Input type="select" onChange={this.onPromoEndTimeChanged}>{this.renderTimeDropdown()}</Input>
+                        </InputGroupAddon>
+                    </InputGroup>
+                    <div className="container">
+                        <Row>
+                            <textarea placeholder="Details of discount..." onChange={this.onDetailsChanged}></textarea>
+                            <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>
+                            <Input placeholder="Minimum value to apply discount" onChange={this.onPromoMinValChanged}></Input>
+                        </Row>
+                        <Row>
+                            <Col xs="auto">
+                                <InputGroup>
+                                    <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
+                                    {this.state.specificOrderSelected && (<Input type="select" onChange={this.onSpecificOrderChanged}>{this.renderSpecificOrder()}</Input>)}
+                                    <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
+                                    <InputGroupAddon addonType="append">
+                                        <Button color="primary" onClick={this.handleAddPromoButton}>Add Promotion</Button>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </Col>
+                        </Row>
+                        {this.renderActivePromotion()}
+                    </div>
+                    <div>
+                        {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}
+                    </div>
                 </TabPanel>
             </Tabs>
 

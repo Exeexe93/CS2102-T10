@@ -89,7 +89,7 @@ CREATE TABLE FTRiders (
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid), 
-    foreign key (rid) references Riders on delete cascade on update cascade
+    foreign key (rid) references Riders on delete cascade
 );
 
 CREATE TABLE PTRiders (
@@ -220,8 +220,7 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
-	promo_id references Promos(promo_id) on delete cascade on update cascade,
-    primary key(rest_id) 
+    primary key(rest_id)
 );
 
 CREATE TABLE Orders (

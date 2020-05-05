@@ -346,12 +346,64 @@ $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS check_order_meets_threshold ON ORDERS;
 CREATE TRIGGER check_order_meets_threshold
-BEFORE UPDATE 
+BEFORE UPDATE OR INSERT
 ON Orders
 FOR EACH ROW 
 EXECUTE FUNCTION reject_order_below_threshold();
 
+-- Need a trigger to check if it exceed the limit for individual food when update and insert into Consists.
+CREATE OR REPLACE FUNCTION reject_above_food_limit()
+	RETURNS trigger AS $$
+DECLARE
+	food_limit Foods.food_limit%TYPE;
+BEGIN
+	SELECT F.food_limit INTO food_limit FROM Foods AS F WHERE F.fid = NEW.fid;
+	If NEW.quantity > food_limit THEN
+	RAISE exception 'The quantity of the food ordered (%) is more than the food limit (%)', NEW.quantity, food_limit; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS check_food_quantity_below_limit ON ORDERS;
+CREATE TRIGGER check_food_quantity_below_limit
+BEFORE UPDATE OR INSERT 
+ON Consists
+FOR EACH ROW 
+EXECUTE FUNCTION reject_above_food_limit();
+
+-- Need a trigger to decrease the food quantity after one person paid for the order
+CREATE OR REPLACE FUNCTION update_food_quantity()
+	RETURNS trigger AS $$
+DECLARE 
+	checkCursor CURSOR FOR SELECT C.fid, C.quantity FROM Consists as C WHERE C.oid = NEW.oid;
+	checkRow RECORD;
+BEGIN
+	If NEW.order_status = 'paid' AND OLD.order_status = 'cart' THEN
+		OPEN checkCursor;
+		
+		LOOP
+			FETCH checkCursor INTO checkRow;
+			EXIT WHEN NOT FOUND;
+
+			UPDATE Foods 
+			SET quantity = quantity - checkRow.quantity
+			WHERE fid = checkRow.fid;
+		END LOOP;
+		CLOSE checkCursor;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_quantity_after_place_order ON ORDERS;
+CREATE TRIGGER update_quantity_after_place_order
+BEFORE UPDATE 
+ON Orders
+FOR EACH ROW 
+EXECUTE FUNCTION update_food_quantity();
+
+-- Need a trigger for 
 
 -- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
 
@@ -679,7 +731,7 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf
 
 -- Orders
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$0.25', '$5.10', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$1.01', '$20.20', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$4.45', '$89.00', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00');
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5);
@@ -702,16 +754,16 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, '1000', 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, '1000', 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, '1000', 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, '1000', 'Side Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, '100', 'Dessert');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, '50', 'Dessert');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, '50', 'Drink');

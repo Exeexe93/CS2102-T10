@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
 DROP TABLE IF EXISTS Promos CASCADE;
+DROP TABLE IF EXISTS Given CASCADE;
 DROP TABLE IF EXISTS CustomerPromo CASCADE;
 DROP TABLE IF EXISTS Riders CASCADE;
 DROP TABLE IF EXISTS FTRiders CASCADE;
@@ -57,18 +58,24 @@ CREATE TABLE CreditCards (
 -- Promotion --
 CREATE TABLE Promos (
 	creator_id varchar(255),
-	promo_id serial,
+	promo_id serial unique,
 	details text not null,
 	category varchar(255) not null,
 	promo_type varchar(255) not null,
-	discount_value integer not null,
-	trigger_value money not null,
+	discount_value integer DEFAULT 0 not null,
+	trigger_value money DEFAULT 0 not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
 	primary key (promo_id, creator_id),
 	foreign key (creator_id) references Accounts 
 		on delete cascade
 		on update cascade
+);
+
+CREATE TABLE Given (
+	promo_id integer references Promos(promo_id) on delete cascade on update cascade,
+	cid varchar(255) references Customers(cid) on delete cascade on update cascade,
+	primary key(promo_id, cid)
 );
 
 -- CREATE TABLE CustomerPromo (
@@ -239,6 +246,8 @@ CREATE TABLE Orders (
 	deliver_to_cust timestamp,
 	primary key (oid),
 	foreign key (rid) references Riders
+		on delete cascade
+		on update cascade
 );
 
 CREATE TABLE Places (
@@ -248,7 +257,9 @@ CREATE TABLE Places (
 	payment_method varchar(255),
 	card_number varchar(255),
 	primary key(oid),
-	foreign key (card_number) references CreditCards (card_number)
+	foreign key (card_number) references CreditCards (card_number) 
+		on delete cascade
+		on update cascade
 );
 
 CREATE TABLE Uses (
@@ -256,8 +267,12 @@ CREATE TABLE Uses (
 	promo_id integer NOT NULL,
 	amount money NOT NULL,
 	primary key (oid),
-	foreign key (oid) references Places,
-	foreign key (promo_id) references Promos
+	foreign key (oid) references Places(oid)
+		on delete cascade
+		on update cascade,
+	foreign key (promo_id) references Promos(promo_id)
+		on delete cascade
+		on update cascade
 );
 
 -- Remove the rates table and add the rating as one of the attributes in Orders
@@ -461,6 +476,78 @@ EXECUTE FUNCTION zero_quantity_set_food_unavailable();
  
 -- need a trigger to ensure everytime a WWS is added, Contains table is added with the WWS isntance to capture the total participation constraint
 
+-- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
+-- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
+
+-- need a trigger to update given table
+CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER 
+	AS $$
+DECLARE
+	all_cust 	CURSOR FOR SELECT cid, name, date_created FROM Customers join Accounts on (Accounts.account_id = Customers.cid);
+	first_order	CURSOR FOR SELECT distinct C.cid FROM Customers C
+				WHERE NOT EXISTS (SELECT 1 FROM Places P WHERE c.cid = P.cid);
+	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1 
+						WHERE NOT EXISTS(
+							SELECT 1 FROM customers JOIN places USING (cid) 
+								JOIN orders USING (oid) 
+							WHERE extract(month from age(current_timestamp, order_placed)) > 3);
+	loyal_cust 	CURSOR FOR select distinct cid, money from 
+					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money 
+					from Orders join Places using(oid) 
+					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L 
+					where money >= 100::money; 
+	category	promos.category%TYPE;
+	table_row 	RECORD;
+BEGIN
+	SELECT P.category INTO category 
+		FROM Promos P
+		WHERE P.category = NEW.category;
+	IF category = 'All' THEN
+		OPEN all_cust;
+		LOOP 
+		FETCH all_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid) 
+		VALUES(NEW.promo_id , table_row.cid);
+		END LOOP;
+	ELSIF category = 'First Order' THEN
+		OPEN first_order;
+		LOOP
+		FETCH first_order INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSIF category = 'Inactive Customers' THEN
+		OPEN inactive;
+		LOOP
+		FETCH inactive INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSIF category = 'Loyal Customers' THEN
+		OPEN loyal_cust;
+		LOOP
+		FETCH loyal_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSE
+		RAISE exception 'Invalid category'; 
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS add_promo_trigger ON Promos CASCADE;
+CREATE TRIGGER add_promo_trigger
+	AFTER INSERT 
+	ON Promos
+	FOR EACH ROW
+	EXECUTE FUNCTION add_promo();
+
 -- Data insertions
 -- Accounts
 insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', to_date('1/10/2019', 'dd/mm/yyyy'), 'FDSManager');
@@ -606,16 +693,16 @@ insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobso
 insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
-insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
-insert into RestaurantStaffs (staff_id, rest_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2);
-insert into RestaurantStaffs (staff_id, rest_id) values ('bf4f405e-84ef-458c-b825-63d47379c374', 3);
-insert into RestaurantStaffs (staff_id, rest_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4);
-insert into RestaurantStaffs (staff_id, rest_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5);
-insert into RestaurantStaffs (staff_id, rest_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6);
-insert into RestaurantStaffs (staff_id, rest_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7);
-insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 8);
-insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
-insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
+insert into RestaurantStaffs (staff_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade');
+insert into RestaurantStaffs (staff_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41');
+insert into RestaurantStaffs (staff_id) values ('bf4f405e-84ef-458c-b825-63d47379c374');
+insert into RestaurantStaffs (staff_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406');
+insert into RestaurantStaffs (staff_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f');
+insert into RestaurantStaffs (staff_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478');
+insert into RestaurantStaffs (staff_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818');
+insert into RestaurantStaffs (staff_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5');
+insert into RestaurantStaffs (staff_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5');
+insert into RestaurantStaffs (staff_id) values ('fd1001b8-2503-4685-9661-fff922fa7798');
 
 -- WWS
 INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');

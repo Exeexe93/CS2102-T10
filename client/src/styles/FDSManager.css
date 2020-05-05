@@ -75,3 +75,12 @@ body {
 .error {
   color : red
 }
+
+.link {
+  color: whitesmoke;
+  font-size: 22px;
+}
+
+.link:hover {
+  color: lightskyblue;
+}

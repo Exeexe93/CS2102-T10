@@ -281,7 +281,7 @@ class FTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
-        <h1>Ongoing Delivery</h1>
+        <h1 className="centered-text">Ongoing Delivery</h1>
         {this.renderOngoingDelivery()}
 
         <OrderList

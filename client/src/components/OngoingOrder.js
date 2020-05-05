@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+import "../styles/OngoingOrder.css";
+
 // Represents an order in progress
 class OngoingOrder extends Component {
   constructor(props) {

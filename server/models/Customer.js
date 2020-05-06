@@ -368,7 +368,7 @@ class Customer {
 
   static getPromotions(cid, rest_id, callback) {
     db.query(
-      "SELECT P.promo_id, P.details, P.promo_type, P.discount_value, P.trigger_value FROM (SELECT promo_id, details, promo_type, discount_value, trigger_value, use_limit FROM Given LEFT JOIN Promos using (promo_id) WHERE cid = $1 AND start_time <= NOW() AND end_time >= NOW() AND 1 = (CASE WHEN category = 'All' THEN 1 WHEN category = 'Restaurant' AND creator_id = ANY(SELECT staff_id FROM RestaurantStaffs WHERE rest_id = $2) THEN 1 ELSE 0 END)) AS P WHERE 1 = CASE WHEN P.use_limit IS NULL THEN 1 WHEN P.use_limit < (SELECT COUNT(*) FROM Uses LEFT JOIN Places using (oid) WHERE cid = $1 AND promo_id = P.promo_id) THEN 1 ELSE 0 END",
+      "SELECT P.promo_id, P.details, P.promo_type, P.discount_value, P.trigger_value FROM (SELECT promo_id, details, promo_type, discount_value, trigger_value, use_limit FROM Given LEFT JOIN Promos using (promo_id) WHERE cid = $1 AND start_time <= NOW() AND end_time >= NOW() AND 1 = (CASE WHEN category = 'Restaurant' AND creator_id <> ANY(SELECT staff_id FROM RestaurantStaffs WHERE rest_id = $2) THEN 0 ELSE 1 END)) AS P WHERE 1 = CASE WHEN P.use_limit IS NULL THEN 1 WHEN P.use_limit < (SELECT COUNT(*) FROM Uses LEFT JOIN Places using (oid) WHERE cid = $1 AND promo_id = P.promo_id) THEN 1 ELSE 0 END",
       [cid, rest_id],
       (err, res) => {
         if (err.error) {

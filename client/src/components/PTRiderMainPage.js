@@ -24,7 +24,7 @@ class PTRiderMainPage extends Component {
       completed_orders: [],
       avg_rating: 0,
       ongoing_order: null,
-      ongoing_order_status_text: "Arrive At Restaurant",
+      ongoing_order_status_text: "",
     };
   }
 
@@ -71,6 +71,31 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  setOngoingOrderStatusText = (ongoing_order) => {
+    console.log("setOngoingOrderStatusText arg", ongoing_order);
+    const order_number = ongoing_order.order_number;
+    fetch("http://localhost:3001/Rider/getLatestStatus", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oid: order_number }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const status = res.length === 0 ? "" : res[0].status;
+        if (status === "Completed Delivery") {
+          this.setState({
+            ongoing_order: null,
+            ongoing_order_status_text: "",
+          });
+        } else {
+          console.log("setOngoingOrderStatusText status: ", status);
+          this.setState({
+            ongoing_order_status_text: status,
+          });
+        }
+      });
+  };
+
   getOngoingOrder = () => {
     fetch("http://localhost:3001/Rider/getOngoingOrder", {
       method: "post",
@@ -81,9 +106,15 @@ class PTRiderMainPage extends Component {
         return res ? res.json() : [null];
       })
       .then((res) => {
+        console.log("getOngoingOrder result: ", res);
+        // Empty list is returned for no ongoing orders
+        let obtained_ongoing_order = res.length === 0 ? null : res[0];
         this.setState({
-          ongoing_order: res[0],
+          ongoing_order: obtained_ongoing_order,
         });
+        if (obtained_ongoing_order !== null) {
+          this.setOngoingOrderStatusText(obtained_ongoing_order);
+        }
       });
   };
 
@@ -177,6 +208,55 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  updateStatusDepartForDelivery = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDepartForDelivery", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
+  updateStatusDeliverToCustomer = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDeliverToCustomer", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
+  removePendingOrder = (order) => {
+    let pendingOrders = this.state.orders.slice();
+    const index = pendingOrders.findIndex(
+      (o) => o.order_number === order.order_number
+    );
+    if (index !== -1) {
+      pendingOrders.splice(index, 1);
+      this.setState({
+        orders: pendingOrders,
+      });
+    }
+  };
+
   handleViewSalary = () => {
     // TODO
     // this.props.history.push("/PTriderMainPage/salary");
@@ -199,6 +279,8 @@ class PTRiderMainPage extends Component {
   };
 
   handleAcceptPendingOrder = (orderInfo) => {
+    console.log("handleAcceptPendingOrder this.state: ", this.state);
+    const order_number = orderInfo.order_number;
     // Only 1 Job can be accepted at any given time
     if (this.state.ongoing_order !== null) {
       swal(
@@ -208,7 +290,6 @@ class PTRiderMainPage extends Component {
       );
       return;
     }
-    const order_number = orderInfo.order_number;
     // Add timestamp to order_placed in Orders table
     fetch("http://localhost:3001/Rider/acceptOrder", {
       method: "post",
@@ -229,18 +310,24 @@ class PTRiderMainPage extends Component {
         } else {
           swal("Added Order " + order_number + "!", "", "success");
           // Place Order into Accepted Job List
-          this.setState({
-            ongoing_order: {
-              order_number: orderInfo.order_number,
-              cname: orderInfo.cname,
-              delivery_location: orderInfo.delivery_location,
-              restaurant_name: orderInfo.restaurant_name,
-              restaurant_location: orderInfo.restaurant_location,
+          this.setState(
+            {
+              ongoing_order: {
+                order_number: orderInfo.order_number,
+                cname: orderInfo.cname,
+                delivery_location: orderInfo.delivery_location,
+                restaurant_name: orderInfo.restaurant_name,
+                restaurant_location: orderInfo.restaurant_location,
+              },
             },
-          });
-          // TODO
-          // Update DB depart_for_rest
-          this.updateStatusDepartForRestaurant(order_number);
+            () => {
+              // Update DB depart_for_rest
+              this.updateStatusDepartForRestaurant(order_number);
+            }
+          );
+          this.setOngoingOrderStatusText(orderInfo);
+          // Remove Order from pending orders
+          this.removePendingOrder(orderInfo);
         }
       })
       .catch((err) => {
@@ -254,9 +341,16 @@ class PTRiderMainPage extends Component {
   };
 
   handleStatusUpdate = (order_number) => {
+    console.log(this.state.ongoing_order);
     const status_text = this.state.ongoing_order_status_text;
-    if (status_text === "Arrive At Restaurant") {
-      // TODO
+    if (status_text === "Depart For Restaurant") {
+      // Update text to "Arrive At Restaurant"
+      this.setState({
+        ongoing_order_status_text: "Arrive At Restaurant",
+      });
+      // Update DB Order depart_for_rest
+      this.updateStatusDepartForRestaurant(order_number);
+    } else if (status_text === "Arrive At Restaurant") {
       // Update text to "Depart from restaurant to delivery location"
       this.setState({
         ongoing_order_status_text:
@@ -265,16 +359,22 @@ class PTRiderMainPage extends Component {
       // Update DB Order arrive_at_rest
       this.updateStatusArriveAtRestaurant(order_number);
     } else if (status_text === "Depart from restaurant to delivery location") {
-      // TODO
       // Update text to "Order Delivered"
       this.setState({
         ongoing_order_status_text: "Order Delivered",
       });
       // Update DB Order depart_for_delivery
-    } else if (status_text === "Order delivered") {
-      // TODO
-      // Update Ongoing order to Completed Order
+      this.updateStatusDepartForDelivery(order_number);
+    } else if (status_text === "Order Delivered") {
       // Update DB Order deliver_to_cust
+      this.updateStatusDeliverToCustomer(order_number);
+      // Update Ongoing order to Completed Order
+      let new_completed_orders = this.state.completed_orders.slice();
+      new_completed_orders.push(this.state.ongoing_order);
+      this.setState({
+        completed_orders: new_completed_orders,
+        ongoing_order: null,
+      });
     }
   };
 

@@ -16,6 +16,7 @@ class Schedule extends Component {
     this.state = {
       date: this.formatDate(new Date()),
       selectedScheduleList: [],
+      originalScheduleList: [],
     };
   }
 
@@ -90,11 +91,48 @@ class Schedule extends Component {
   handleSubmitUpdateFTSchedule = () => {
     // TODO
     console.log(this.state.selectedScheduleList);
+    let scheduleList = [];
+    // Check difference in selected and original
+    this.state.selectedScheduleList.map((selected) => {
+      const index = this.state.originalScheduleList.findIndex((original) => {
+        return (
+          selected.date === original.date && selected.shift === original.shift
+        );
+      });
+      if (index === -1) {
+        scheduleList.push(selected);
+      }
+    });
+    console.log("FTSchedule unique schedule addition: ", scheduleList);
   };
 
   handleSubmitUpdatePTSchedule = () => {
     // TODO
     console.log(this.state.selectedScheduleList);
+    let scheduleList = [];
+    // Check difference in selected and original
+    this.state.selectedScheduleList.map((selected) => {
+      const index = this.state.originalScheduleList.findIndex((original) => {
+        const isSameDate = selected.date === original.date;
+        const isSameShiftCount =
+          selected.shift.length === original.shift.length;
+        let isSameShiftValues = true;
+        selected.shift.map((selected_shift_value) => {
+          const value_index = original.shift.findIndex(
+            (original_shift_value) => {
+              return original_shift_value === selected_shift_value;
+            }
+          );
+          if (value_index === -1) {
+            isSameShiftValues = false;
+          }
+        });
+        if (!(isSameDate && isSameShiftCount && isSameShiftValues)) {
+          // Unique addition
+          scheduleList.push(selected);
+        }
+      });
+    });
   };
 
   handleFTSubmit = (e) => {

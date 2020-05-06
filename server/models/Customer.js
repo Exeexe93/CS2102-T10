@@ -197,7 +197,7 @@ class Customer {
 
   static getCartOrder(cid, callback) {
     db.query(
-      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit, R.name as restaurantName, R.rest_id FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) LEFT JOIN Restaurants as R on R.rest_id = O.rest_id WHERE cid = $1 and O.order_status = 'cart'",
+      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit, R.name as restaurantName, R.rest_id, R.order_threshold FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) LEFT JOIN Restaurants as R on R.rest_id = O.rest_id WHERE cid = $1 and O.order_status = 'cart'",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -213,6 +213,7 @@ class Customer {
               orderNum: foodItem.oid,
               restaurantName: foodItem.restaurantname,
               rest_id: foodItem.rest_id,
+              order_threshold: foodItem.order_threshold,
               foods: [],
             });
           }

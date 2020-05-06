@@ -522,7 +522,13 @@ class Cart extends Component {
 
         <Accordion.Collapse eventKey={index}>
           <Card.Body>
-            <h3>{order.restaurantName}</h3>
+            <div className="restaurantHeader">
+              <h3>{order.restaurantName}</h3>
+              <h6 className="orderThreshold">
+                Minimum order cost: {order.order_threshold}
+              </h6>
+            </div>
+
             <Table striped bordered hover size="sm">
               <thead>
                 <tr>

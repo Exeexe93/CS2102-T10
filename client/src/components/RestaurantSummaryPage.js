@@ -4,13 +4,16 @@ import axios from 'axios';
 import { MdHome } from "react-icons/md";
 import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import Form from 'react-bootstrap/Form';
 
 class RestaurantSummaryPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             numOfOrders: "",
-            topItems: []
+            topItems: [],
+            promos: [],
+            selectedPromo: ""
         }
     }
 
@@ -26,9 +29,16 @@ class RestaurantSummaryPage extends Component {
         .then(res => this.setState({ topItems: res.data }));
     }
 
+    getPromoStats() {
+        let data = { rest_id: this.props.location.state.rest_id };
+        axios.post('http://localhost:3001/RestaurantStaff/getPromoStats', data)
+        .then(res => this.setState({ promos: res.data, selectedPromo: res.data[0] }));
+    };
+
     componentDidMount() {
         this.getNumOfOrders();
         this.getTopItems();
+        this.getPromoStats();
     }
 
     renderItem = (listItem, index) => {
@@ -48,19 +58,23 @@ class RestaurantSummaryPage extends Component {
         });
     };
 
+    handleSelect = (event) => {
+        this.setState({selectedPromo: this.state.promos[event.target.value.slice(10, 11) - 1]});
+    }
+
     render() {
         return(
             <div>
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand> Summary Information </NavbarBrand>
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleHomeNavigation}className="link">
+                        <NavLink href="" onClick={this.handleHomeNavigation} className="icon">
                             <MdHome />
                             <span> Home</span>
                         </NavLink>
                     </Nav>
                     <Nav>
-                        <NavLink href="/Login" className="link">
+                        <NavLink href="/Login" className="icon">
                             <RiLogoutBoxLine />
                             <span> Logout</span>
                         </NavLink>
@@ -68,7 +82,7 @@ class RestaurantSummaryPage extends Component {
                 </Navbar>
                 <Jumbotron>
                         <div className="centered-container">
-                            <h1 className="display-3">
+                            <h1 className="display-5">
                                 <span> <b>Total no. of completed orders: {' '}</b>
                                 {this.state.numOfOrders}  </span>
                             </h1>
@@ -76,23 +90,29 @@ class RestaurantSummaryPage extends Component {
                 </Jumbotron>
 
                 <div className="body-container">
-                    <h2>
-                        <u>Top food items (up to 5): </u>
-                        <br/>
-                    </h2>
+                    <h1><u><center>Top food items (up to 5):</center></u></h1><h1/>
                     <h4>
                         <ul className="list-group">
                             {this.state.topItems.map(this.renderItem)}
                         </ul>
                     </h4>
-                    <br/>
-                    <h3><u>Promotion Campaign's Statistics</u></h3>
-                    <p>
-                    2. For each promotional campaign, the duration (in terms of the number of days/hours) of the
-                    campaign, and the average number of orders received during the promotion (i.e., the ratio of
-                    the total number of orders received during the campaign duration to the number of days/hours
-                    in the campaign duration).
-                    </p>
+                   
+                    <h2><h1><u><center>Promotion Campaign's Statistics</center></u></h1><h1/>
+                        <h3><Form.Label>Select Promotion: </Form.Label>
+                        <Form.Control as="select" custom onChange={this.handleSelect}>
+                            {this.state.promos.map((promo, index) => <option>Promotion {index + 1}</option>)}
+                        </Form.Control><h1/></h3>
+                        <h4><strong>Promotion Info:</strong><br/>
+                            Period: {this.state.selectedPromo.start_time} {' TO '} {this.state.selectedPromo.end_time}<br/>
+                            Duration: {this.state.selectedPromo.duration} {this.state.selectedPromo.duration > 1 ? "days" : "day"}<br/>
+                            Details: {this.state.selectedPromo.details}<br/>
+                            Discount: {this.state.selectedPromo.promo_type === "flat-rate" ? "$" : ""}{this.state.selectedPromo.discount_value}{this.state.selectedPromo.promo_type === "percent" ? "%" : ""}<br/>
+                            Minimum Spending: {this.state.selectedPromo.trigger_value}<h1/>
+                            <strong>Average number of orders received:</strong><br/>
+                            Per day: {parseFloat(this.state.selectedPromo.num_of_times_used/this.state.selectedPromo.duration).toFixed(3)} orders <br/>
+                            Per hour: {parseFloat(this.state.selectedPromo.num_of_times_used/this.state.selectedPromo.duration/24).toFixed(3)} orders
+                        </h4>
+                    </h2>
                 </div>
             </div>
         );

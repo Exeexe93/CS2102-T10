@@ -117,4 +117,13 @@ router.post("/getPromo", (request, response) => {
   });
 });
 
+router.post("/getPromoStats", (request, response) => {
+  RestaurantStaff.getPromoStats(request.body.rest_id, (error, result) => {
+    if (error) {
+      return response.json(error);
+    }
+    return response.json(result);
+  });
+});
+
 module.exports = router;

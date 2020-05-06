@@ -95,13 +95,13 @@ class RestaurantProfile extends Component {
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand>Restaurant Profile</NavbarBrand>
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleHomeNavigation}className="link">
+                        <NavLink href="" onClick={this.handleHomeNavigation} className="icon">
                             <MdHome />
                             <span> Home</span>
                         </NavLink>
                     </Nav>
                     <Nav>
-                        <NavLink href="/Login" className="link">
+                        <NavLink href="/Login" className="icon">
                             <RiLogoutBoxLine />
                             <span> Logout</span>
                         </NavLink>

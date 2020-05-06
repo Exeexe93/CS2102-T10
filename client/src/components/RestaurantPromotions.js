@@ -40,7 +40,7 @@ class RestaurantPromotions extends Component {
         let new_promo = {
             creator_id: this.props.location.state.account_id,
             details: form.elements.promotion_details.value,
-            category: "all-orders",
+            category: "Restaurant",
             promo_type: this.state.promotion_type,
             discount_value: Math.round(form.elements.discount.value),
             trigger_value: "$" + parseFloat(form.elements.minimum_spending.value).toFixed(2),
@@ -124,13 +124,13 @@ class RestaurantPromotions extends Component {
                     <NavbarBrand> Promotional Campaigns </NavbarBrand>
 
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleHomeNavigation}className="link">
+                        <NavLink href="" onClick={this.handleHomeNavigation} className="icon">
                             <MdHome />
                             <span> Home</span>
                         </NavLink>
                     </Nav>
                     <Nav>
-                        <NavLink href="/Login" className="link">
+                        <NavLink href="/Login" className="icon">
                             <RiLogoutBoxLine />
                             <span> Logout</span>
                         </NavLink>
@@ -186,7 +186,7 @@ class RestaurantPromotions extends Component {
                                     <th>ID</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
-                                    <th>Details</th>
+                                    <th>Promotion Details</th>
                                     <th>Promo Type</th>
                                     <th>Discount</th>
                                     <th>Minimum Spending</th>

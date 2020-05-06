@@ -9,6 +9,7 @@
   align-items: center;
   /* Horizontal alignment */
   justify-content: center;
+  margin-bottom: 2em;
 }
 
 .order-row {

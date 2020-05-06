@@ -136,3 +136,20 @@
 .errorMessage {
   color: red;
 }
+
+.backIcon:hover {
+  color: lightskyblue;
+}
+
+.backIcon {
+  color: white;
+  font-size: 22px;
+}
+
+.promoInputContainer {
+  margin-top: 20px;
+}
+
+.promoInput {
+  text-align: center;
+}

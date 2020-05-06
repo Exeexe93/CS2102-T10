@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
-import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
+import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson, MdArrowBack } from "react-icons/md";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button, Table } from "react-bootstrap";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 class FoodItem extends Component {
@@ -31,7 +32,7 @@ class FoodItem extends Component {
 
   sortingFoodItem = (first, second) => {
     if (first.category === second.category) {
-      return 0;
+      return first.name - second.name;
     } else if (first.category === "Main Dish") {
       return -1;
     } else if (second.category === "Main Dish") {
@@ -514,9 +515,21 @@ class FoodItem extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Navbar dark color="dark">
+            <Link
+              to={{
+                pathname: "/Customer",
+                state: {
+                  account_id: this.state.cid,
+                },
+              }}
+            >
+              <div className="backIcon">
+                <MdArrowBack />
+                To Home Page
+              </div>
+            </Link>
+          </Navbar>
           <div className="icon-container">
             <GiShoppingCart
               size="3em"

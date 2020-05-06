@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 class Cart extends Component {
@@ -35,9 +36,11 @@ class Cart extends Component {
       paymentCost: 0,
       deliveryFee: 0,
       discountedCost: 0,
-      promo_id: 0,
+      selectedPromoId: 0,
       addressSelected: "",
       addresses: [],
+      selectedPromo: null,
+      promos: [],
     };
   }
 
@@ -45,6 +48,28 @@ class Cart extends Component {
 
   limitToTwoDeciamlPlaces = (value) => {
     return parseFloat(value.toFixed(2));
+  };
+
+  getPromoDetails = async (cid, rest_id) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetPromotions",
+        {
+          cid: cid,
+          rest_id: rest_id,
+        }
+      );
+
+      let promos = response.data;
+      promos.map((promo) => {
+        promo.trigger_value = parseFloat(promo.trigger_value.slice(1));
+      });
+      this.setState({
+        promos: promos,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   getCreditCards = async (value) => {
@@ -103,7 +128,6 @@ class Cart extends Component {
         rawCost = this.limitToTwoDeciamlPlaces(rawCost);
         const deliveryFee = this.calculateDeliveryFee(rawCost);
         const paymentCost = this.limitToTwoDeciamlPlaces(deliveryFee + rawCost);
-
         this.setState({
           orders: orders,
           cid: value.state.cid,
@@ -112,6 +136,7 @@ class Cart extends Component {
           paymentCost: paymentCost,
           deliveryFee: deliveryFee,
         });
+        this.getPromoDetails(value.state.cid, orders[0].rest_id);
       })
       .catch((err) => console.error(err));
   };
@@ -151,9 +176,45 @@ class Cart extends Component {
     return result;
   };
 
-  calculateDiscount = () => {
-    // To be continued
-    return 0;
+  calculateDiscount = (promo, rawCost) => {
+    if (promo === null) {
+      this.setState({
+        promoDiscount: 0,
+        errorMessage: "",
+      });
+      return 0;
+    }
+    if (promo.trigger_value > rawCost) {
+      this.setState({
+        promoDiscount: 0,
+        errorMessage:
+          "Promotion cannot be used due to did not meet the requirement!",
+      });
+      return 0;
+    }
+    switch (promo.promo_type) {
+      case "Percent":
+        const promoDiscount = this.limitToTwoDeciamlPlaces(
+          (rawCost * promo.discount_value) / 100
+        );
+        this.setState({
+          errorMessage: "",
+          promoDiscount: promoDiscount,
+        });
+        return promoDiscount;
+      case "Flat Rate":
+        this.setState({
+          errorMessage: "",
+          promoDiscount: promo.discount_value,
+        });
+        return promo.discount_value;
+      default:
+        this.setState({
+          promoDiscount: 0,
+          errorMessage: "The promotion type is not recognised!",
+        });
+        return 0;
+    }
   };
 
   updateTotalValue = (event, food, foodIndex, index) => {
@@ -173,7 +234,8 @@ class Cart extends Component {
       const rawCost = this.limitToTwoDeciamlPlaces(
         this.state.rawCost + costChanged
       );
-      const discountedCost = rawCost - this.calculateDiscount();
+      const discountedCost =
+        rawCost - this.calculateDiscount(this.state.selectedPromo, rawCost);
       const deliveryFee = this.calculateDeliveryFee(discountedCost);
       const paymentCost = this.limitToTwoDeciamlPlaces(
         discountedCost + deliveryFee
@@ -210,13 +272,10 @@ class Cart extends Component {
   handleDelete = async (foodIndex, index) => {
     let orders = this.state.orders;
     try {
-      const response = await axios.post(
-        "http://localhost:3001/Customer/DeleteFood",
-        {
-          oid: orders[index].orderNum,
-          fid: orders[index].foods[foodIndex].FoodId,
-        }
-      );
+      await axios.post("http://localhost:3001/Customer/DeleteFood", {
+        oid: orders[index].orderNum,
+        fid: orders[index].foods[foodIndex].FoodId,
+      });
     } catch (err) {
       console.error(err);
     }
@@ -227,7 +286,7 @@ class Cart extends Component {
     );
     const rawCost = this.limitToTwoDeciamlPlaces(this.state.rawCost - foodCost);
     const discountedCost = this.limitToTwoDeciamlPlaces(
-      rawCost - this.calculateDiscount()
+      rawCost - this.calculateDiscount(this.state.selectedPromo, rawCost)
     );
     const deliveryFee = this.calculateDeliveryFee(discountedCost);
     const paymentCost = this.limitToTwoDeciamlPlaces(
@@ -264,12 +323,20 @@ class Cart extends Component {
         valueList[0] = [];
       }
 
-      valueList[0].push([
-        orderNum,
-        food.FoodId,
-        food.FoodQuantity,
-        food.FoodCost,
-      ]);
+      if (food.FoodQuantity === "0") {
+        if (queryList.length === 1) {
+          queryList.push("DELETE FROM Consists WHERE oid = $1 AND fid = $2");
+          valueList[1] = [];
+        }
+        valueList[1].push([orderNum, food.FoodId]);
+      } else {
+        valueList[0].push([
+          orderNum,
+          food.FoodId,
+          food.FoodQuantity,
+          food.FoodCost,
+        ]);
+      }
     }
   };
 
@@ -307,7 +374,6 @@ class Cart extends Component {
         this.state.rewardPointsUsed +
         this.calculateRewardPoint(total_cost)
     );
-    console.log(rewardPointLeft);
     valueList.push([[this.state.cid, rewardPointLeft]]);
   };
 
@@ -325,25 +391,24 @@ class Cart extends Component {
       this.updateFood(food, data.orderNum, queryList, valueList);
     });
 
-    if (this.state.promo_id === 0) {
+    if (queryList.length === 2 && valueList[0].length === 0) {
+      queryList.shift();
+      valueList.shift();
+    }
+
+    queryList.push(
+      "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+    );
+    valueList.push([
+      [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
+    ]);
+
+    if (this.state.selectedPromoId !== 0) {
       queryList.push(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+        "INSERT INTO Uses (oid, promo_id, amount) VALUES ($1, $2, $3)"
       );
       valueList.push([
-        [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
-      ]);
-    } else {
-      queryList.push(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4, promo_used = $5 WHERE oid = $1"
-      );
-      valueList.push([
-        [
-          data.orderNum,
-          "paid",
-          this.state.rawCost,
-          this.state.deliveryFee,
-          this.state.promo_id,
-        ],
+        [data.orderNum, this.state.selectedPromoId, this.state.promoDiscount],
       ]);
     }
 
@@ -665,6 +730,66 @@ class Cart extends Component {
     );
   };
 
+  handlePromoSelection = (promoIndex) => {
+    const NoPromotionSelected = "-1";
+    let promos = this.state.promos;
+    let selectedPromo = null;
+    let selectedPromoId = 0;
+
+    if (promoIndex !== NoPromotionSelected) {
+      selectedPromo = promos[promoIndex];
+      selectedPromoId = promos[promoIndex].promo_id;
+    }
+    const discountedCost = this.limitToTwoDeciamlPlaces(
+      this.state.rawCost -
+        this.calculateDiscount(selectedPromo, this.state.rawCost)
+    );
+    const deliveryFee = this.calculateDeliveryFee(discountedCost);
+    const paymentCost = this.limitToTwoDeciamlPlaces(
+      discountedCost + deliveryFee
+    );
+
+    this.setState({
+      selectedPromo,
+      selectedPromoId,
+      discountedCost,
+      deliveryFee,
+      paymentCost,
+    });
+  };
+
+  displayPromoInput = () => {
+    return (
+      <FormGroup>
+        <div className="promoInputContainer">
+          <Form.Label>Promotion: </Form.Label>
+
+          <Form.Control
+            as="select"
+            onChange={(input) => {
+              this.handlePromoSelection(input.target.value);
+            }}
+          >
+            {this.state.promos.length !== 0 ? (
+              <>
+                <option key={-1} value={-1}>
+                  No promotion selected
+                </option>
+                {this.state.promos.map((promo, index) => (
+                  <option key={index} value={index}>
+                    {promo.details}
+                  </option>
+                ))}
+              </>
+            ) : (
+              <option>No promotion available</option>
+            )}
+          </Form.Control>
+        </div>
+      </FormGroup>
+    );
+  };
+
   displayPromoDiscount = () => {
     return (
       <div className="promoDiscountContainer">
@@ -784,9 +909,19 @@ class Cart extends Component {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Link
+            to={{
+              pathname: "/Customer",
+              state: {
+                account_id: this.state.cid,
+              },
+            }}
+          >
+            <div className="backIcon">
+              <MdArrowBack />
+              To Home Page
+            </div>
+          </Link>
           <div className="icon-container"></div>
         </Navbar>
 
@@ -822,6 +957,7 @@ class Cart extends Component {
                 )}
               </Accordion>
               {this.displayRawCost()}
+              {this.displayPromoInput()}
               {this.displayPromoDiscount()}
               {this.displayRewardPoints()}
               {this.displayDeliveryFee()}

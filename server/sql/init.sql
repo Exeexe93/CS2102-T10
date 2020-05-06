@@ -59,6 +59,7 @@ CREATE TABLE CreditCards (
 CREATE TABLE Promos (
 	creator_id varchar(255),
 	promo_id serial unique,
+	use_limit integer,
 	details text not null,
 	category varchar(255) not null,
 	promo_type varchar(255) not null,
@@ -245,13 +246,14 @@ CREATE TABLE Orders (
 	depart_for_delivery timestamp,
 	deliver_to_cust timestamp,
 	primary key (oid),
+	foreign key (rest_id) references Restaurants(rest_id),
 	foreign key (rid) references Riders
 		on delete cascade
 		on update cascade
 );
 
 CREATE TABLE Places (
-	oid integer references Orders(oid),
+	oid integer references Orders(oid) on delete cascade,
 	cid varchar(255) references Customers(cid),
 	address varchar(255),
 	payment_method varchar(255),

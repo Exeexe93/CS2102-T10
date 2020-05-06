@@ -174,4 +174,37 @@ router.post("/CheckCart", function (req, res) {
   });
 });
 
+router.post("/GetCustomerDetails", function (req, res) {
+  Customer.getCustomerDetails(req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/UpdateCustomerDetails", function (req, res) {
+  Customer.updateCustomerDetails(
+    req.body.cid,
+    req.body.name,
+    req.body.account_pass,
+    (err, result) => {
+      if (err.error) return res.status(404).json(err);
+      return res.status(200).json(result);
+    }
+  );
+});
+
+router.post("/GetCustomerName", function (req, res) {
+  Customer.getCustomerName(req.body.cid, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
+router.post("/GetPromotions", function (req, res) {
+  Customer.getPromotions(req.body.cid, req.body.rest_id, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 module.exports = router;

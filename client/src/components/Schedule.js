@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Container, Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
+import { Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
 import swal from "sweetalert";
 
 import Calendar from "react-calendar";
@@ -50,15 +50,18 @@ class Schedule extends Component {
   };
 
   getPTSchedule = () => {
+    const monthNum = new Date(this.state.date).getMonth() + 1;
+    const weekNum = this.getWeekNumber(new Date(this.state.date))[1];
+    // Get PT Schedule for current month
     //TODO
   };
 
-  // Get FT Schedule for 2 months (based on current date)
+  // Get FT Schedule for current month (based on current date)
   getFTSchedule = () => {
     // getMonth() returns a zero-based value
     const monthNum = new Date(this.state.date).getMonth() + 1;
     const weekNum = this.getWeekNumber(new Date(this.state.date))[1];
-    // Get FT Schedule for current and next month
+    // Get FT Schedule for current month
     // TODO
   };
 
@@ -69,6 +72,7 @@ class Schedule extends Component {
           handleSubmit={this.handleFTSubmit}
           selectedDate={this.state.date}
           selectedScheduleList={this.state.selectedScheduleList}
+          handleSubmitUpdateSchedule={this.handleSubmitUpdateFTSchedule}
         />
       );
     } else {
@@ -77,9 +81,20 @@ class Schedule extends Component {
           handleSubmit={this.handlePTSubmit}
           selectedDate={this.state.date}
           selectedScheduleList={this.state.selectedScheduleList}
+          handleSubmitUpdateSchedule={this.handleSubmitUpdatePTSchedule}
         />
       );
     }
+  };
+
+  handleSubmitUpdateFTSchedule = () => {
+    // TODO
+    console.log(this.state.selectedScheduleList);
+  };
+
+  handleSubmitUpdatePTSchedule = () => {
+    // TODO
+    console.log(this.state.selectedScheduleList);
   };
 
   handleFTSubmit = (e) => {

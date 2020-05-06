@@ -290,6 +290,7 @@ class PTRiderMainPage extends Component {
   };
 
   handleStatusUpdate = (order_number) => {
+    console.log(this.state.ongoing_order);
     const status_text = this.state.ongoing_order_status_text;
     if (status_text === "Arrive At Restaurant") {
       // Update text to "Depart from restaurant to delivery location"
@@ -306,11 +307,16 @@ class PTRiderMainPage extends Component {
       });
       // Update DB Order depart_for_delivery
       this.updateStatusDepartForDelivery(order_number);
-    } else if (status_text === "Order delivered") {
+    } else if (status_text === "Order Delivered") {
       // Update DB Order deliver_to_cust
       this.updateStatusDeliverToCustomer(order_number);
-      // TODO
       // Update Ongoing order to Completed Order
+      let new_completed_orders = this.state.completed_orders.slice();
+      new_completed_orders.push(this.state.ongoing_order);
+      this.setState({
+        completed_orders: new_completed_orders,
+        ongoing_order: null,
+      });
     }
   };
 

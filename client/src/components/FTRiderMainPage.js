@@ -307,11 +307,16 @@ class FTRiderMainPage extends Component {
       });
       // Update DB Order depart_for_delivery
       this.updateStatusDepartForDelivery(order_number);
-    } else if (status_text === "Order delivered") {
+    } else if (status_text === "Order Delivered") {
       // Update DB Order deliver_to_cust
       this.updateStatusDeliverToCustomer(order_number);
-      // TODO
       // Update Ongoing order to Completed Order
+      let new_completed_orders = this.state.completed_orders.slice();
+      new_completed_orders.push(this.state.ongoing_order);
+      this.setState({
+        completed_orders: new_completed_orders,
+        ongoing_order: null,
+      });
     }
   };
 

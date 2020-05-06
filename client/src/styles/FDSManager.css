@@ -84,3 +84,7 @@ body {
 .link:hover {
   color: lightskyblue;
 }
+
+.div > *{
+  margin-top: 15px;
+}

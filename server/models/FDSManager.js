@@ -125,7 +125,7 @@ class FDSManager {
         let queryVariablesList = 
             use_limit ? [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id, use_limit]
                 : [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id]
-        console.log("use_limit: ", use_limit)
+        use_limit ? console.log("use_limit: ", use_limit) : ("nothing")
         console.log("promoStart %s\npromoEnd %s", promoStart, promoEnd);
         db.query(
             'INSERT into Promos(start_time, end_time, promo_type, category, details, discount_value, trigger_value, creator_id' + limitWord +
@@ -143,7 +143,7 @@ class FDSManager {
 
     static queryGetActivePromo(creator_id, callback) {
         db.query(
-            'select promo_id, details, category, promo_type, discount_value, trigger_value, to_char(start_time, \'dd-mm-yyyy HH24:MI:SS\') as start_time, to_char(end_time, \'dd-mm-yyyy HH24:MI:SS\') as end_time from Promos where creator_id = $1 and extract(day from (end_time - current_timestamp)) > 0;',
+            'select use_limit, promo_id, details, category, promo_type, discount_value, trigger_value, to_char(start_time, \'dd-mm-yyyy HH24:MI:SS\') as start_time, to_char(end_time, \'dd-mm-yyyy HH24:MI:SS\') as end_time from Promos where creator_id = $1 and extract(day from (end_time - current_timestamp)) > 0;',
             [creator_id],
             (err, res) => {
                 if (err.error) {

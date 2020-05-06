@@ -108,10 +108,21 @@ class RestaurantStaff {
   }
 
   static getPromo(rest_id, callback) {
-    db.query("SELECT to_char(start_time, 'DD-Mon-YYYY') as start_time, to_char(end_time, 'DD-Mon-YYYY') as end_time, details, discount_value, trigger_value, promo_type, promo_id FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = $1",
+    db.query("SELECT to_char(start_time, 'DD-Mon-YYYY') as start_time, to_char(end_time, 'DD-Mon-YYYY') as end_time, details, discount_value, trigger_value, promo_type, promo_id FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) where rest_id = $1 ORDER BY start_time",
       [rest_id], (err, res) => {
         if (err.error) {
           console.err("Could not add promotion: ", err);
+          return callback(err);
+        }
+        return callback(res);
+      });
+    }
+
+  static getPromoStats(rest_id, callback) {
+    db.query("SELECT num_of_times_used, EXTRACT(DAY from end_time - start_time) as duration, to_char(start_time, 'DD-Mon-YYYY') as start_time, to_char(end_time, 'DD-Mon-YYYY') as end_time, details, discount_value, trigger_value, promo_type, promo_id FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) INNER JOIN (SELECT promo_id, COUNT(promo_id) as num_of_times_used FROM Restaurants INNER JOIN RestaurantStaffs as RS USING (rest_id) INNER JOIN Promos as P on (RS.staff_id = P.creator_id) INNER JOIN Uses USING (promo_id) WHERE end_time < NOW() and rest_id = $1 GROUP BY promo_id) promo_used USING (promo_id) WHERE end_time < NOW() and rest_id = $1 ORDER BY start_time",
+    [rest_id], (err, res) => {
+        if (err.error) {
+          console.err("Could not get promo stats: ", err);
           return callback(err);
         }
         return callback(res);

@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS WWS CASCADE;
 DROP TABLE IF EXISTS MWS CASCADE;
 DROP TABLE IF EXISTS Contains CASCADE;
 DROP TABLE IF ExISTS Has CASCADE;
+DROP TABLE IF EXISTS Describes CASCADE;
 
 DROP TABLE IF EXISTS Shift CASCADE;
 DROP TABLE IF EXISTS ShiftInfo CASCADE;
@@ -111,55 +112,49 @@ CREATE TABLE PTRiders (
 CREATE TABLE Shift (
 	shift_id serial,
 	actual_date date,
-	primary key(shift_id, actual_date)
+	primary key(shift_id)
 );
 
 
 CREATE TABLE ShiftInfo (
-	start_time time,
-	end_time time,
+	iid serial,
+	start_time time not null,
+	end_time time not null,
+	primary key(iid)
+);
+
+CREATE TABLE Describes (
 	shift_id integer,
-	actual_date date,
-	primary key(start_time, end_time, shift_id, actual_date),
-	foreign key(shift_id, actual_date) references Shift 
+	iid integer,
+	working_interval integer,
+	primary key(shift_id, working_interval),
+	foreign key(iid) references ShiftInfo 
+		on delete cascade
+		on update cascade,
+	foreign key(shift_id) references Shift
 		on delete cascade
 		on update cascade
 );
-
--- CREATE TABLE Describes (
--- 	shift_id integer,
--- 	start_time time,
--- 	end_time time,
--- 	primary key(shift_id, start_time, end_time)
--- 	foreign key(start_time, end_time) references ShiftInfo
--- 		on delete cascade
--- 		on update cascade,
--- 	foreign key(shift_id) references Shift
--- 		on delete cascade
--- 		on update cascade
--- )
 
 -- wk_no can use EXTRACT method in postgres to store if not change datatype to not double precision
 -- wk_no with respect to the start_date
 -- abstract view, defining what is a week
 CREATE TABLE WWS (
-	wk_no integer,
-	start_date date,
-	end_date date,
-	primary key(wk_no, start_date, end_date)
+	wid serial,
+	-- 0 = sunday
+	start_day integer,
+	primary key(wid)
 );
 
 CREATE TABLE Contains (
-	wk_no integer,
-	start_date date,
-	end_date date,
+	wid integer,
+	working_day integer,
 	shift_id integer,
-	actual_date date,
-	primary key(shift_id, actual_date, start_date, end_date, wk_no),
-	foreign key(wk_no, start_date, end_date) references WWS
+	primary key(wid, working_day),
+	foreign key(wid) references WWS
 		on delete cascade
 		on update cascade,
-	foreign key(shift_id, actual_date) references Shift
+	foreign key(shift_id) references Shift
 		on delete cascade
 		on update cascade
 );
@@ -168,25 +163,21 @@ CREATE TABLE Contains (
 -- month wrt to the start_wk
 -- abstract view defining what is a month (4 consecutive weeks)
 CREATE TABLE MWS (
-	month integer,
-	total_hours integer not null,
-	start_wk integer,
-	end_wk integer,
-	primary key(month, start_wk, end_wk)
+	mid serial,
+	-- With respect to the year which week the person start
+	start_week integer,
+	primary key(mid)
 );
 
 CREATE TABLE Has (
-	month integer,
-	start_wk integer,
-	end_wk integer,
-	wk_no integer,
-	start_date date,
-	end_date date,
-	primary key(month, start_wk, end_wk, wk_no, start_date, end_date),
-	foreign key(month, start_wk, end_wk) references MWS
+	mid integer,
+	wid integer,
+	working_week integer,
+	primary key(mid, working_week),
+	foreign key(mid) references MWS(mid)
 		on delete cascade
 		on update cascade,
-	foreign key(wk_no, start_date, end_date) references WWS
+	foreign key(wid) references WWS(wid)
 		on delete cascade
 		on update cascade
 );
@@ -194,25 +185,23 @@ CREATE TABLE Has (
 -- total hours put at this table is because if put at WWS, cannot ensure that every week different riders same hour however putting at here can ensure that. 
 -- As every rider only participate in on uniquee PTWorks table 
 CREATE TABLE PTWorks (
-	rid varchar(255) references PTRiders(rid),
-	wk_no integer,
-	start_date date,
-	end_date date,
+	rid varchar(255) references PTRiders(rid) on delete cascade on update cascade,
+	working_week integer,
 	total_hours integer,
-	primary key (wk_no, start_date, end_date, rid),
-	foreign key(wk_no, start_date, end_date) references WWS
+	wid integer,
+	primary key (rid, working_week),
+	foreign key(wid) references WWS
 		on update cascade
 		on delete cascade
 );
 
 CREATE TABLE FTWorks(
-	rid varchar(255) references FTRiders(rid),
-	month integer, 
-	start_wk integer,
-	end_wk integer,
+	rid varchar(255) references FTRiders(rid) on delete cascade on update cascade,
+	working_month integer,
 	total_hours integer,
-	primary key (rid, month, start_wk, end_wk),
-	foreign key(month, start_wk, end_wk) references MWS
+	mid integer,
+	primary key (rid, working_month),
+	foreign key(mid) references MWS
 		on delete cascade
 		on update cascade
 );
@@ -482,35 +471,35 @@ EXECUTE FUNCTION zero_quantity_set_food_unavailable();
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
 -- need a trigger to update given table
-CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER
 	AS $$
 DECLARE
 	all_cust 	CURSOR FOR SELECT cid, name, date_created FROM Customers join Accounts on (Accounts.account_id = Customers.cid);
 	first_order	CURSOR FOR SELECT distinct C.cid FROM Customers C
 				WHERE NOT EXISTS (SELECT 1 FROM Places P WHERE c.cid = P.cid);
-	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1 
+	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1
 						WHERE NOT EXISTS(
-							SELECT 1 FROM customers JOIN places USING (cid) 
-								JOIN orders USING (oid) 
+							SELECT 1 FROM customers JOIN places USING (cid)
+								JOIN orders USING (oid)
 							WHERE extract(month from age(current_timestamp, order_placed)) > 3);
-	loyal_cust 	CURSOR FOR select distinct cid, money from 
-					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money 
-					from Orders join Places using(oid) 
-					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L 
-					where money >= 100::money; 
+	loyal_cust 	CURSOR FOR select distinct cid, money from
+					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money
+					from Orders join Places using(oid)
+					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L
+					where money >= 100::money;
 	category	promos.category%TYPE;
 	table_row 	RECORD;
 BEGIN
-	SELECT P.category INTO category 
+	SELECT P.category INTO category
 		FROM Promos P
 		WHERE P.category = NEW.category;
 	IF category = 'All' THEN
 		OPEN all_cust;
-		LOOP 
+		LOOP
 		FETCH all_cust INTO table_row;
 		EXIT WHEN NOT FOUND;
-		INSERT INTO Given(promo_id, cid) 
-		VALUES(NEW.promo_id , table_row.cid);
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
 	ELSIF category = 'First Order' THEN
 		OPEN first_order;
@@ -536,8 +525,16 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+	ELSIF category = 'Restaurant' THEN
+		OPEN all_cust;
+		LOOP
+		FETCH all_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
 	ELSE
-		RAISE exception 'Invalid category'; 
+		RAISE exception 'Invalid category';
 	END IF;
 	RETURN NULL;
 END;
@@ -707,124 +704,124 @@ insert into RestaurantStaffs (staff_id) values ('2c3acca1-cc14-498a-b80a-889cb3f
 insert into RestaurantStaffs (staff_id) values ('fd1001b8-2503-4685-9661-fff922fa7798');
 
 -- WWS
-INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');
-INSERT into WWS (wk_no, start_date, end_date) values (19, '2020-05-09', '2020-05-15');
-INSERT into WWS (wk_no, start_date, end_date) values (20, '2020-05-16', '2020-05-22');
-INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05-29');
+-- INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');
+-- INSERT into WWS (wk_no, start_date, end_date) values (19, '2020-05-09', '2020-05-15');
+-- INSERT into WWS (wk_no, start_date, end_date) values (20, '2020-05-16', '2020-05-22');
+-- INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05-29');
 
 -- MWS
-INSERT into MWS (month, total_hours, start_wk, end_wk) values (5, 120, 18, 21);
+-- INSERT into MWS (month, total_hours, start_wk, end_wk) values (5, 120, 18, 21);
 
 -- Has
-INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values 
-	(5, 18, 21, 18, '2020-05-02', '2020-05-08'),
-	(5, 18, 21, 19, '2020-05-09', '2020-05-15'),
-	(5, 18, 21, 20, '2020-05-16', '2020-05-22'),
-	(5, 18, 21, 21, '2020-05-23', '2020-05-29');
+-- INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values 
+-- 	(5, 18, 21, 18, '2020-05-02', '2020-05-08'),
+-- 	(5, 18, 21, 19, '2020-05-09', '2020-05-15'),
+-- 	(5, 18, 21, 20, '2020-05-16', '2020-05-22'),
+-- 	(5, 18, 21, 21, '2020-05-23', '2020-05-29');
 
 -- PTWorks
-INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
-INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
+-- INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
+-- INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
 -- FTWorks, total_hours
-insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21, 160);
-insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21, 160);
-insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21, 160);
-insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21, 160);
-insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21, 160);
+-- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21, 160);
+-- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21, 160);
+-- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21, 160);
+-- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21, 160);
+-- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21, 160);
 
 
-INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');
-INSERT into Shift (shift_id, actual_date) values (1, '2020-05-03');
-INSERT into Shift (shift_id, actual_date) values (1, '2020-05-04');
-INSERT into Shift (shift_id, actual_date) values (1, '2020-05-05');
-INSERT into Shift (shift_id, actual_date) values (1, '2020-05-06');
-INSERT into Shift (shift_id, actual_date) values (2, '2020-05-02');
-INSERT into Shift (shift_id, actual_date) values (2, '2020-05-03');
-INSERT into Shift (shift_id, actual_date) values (2, '2020-05-04');
-INSERT into Shift (shift_id, actual_date) values (2, '2020-05-05');
-INSERT into Shift (shift_id, actual_date) values (2, '2020-05-06');
-INSERT into Shift (shift_id, actual_date) values (3, '2020-05-02');
-INSERT into Shift (shift_id, actual_date) values (3, '2020-05-03');
-INSERT into Shift (shift_id, actual_date) values (3, '2020-05-04');
-INSERT into Shift (shift_id, actual_date) values (3, '2020-05-05');
-INSERT into Shift (shift_id, actual_date) values (3, '2020-05-06');
-INSERT into Shift (shift_id, actual_date) values (4, '2020-05-02');
-INSERT into Shift (shift_id, actual_date) values (4, '2020-05-03');
-INSERT into Shift (shift_id, actual_date) values (4, '2020-05-04');
-INSERT into Shift (shift_id, actual_date) values (4, '2020-05-05');
-INSERT into Shift (shift_id, actual_date) values (4, '2020-05-06');
+-- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');
+-- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-03');
+-- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-04');
+-- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-05');
+-- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-06');
+-- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-02');
+-- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-03');
+-- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-04');
+-- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-05');
+-- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-06');
+-- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-02');
+-- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-03');
+-- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-04');
+-- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-05');
+-- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-06');
+-- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-02');
+-- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-03');
+-- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-04');
+-- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-05');
+-- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-06');
 
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-02');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-02');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-03');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-03');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-04');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-04');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-05');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-05');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-06');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-06');
-
-
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-02');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-02');
-
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-03');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-03');
-
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-04');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-04');
-
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-05');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-05');
-
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-06');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-06');
 
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-02');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-02');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-03');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-03');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-04');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-04');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-05');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-05');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-06');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-06');
 
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-02');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-02');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-03');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-03');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-04');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-04');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-05');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-05');
 
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-06');
-INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-06');
+
+
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-02');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-02');
+
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-03');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-03');
+
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-04');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-04');
+
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-05');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-05');
+
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-06');
+-- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-06');
 
 -- Contains
-INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-02');
-INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-03');
-INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-04');
-INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-05');
-INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-06');
+-- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-02');
+-- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-03');
+-- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-04');
+-- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-05');
+-- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-06');
 
 -- Salaries
 insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36');
@@ -929,3 +926,12 @@ insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e5
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
+
+-- Promos
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $20 and above this month to get a $3 discount on your total order.', 'Restaurant', 'flat-rate', '3', '20', '03/04/2020', '02/05/2020');
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $80 and above to qualify for a 20% discount on your total order.', 'Restaurant', 'percent', '20', '80', '03/04/2020', '02/05/2020');
+
+-- Uses
+insert into Uses (oid, promo_id, amount) values (2, 1, '$3.00');
+insert into Uses (oid, promo_id, amount) values (3, 2, '$17.80');
+

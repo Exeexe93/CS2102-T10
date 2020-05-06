@@ -15,6 +15,7 @@ import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import swal from "sweetalert";
 
 class Cart extends Component {
   constructor(props) {
@@ -26,11 +27,9 @@ class Cart extends Component {
       rewardPointsUsed: 0,
       orders: [],
       creditCards: [],
-      errorUpdateFoods: [],
       paymentMethod: "cash",
       addCreditCard: "",
       addDeliveryLocation: "",
-      errorMessage: "",
       rawCost: 0,
       promoDiscount: 0,
       paymentCost: 0,
@@ -186,7 +185,6 @@ class Cart extends Component {
     if (promo === null) {
       this.setState({
         promoDiscount: 0,
-        errorMessage: "",
       });
       return 0;
     }
@@ -194,8 +192,11 @@ class Cart extends Component {
       this.setState({
         promoDiscount: 0,
         isFreeDelivery: false,
-        errorMessage:
-          "Promotion cannot be used due to did not meet the requirement!",
+      });
+      swal({
+        title: "Promotion unable to be used!",
+        text: "Please make sure the order meet the requirement!",
+        icon: "warning",
       });
       return 0;
     }
@@ -205,7 +206,6 @@ class Cart extends Component {
           (rawCost * promo.discount_value) / 100
         );
         this.setState({
-          errorMessage: "",
           isFreeDelivery: false,
           promoDiscount: promoDiscount,
         });
@@ -213,7 +213,6 @@ class Cart extends Component {
       case "Flat Rate":
         this.setState({
           isFreeDelivery: false,
-          errorMessage: "",
           promoDiscount: promo.discount_value,
         });
         return promo.discount_value;
@@ -221,13 +220,16 @@ class Cart extends Component {
         this.setState({
           rewardPointsUsed: 0,
           isFreeDelivery: true,
-          //promoDiscount: this.state.deliveryFee,
         });
         return 0;
       default:
         this.setState({
           promoDiscount: 0,
-          errorMessage: "The promotion type is not recognised!",
+        });
+        swal({
+          title: "Invalid promotion!",
+          text: "The promotion type is not recognised!",
+          icon: "info",
         });
         return 0;
     }
@@ -443,27 +445,38 @@ class Cart extends Component {
       if (response.data) {
         if (response.data.where) {
           if (response.data.where.includes("reject_order_below_threshold")) {
-            this.setState({
-              errorMessage:
-                "Order's total price does not meet the minimum threshold",
+            swal({
+              title: "Transaction failed!",
+              text: "Order's total price does not meet the minimum threshold!",
+              icon: "error",
             });
           } else if (response.data.where.includes("reject_above_food_limit")) {
             // Need to clear the respective order after transaction
-            this.setState({
-              errorMessage:
-                "Please make sure that the food quantity does not exceed the purchase limit",
+            swal({
+              title: "Transaction failed!",
+              text:
+                "Please make sure that the food quantity does not exceed the purchase limit!",
+              icon: "error",
             });
           } else if (
             response.data.where.includes("reject_negative_food_quantity")
           ) {
-            this.setState({
-              errorMessage:
-                "Please make sure that the food quantity is less than the food quantity left",
+            swal({
+              title: "Transaction failed!",
+              text:
+                "Please make sure that the food quantity is less than the food quantity left!",
+              icon: "error",
             });
           }
         } else {
           this.setState({
             orders: [],
+          });
+          swal({
+            title: "Order has been placed successfully!",
+            text: "Just wait for the food to come!",
+            icon: "success",
+            button: "Yeah",
           });
         }
       }
@@ -478,8 +491,10 @@ class Cart extends Component {
     event.preventDefault();
 
     if (this.state.addressSelected === "") {
-      this.setState({
-        errorMessage: "Please choose a delivery location!",
+      swal({
+        title: "No delivery location!",
+        text: "Please choose a delivery location!",
+        icon: "error",
       });
     } else {
       this.state.orders.map((data) => {
@@ -631,18 +646,25 @@ class Cart extends Component {
           this.setState({
             creditCards: result,
             paymentMethod: card,
-            errorMessage: "Credit card has been added!",
+          });
+          swal({
+            title: "Credit card has been added!",
+            icon: "success",
           });
         })
         .catch((err) => {
-          this.setState({
-            errorMessage:
+          swal({
+            title: "Unable to add credit card!",
+            text:
               "Credit card has been registered! Please add a unregistered card!",
+            icon: "error",
           });
         });
     } else {
-      this.setState({
-        errorMessage: "Please input a valid 16 digit credit card number!",
+      swal({
+        title: "Invalid input for credit card!",
+        text: "Please input a valid 16 digit credit card number!",
+        icon: "error",
       });
     }
   };
@@ -685,19 +707,24 @@ class Cart extends Component {
     if (value) {
       console.log(value);
       if (value > this.state.rewardPoints) {
-        this.setState({
-          errorMessage:
-            "Points deducted cannot be more than available Reward Points!",
+        swal({
+          title: "Invalid reward points input!",
+          text: "Points deducted cannot be more than available Reward Points!",
+          icon: "warning",
         });
       } else {
         if (value > this.state.deliveryFee) {
-          this.setState({
-            errorMessage: "Points deducted cannot be more than delivery fee!",
+          swal({
+            title: "Invalid reward points input!",
+            text: "Points deducted cannot be more than delivery fee",
+            icon: "warning",
           });
         } else {
           if (value.includes(".") && value.split(".")[1].length >= 3) {
-            this.setState({
-              errorMessage: "Points must be at most 2 decimal places!",
+            swal({
+              title: "Invalid reward points input!",
+              text: "Points must be at most 2 decimal places!",
+              icon: "warning",
             });
           } else {
             // 1 reward point = $1 offset in delivery fee
@@ -715,7 +742,6 @@ class Cart extends Component {
             this.setState({
               rewardPointsUsed: maxRewardPointsUsed,
               paymentCost: paymentCost,
-              errorMessage: "",
             });
           }
         }
@@ -744,16 +770,6 @@ class Cart extends Component {
             />
           )}
         </div>
-      </div>
-    );
-  };
-
-  displayErrorFoodList = () => {
-    return (
-      <div className="errorFoodList">
-        {this.state.errorUpdateFoods.map((food) => (
-          <h6 className="errorMessage">{food}</h6>
-        ))}
       </div>
     );
   };
@@ -846,11 +862,17 @@ class Cart extends Component {
       this.setState({
         addresses,
         addressSelected: address,
-        errorMessage: "Delivery location has been added!",
+      });
+      swal({
+        title: "Success!",
+        text: "Delivery location has been added!",
+        icon: "success",
       });
     } else {
-      this.setState({
-        errorMessage: "Please input a valid address for delivery location",
+      swal({
+        title: "Invalid address!",
+        text: "Please input a valid address for delivery location!",
+        icon: "warning",
       });
     }
   };
@@ -1007,11 +1029,6 @@ class Cart extends Component {
               {this.displayAddCreditCardInput()}
               {this.displayPaymentOptions()}
 
-              {this.state.errorMessage && (
-                <h6 className="errorMessage">{this.state.errorMessage}</h6>
-              )}
-              {this.state.errorUpdateFoods.length !== 0 &&
-                this.displayErrorFoodList()}
               <Button className="confirm_button" type="submit">
                 {" "}
                 Confirm{" "}

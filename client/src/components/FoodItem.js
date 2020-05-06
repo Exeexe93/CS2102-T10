@@ -7,14 +7,12 @@ import { Form, ListGroup, Button, Table } from "react-bootstrap";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import swal from "sweetalert";
 
 class FoodItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      message: "",
-      errorAddingFoods: [],
-      errorUpdateFoods: [],
       foodItem: [],
       filtered: [],
       orders: [],
@@ -196,8 +194,10 @@ class FoodItem extends Component {
         });
       }
 
-      this.setState({
-        message: "Order has been added into the cart!",
+      swal({
+        title: "Order has been added into the cart!",
+        text: "You can go to your cart to confirm your order",
+        icon: "success",
       });
     } catch (err) {
       console.error(err);
@@ -214,9 +214,11 @@ class FoodItem extends Component {
         }
       );
       if (response.data[0].exists === true) {
-        this.setState({
-          message:
+        swal({
+          title: "Transaction failed!",
+          text:
             "You cannot add order if you have order from other restaurant in your cart",
+          icon: "error",
         });
       } else {
         this.updateOrderIfExists();
@@ -228,11 +230,6 @@ class FoodItem extends Component {
 
   addOrder = (event) => {
     event.preventDefault();
-    this.setState({
-      errorUpdateFoods: [],
-      errorAddingFoods: [],
-      message: "",
-    });
     // Check whether there are other order that has not paid which same restaurant as current
     this.checkCartContainOtherRestaurantOrder();
   };
@@ -279,14 +276,14 @@ class FoodItem extends Component {
         "http://localhost:3001/Customer/AddFood",
         food
       );
-      if (response.data.detail) {
-        let errorFoods = this.state.errorAddingFoods;
-        errorFoods.push(item.name);
-        this.setState({
-          errorAddingFoods: errorFoods,
-          message:
-            "Food items are unable to added into cart due to exceed limit:",
-        });
+      if (response.data.where) {
+        if (response.data.where.includes("reject_above_food_limit")) {
+          swal({
+            title: "Transaction failed!",
+            text: "Please check that your order do not exceed the limit!",
+            icon: "warning",
+          });
+        }
       }
       var foodItem = this.state.foodItem;
       foodItem[index].actualQuantity = 0;
@@ -309,15 +306,14 @@ class FoodItem extends Component {
           total_price: total_price,
         }
       );
-
-      if (response.data.where.includes("reject_above_food_limit")) {
-        let errorFoods = this.state.errorUpdateFoods;
-        errorFoods.push(this.state.foodItem[index].name);
-        this.setState({
-          errorUpdateFoods: errorFoods,
-          message:
-            "Food items are unable to added into cart due to exceed limit:",
-        });
+      if (response.data.where) {
+        if (response.data.where.includes("reject_above_food_limit")) {
+          swal({
+            title: "Transaction failed!",
+            text: "Please check that your order do not exceed the limit!",
+            icon: "warning",
+          });
+        }
       }
       var foodItem = this.state.foodItem;
       foodItem[index].actualQuantity = 0;
@@ -354,24 +350,6 @@ class FoodItem extends Component {
     });
 
     return formatter.format(total_price);
-  };
-
-  displayErrorFoods = () => {
-    return (
-      <div>
-        {this.state.errorAddingFoods.map((food, index) => (
-          <h4 className="errorFoods" key={index}>
-            {food}
-          </h4>
-        ))}
-
-        {this.state.errorUpdateFoods.map((food, index) => (
-          <h4 className="errorFoods" key={index}>
-            {food}
-          </h4>
-        ))}
-      </div>
-    );
   };
 
   displaySearchInput = () => {
@@ -457,15 +435,6 @@ class FoodItem extends Component {
           {this.displayMenuTable()}
 
           <div className="separator"></div>
-          {this.state.message && (
-            <h4 className="message">{this.state.message}</h4>
-          )}
-          {(this.state.errorAddingFoods.length !== 0 ||
-            this.state.errorUpdateFoods.length !== 0) &&
-            this.displayErrorFoods()}
-          {this.state.errorAddingFoods.length !== 0 && (
-            <h4 className="errorFoods">{this.state.errorAddingFoods}</h4>
-          )}
           <Button
             type="button"
             className="submitButton"

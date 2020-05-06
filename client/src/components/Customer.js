@@ -69,17 +69,12 @@ class Customer extends Component {
   handleProfile = () => {
     this.props.history.push({
       pathname: "/Profile",
-      // state: { customerName: this.state.customerName, cid: this.state.cid },
     });
   };
 
   handleCart = () => {
     this.props.history.push({
       pathname: "/Cart",
-      // state: {
-      //   customerName: this.state.customerName,
-      //   account_id: this.props.location.state.account_id,
-      // },
     });
   };
 
@@ -106,7 +101,12 @@ class Customer extends Component {
       <div>
         <Navbar dark color="dark">
           <NavbarBrand href="/Login">
-            <RiLogoutBoxLine className="logoutIcon" />
+            <div className="logoutIcon">
+              <div className="logoutContainer">
+                <RiLogoutBoxLine />
+                <h6>Logout</h6>
+              </div>
+            </div>
           </NavbarBrand>
           <div className="icon-container">
             <GiShoppingCart

@@ -41,5 +41,15 @@ body {
 }
 
 .logoutIcon {
-  font-size: 30px;
+  font-size: 35px;
+}
+
+.logoutIcon :hover {
+  color: lightblue;
+}
+
+.logoutContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }

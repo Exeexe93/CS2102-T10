@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, NavLink, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 class Cart extends Component {
@@ -793,12 +794,19 @@ class Cart extends Component {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavLink href="" onClick={this.handleHomePage} className="backIcon">
-            <div>
+          <Link
+            to={{
+              pathname: "/Customer",
+              state: {
+                account_id: this.state.cid,
+              },
+            }}
+          >
+            <div className="backIcon">
               <MdArrowBack />
               To Home Page
             </div>
-          </NavLink>
+          </Link>
           <div className="icon-container"></div>
         </Navbar>
 

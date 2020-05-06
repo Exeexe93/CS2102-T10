@@ -200,4 +200,11 @@ router.post("/GetCustomerName", function (req, res) {
   });
 });
 
+router.post("/GetPromotions", function (req, res) {
+  Customer.getPromotions(req.body.cid, req.body.rest_id, (err, result) => {
+    if (err.error) return res.status(404).json(err);
+    return res.status(200).json(result);
+  });
+});
+
 module.exports = router;

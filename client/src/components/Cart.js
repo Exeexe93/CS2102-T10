@@ -39,6 +39,7 @@ class Cart extends Component {
       promo_id: 0,
       addressSelected: "",
       addresses: [],
+      promos: [],
     };
   }
 
@@ -666,6 +667,32 @@ class Cart extends Component {
     );
   };
 
+  displayPromoInput = () => {
+    return (
+      <FormGroup>
+        <div className="promoInputContainer">
+          <Form.Label>Promotion: </Form.Label>
+
+          <Form.Control
+            as="select"
+            value="Choose a promotion"
+            className="testing"
+          >
+            {this.state.promos.length !== 0 ? (
+              <>
+                {this.state.promos.map((promo) => (
+                  <option>{promo.details}</option>
+                ))}
+              </>
+            ) : (
+              <option>No promotion available</option>
+            )}
+          </Form.Control>
+        </div>
+      </FormGroup>
+    );
+  };
+
   displayPromoDiscount = () => {
     return (
       <div className="promoDiscountContainer">
@@ -781,15 +808,6 @@ class Cart extends Component {
     );
   };
 
-  handleHomePage = () => {
-    this.props.history.push({
-      pathname: "/Customer",
-      state: {
-        account_id: this.state.cid,
-      },
-    });
-  };
-
   render() {
     return (
       <div className="page">
@@ -842,6 +860,7 @@ class Cart extends Component {
                 )}
               </Accordion>
               {this.displayRawCost()}
+              {this.displayPromoInput()}
               {this.displayPromoDiscount()}
               {this.displayRewardPoints()}
               {this.displayDeliveryFee()}

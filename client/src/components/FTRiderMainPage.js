@@ -68,6 +68,29 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  setOngoingOrderStatusText = (ongoing_order) => {
+    const order_number = ongoing_order.order_number;
+    fetch("http://localhost:3001/Rider/getLatestStatus", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oid: order_number }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const status = res[0].status;
+        if (status === "Completed Delivery") {
+          this.setState({
+            ongoing_order: null,
+            ongoing_order_status_text: "",
+          });
+        } else {
+          this.setState({
+            ongoing_order_status_text: status,
+          });
+        }
+      });
+  };
+
   getOngoingOrder = () => {
     fetch("http://localhost:3001/Rider/getOngoingOrder", {
       method: "post",
@@ -81,6 +104,7 @@ class FTRiderMainPage extends Component {
         this.setState({
           ongoing_order: res[0],
         });
+        this.setOngoingOrderStatusText(res[0]);
       });
   };
 
@@ -292,7 +316,14 @@ class FTRiderMainPage extends Component {
 
   handleStatusUpdate = (order_number) => {
     const status_text = this.state.ongoing_order_status_text;
-    if (status_text === "Arrive At Restaurant") {
+    if (status_text === "Depart For Restaurant") {
+      // Update text to "Arrive At Restaurant"
+      this.setState({
+        ongoing_order_status_text: "Arrive At Restaurant",
+      });
+      // Update DB Order depart_for_rest
+      this.updateStatusDepartForRestaurant(order_number);
+    } else if (status_text === "Arrive At Restaurant") {
       // Update text to "Depart from restaurant to delivery location"
       this.setState({
         ongoing_order_status_text:

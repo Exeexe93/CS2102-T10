@@ -24,6 +24,16 @@ router.post("/getOngoingOrder", (request, response) => {
   });
 });
 
+router.post("/getLatestStatus", (request, response) => {
+  const oid = request.body.oid;
+  Rider.getLatestStatus(oid, (err, result) => {
+    if (err.error) {
+      return response.status(404).json(err);
+    }
+    return response.status(200).json(result);
+  });
+});
+
 router.post("/updateStatusArriveAtRestaurant", (request, response) => {
   const oid = request.body.oid;
   Rider.updateStatusArriveAtRestaurant(oid, (err, result) => {

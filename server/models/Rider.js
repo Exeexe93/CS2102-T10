@@ -145,6 +145,25 @@ class Rider {
       }
     );
   }
+
+  // Get latest status text of order
+  // depart_for_rest timestamp,
+  // arrive_at_rest timestamp,
+  // depart_for_delivery timestamp,
+  // deliver_to_cust timestamp,
+  static getLatestStatus(oid, callback) {
+    db.query(
+      "SELECT CASE WHEN depart_for_rest IS NULL THEN 'Depart For Restaurant' WHEN arrive_at_rest IS NULL THEN 'Arrive At Restaurant' WHEN depart_for_delivery IS NULL THEN 'Depart from restaurant to delivery location' WHEN deliver_to_cust IS NULL THEN 'Order Delivered' ELSE 'Completed Delivery' END AS status FROM Orders WHERE oid = $1",
+      [oid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain latest status: ", err);
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
 }
 
 module.exports = Rider;

@@ -24,7 +24,7 @@ class PTRiderMainPage extends Component {
       completed_orders: [],
       avg_rating: 0,
       ongoing_order: null,
-      ongoing_order_status_text: "Arrive At Restaurant",
+      ongoing_order_status_text: "",
     };
   }
 
@@ -104,10 +104,14 @@ class PTRiderMainPage extends Component {
         return res ? res.json() : [null];
       })
       .then((res) => {
+        // Empty list is returned for no ongoing orders
+        let obtained_ongoing_order = res.length === 0 ? null : res[0];
         this.setState({
-          ongoing_order: res[0],
+          ongoing_order: obtained_ongoing_order,
         });
-        this.setOngoingOrderStatusText(res[0]);
+        if (obtained_ongoing_order !== null) {
+          this.setOngoingOrderStatusText(obtained_ongoing_order);
+        }
       });
   };
 

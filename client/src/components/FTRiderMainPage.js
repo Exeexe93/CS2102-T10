@@ -69,6 +69,7 @@ class FTRiderMainPage extends Component {
   };
 
   setOngoingOrderStatusText = (ongoing_order) => {
+    console.log("setOngoingOrderStatusText arg", ongoing_order);
     const order_number = ongoing_order.order_number;
     fetch("http://localhost:3001/Rider/getLatestStatus", {
       method: "post",
@@ -77,13 +78,14 @@ class FTRiderMainPage extends Component {
     })
       .then((res) => res.json())
       .then((res) => {
-        const status = res[0].status;
+        const status = res.length === 0 ? "" : res[0].status;
         if (status === "Completed Delivery") {
           this.setState({
             ongoing_order: null,
             ongoing_order_status_text: "",
           });
         } else {
+          console.log("setOngoingOrderStatusText status: ", status);
           this.setState({
             ongoing_order_status_text: status,
           });
@@ -101,6 +103,7 @@ class FTRiderMainPage extends Component {
         return res ? res.json() : [null];
       })
       .then((res) => {
+        console.log("getOngoingOrder result: ", res);
         // Empty list is returned for no ongoing orders
         let obtained_ongoing_order = res.length === 0 ? null : res[0];
         this.setState({
@@ -238,6 +241,19 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  removePendingOrder = (order) => {
+    let pendingOrders = this.state.orders.slice();
+    const index = pendingOrders.findIndex(
+      (o) => o.order_number === order.order_number
+    );
+    if (index !== -1) {
+      pendingOrders.splice(index, 1);
+      this.setState({
+        orders: pendingOrders,
+      });
+    }
+  };
+
   handleViewSalary = () => {
     // TODO
     // if (this.state.isFTRider) {
@@ -264,6 +280,8 @@ class FTRiderMainPage extends Component {
   };
 
   handleAcceptPendingOrder = (orderInfo) => {
+    console.log("handleAcceptPendingOrder this.state: ", this.state);
+    const order_number = orderInfo.order_number;
     // Only 1 Job can be accepted at any given time
     if (this.state.ongoing_order !== null) {
       swal(
@@ -273,7 +291,6 @@ class FTRiderMainPage extends Component {
       );
       return;
     }
-    const order_number = orderInfo.order_number;
     // Add timestamp to order_placed in Orders table
     fetch("http://localhost:3001/Rider/acceptOrder", {
       method: "post",
@@ -294,18 +311,24 @@ class FTRiderMainPage extends Component {
         } else {
           swal("Added Order " + order_number + "!", "", "success");
           // Place Order into Accepted Job List
-          this.setState({
-            ongoing_order: {
-              order_number: orderInfo.order_number,
-              cname: orderInfo.cname,
-              delivery_location: orderInfo.delivery_location,
-              restaurant_name: orderInfo.restaurant_name,
-              restaurant_location: orderInfo.restaurant_location,
+          this.setState(
+            {
+              ongoing_order: {
+                order_number: orderInfo.order_number,
+                cname: orderInfo.cname,
+                delivery_location: orderInfo.delivery_location,
+                restaurant_name: orderInfo.restaurant_name,
+                restaurant_location: orderInfo.restaurant_location,
+              },
             },
-          });
-          // TODO
-          // Update DB depart_for_rest
-          this.updateStatusDepartForRestaurant(order_number);
+            () => {
+              // Update DB depart_for_rest
+              this.updateStatusDepartForRestaurant(order_number);
+            }
+          );
+          this.setOngoingOrderStatusText(orderInfo);
+          // Remove Order from pending orders
+          this.removePendingOrder(orderInfo);
         }
       })
       .catch((err) => {
@@ -378,6 +401,7 @@ class FTRiderMainPage extends Component {
   componentDidMount() {
     this.getName();
     this.getAvgRating();
+    this.getOngoingOrder();
     this.getPendingOrders();
     this.getCompletedOrders();
   }

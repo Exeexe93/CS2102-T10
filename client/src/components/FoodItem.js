@@ -32,7 +32,7 @@ class FoodItem extends Component {
 
   sortingFoodItem = (first, second) => {
     if (first.category === second.category) {
-      return 0;
+      return first.name - second.name;
     } else if (first.category === "Main Dish") {
       return -1;
     } else if (second.category === "Main Dish") {

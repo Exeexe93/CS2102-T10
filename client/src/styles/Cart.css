@@ -164,3 +164,7 @@
   position: absolute;
   right: 30px;
 }
+
+.rewardPointsUsed {
+  text-align: right;
+}

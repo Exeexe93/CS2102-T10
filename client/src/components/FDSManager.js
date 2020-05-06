@@ -78,8 +78,6 @@ class FDSManager extends Component {
             activePromo: [],
             deliveryPromo: true,
             isDisplayLimitPromo: false,
-            // Error message
-            errorMessage : ''
         };
     }
 
@@ -471,20 +469,14 @@ class FDSManager extends Component {
     }
 
     renderPromoLimit = () => {
-        let limitList = [<option value="none" selected disabled hidden>Limit</option>, <option value="no-limit">1</option>]
+        let limitList = [<option value="none" selected disabled hidden>Limit</option>, <option>1</option>]
         return limitList;
     }
 
     onPromoLimitChange = (e) => {
-        if (e.target.value > 0) {
-            this.setState({
-                promoLimit: e.target.value
-            })
-        } else {
-            this.setState({
-                promoLimit: ''
-            })
-        }
+        this.setState({
+            promoLimit: e.target.value
+        })
     }
 
     renderPromoCategory = () => {
@@ -657,58 +649,62 @@ class FDSManager extends Component {
     }
 
     checkValidTriggerValue =  (type, triggerValue, discountValue) => {
-        if (type === 'Delivery') {
-            return true;
-        } else if (type === 'Flat Rate' && Number(triggerValue) <= Number(discountValue)) {
-            return true;
+        if (type === 'Flat Rate' && Number(triggerValue) < Number(discountValue)) {
+            console.log("in flatrate")
+            return false;
         }
-        return false;
+        if (Number(triggerValue) < 0 || isNaN(triggerValue)) {
+            console.log("triggerv: ", Number(triggerValue));
+            console.log("in lesser than 0 or nan triggerval")
+            return false;
+        }
+        return true;
     }
 
-    checkValidDiscountValue = (promoType, discountValue) => {
-        if (promoType === 'Delivery') {
-            return true;
-        } else if (!isNaN(discountValue) && Number(discountValue) > 0) {
-            return true;
+    checkValidDiscountValue = (discountValue) => {
+        if (isNaN(discountValue) || Number(discountValue) <= 0) {
+            console.log("not valid discount va")
+            return false
         }
-        return false;
+        return true;
+    }
+
+    checkForNoMissingField = (category, type) => {
+        let isStandardFieldsPresence = this.state.promoStartDay && this.state.promoEndDay && this.state.details 
+                                        && this.state.promoCategory && this.state.promoType
+        let isLimitPresent = true;
+        let isDiscountValuePresent = true;
+        let isMinimumValuePresent= true;
+        if (type !== 'Delivery') {
+            isDiscountValuePresent = this.state.discountValue;
+            isMinimumValuePresent = this.state.triggerValue;
+        }
+        if (category === 'First Order') {
+            isLimitPresent = this.state.promoLimit;
+            console.log('limit: %s', isLimitPresent)
+        }
+        return isStandardFieldsPresence && isLimitPresent && isDiscountValuePresent && isMinimumValuePresent
     }
 
     inputValidityCheck = () => {
         let isValidTriggerVal = this.checkValidTriggerValue(this.state.promoType, this.state.triggerValue, this.state.discountValue)
-        let isValidDiscountVal = this.checkValidDiscountValue(this.state.promoType, this.state.discountValue)
-        let isStartDayPresent = this.state.promoStartDay
-        let isEndDayPresent = this.state.promoEndDay
-        let isCategoryPresent = this.state.promoCategory
-        let isTypePresent = this.state.promoType
-        let isDetailsPresent = this.state.details
-        let missingField = !isStartDayPresent && !isEndDayPresent && !isCategoryPresent && !isTypePresent && !isDetailsPresent
+        let isValidDiscountVal = this.checkValidDiscountValue(this.state.discountValue)
+        let isSomeFieldsMissing = !(this.checkForNoMissingField(this.state.promoCategory, this.state.promoType))
         let isValidTriggerValueAndDiscountValue = isValidDiscountVal && isValidTriggerVal
         let promoStartDay = new Date(this.state.promoStartYear, this.state.promoStartMonth - 1, this.state.promoStartDay)
         let promoEndDay = new Date(this.state.promoEndYear, this.state.promoEndMonth - 1, this.state.promoEndDay)
-        let invaliPromotionEndDate = promoStartDay.getTime() > promoEndDay.getTime()
-        console.log("start: ",promoStartDay)
-        console.log("end: ",promoEndDay)
-        console.log("invalidpromoenddate: ", invaliPromotionEndDate)   
-        if (missingField) {
-            this.setState({
-                errorMessage : 'Fill in the fields please'
-            })
+        let invaliPromotionEndDate = promoStartDay.getTime() > promoEndDay.getTime()  
+        if (isSomeFieldsMissing) {
+            swal("Error adding promo", "Some fields are missing", "error");
             return false;
         } else if (!isValidTriggerValueAndDiscountValue) {
-            this.setState({
-                errorMessage : 'Discount value and minimum value have to be positive integer'
-            })
+            console.log("trigger: %s\ndiscount %s\nvalid trigger and disc: %s", isValidTriggerVal, isValidDiscountVal, isValidTriggerValueAndDiscountValue)
+            swal("Error adding promo", 'Make sure Discount value and minimum value to apply discount is positive number and nett profit must not be negative', "error");
             return false;
         } else if (invaliPromotionEndDate) {
-            this.setState({
-                errorMessage : 'Promo must end after it starts'
-            })
+            swal("Error adding promo", 'Promo must end after it starts', "error");
             return false;
         }
-        this.setState({
-            errorMessage : ''
-        })
         return true;
     }
 
@@ -759,14 +755,18 @@ class FDSManager extends Component {
                 console.log("from insert promo");
                 console.log(res)
             })
+            .then((res) => {
+                this.getAllActivePromotion();
+            })
         })
     }
 
     handleAddPromoButton = () => {
         if (this.inputValidityCheck()) {
-            this.queryAddPromo().then((res) => {
-                this.getAllActivePromotion();
-            })
+            this.queryAddPromo()
+            // .then((res) => {
+            //     this.getAllActivePromotion();
+            // })
         }
     }
 
@@ -781,6 +781,7 @@ class FDSManager extends Component {
                 <td>{promo.trigger_value}</td>
                 <td>{promo.start_time}</td>
                 <td>{promo.end_time}</td>
+                <td>{promo.use_limit ? promo.use_limit : 0}</td>
             </tr>
         )
     }
@@ -798,6 +799,7 @@ class FDSManager extends Component {
                     <th key="min-amt">Minimum amount spent for promo</th>
                     <th key="start-time">Promo Start Time</th>
                     <th key="end-time">Promo End Time</th>
+                    <th key="use-limit">Promo Use Limit</th>
                 </tr>
             </thead>
             <tbody>
@@ -1025,7 +1027,7 @@ class FDSManager extends Component {
                             <Input type="select" onChange={this.onPromoEndTimeChanged}>{this.renderTimeDropdown()}</Input>
                         </InputGroupAddon>
                     </InputGroup>
-                    <div className="container">
+                    <div className="container div">
                         <Row>
                             <textarea placeholder="Details of discount..." value={this.state.details} onChange={this.onDetailsChanged}/>
                             {this.state.deliveryPromo && <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>}
@@ -1043,10 +1045,12 @@ class FDSManager extends Component {
                                 </InputGroup>
                             </Col>
                         </Row>
-                        <div>
-                            {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}
-                        </div>
-                        {this.renderActivePromotion()}
+                        <Row>
+                            <div>
+                                <h3>Active Promotion</h3>
+                                {this.renderActivePromotion()}
+                            </div>
+                        </Row>
                     </div>
                 </TabPanel>
             </Tabs>

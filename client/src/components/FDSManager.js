@@ -71,11 +71,13 @@ class FDSManager extends Component {
             promoCategory: '',
             promoType: '',
             promoDetails: '',
+            promoLimit: '',
             discountValue: '',
             triggerValue: '',
             details: '',
             activePromo: [],
             deliveryPromo: true,
+            isDisplayLimitPromo: false,
             // Error message
             errorMessage : ''
         };
@@ -468,6 +470,23 @@ class FDSManager extends Component {
             ])
     }
 
+    renderPromoLimit = () => {
+        let limitList = [<option value="none" selected disabled hidden>Limit</option>, <option value="no-limit">1</option>]
+        return limitList;
+    }
+
+    onPromoLimitChange = (e) => {
+        if (e.target.value > 0) {
+            this.setState({
+                promoLimit: e.target.value
+            })
+        } else {
+            this.setState({
+                promoLimit: ''
+            })
+        }
+    }
+
     renderPromoCategory = () => {
         return ([
             <option value="none" selected disabled hidden>Category</option>,
@@ -492,11 +511,15 @@ class FDSManager extends Component {
         if (e.target.value === 'Delivery') {
             this.setState({
                 promoType : e.target.value,
+                triggerValue: 0,
+                discountValue: 0,
+                details: 'Free delivery with no minimum spent',
                 deliveryPromo: false
             })
         } else {
             this.setState({
                 promoType : e.target.value,
+                details: '',
                 deliveryPromo: true
             })
         }
@@ -505,6 +528,17 @@ class FDSManager extends Component {
     onPromoCategoryChanged = (e) => {
         this.setState({
             promoCategory : e.target.value,
+        }, () => {
+            if (this.state.promoCategory === 'First Order') {
+                this.setState({
+                    isDisplayLimitPromo: true
+                })
+            } else {
+                this.setState({
+                    isDisplayLimitPromo: false
+                })
+            }
+
         })
     }
 
@@ -622,9 +656,27 @@ class FDSManager extends Component {
         })
     }
 
+    checkValidTriggerValue =  (type, triggerValue, discountValue) => {
+        if (type === 'Delivery') {
+            return true;
+        } else if (type === 'Flat Rate' && Number(triggerValue) <= Number(discountValue)) {
+            return true;
+        }
+        return false;
+    }
+
+    checkValidDiscountValue = (promoType, discountValue) => {
+        if (promoType === 'Delivery') {
+            return true;
+        } else if (!isNaN(discountValue) && Number(discountValue) > 0) {
+            return true;
+        }
+        return false;
+    }
+
     inputValidityCheck = () => {
-        let isValidTriggerVal = (this.state.triggerValue > 0) && !isNaN(this.state.triggerValue)
-        let isValidDiscountVal = (this.state.discountValue > 0) && !isNaN(this.state.discountValue)
+        let isValidTriggerVal = this.checkValidTriggerValue(this.state.promoType, this.state.triggerValue, this.state.discountValue)
+        let isValidDiscountVal = this.checkValidDiscountValue(this.state.promoType, this.state.discountValue)
         let isStartDayPresent = this.state.promoStartDay
         let isEndDayPresent = this.state.promoEndDay
         let isCategoryPresent = this.state.promoCategory
@@ -685,7 +737,7 @@ class FDSManager extends Component {
     queryAddPromo = () => {
         return this.getPromoStartAndEndTime()
         .then(([start_time, end_time]) => {
-            console.log('promostart : %s\npromoend : %s', start_time, end_time)
+            console.log('promostart : %s\npromoend : %s\npromoLimit: %s ', start_time, end_time, this.state.promoLimit)
             fetch('http://localhost:3001/FDSManager/addPromo', {
                 method: 'post',
                 headers: { 'Content-Type': 'application/json'},
@@ -697,7 +749,8 @@ class FDSManager extends Component {
                     details: this.state.details,
                     discount_value: this.state.discountValue,
                     trigger_value: this.state.triggerValue,
-                    creator_id: this.state.id
+                    creator_id: this.state.id,
+                    use_limit: this.state.promoLimit
                 })
             })
             .then(res => {
@@ -974,7 +1027,7 @@ class FDSManager extends Component {
                     </InputGroup>
                     <div className="container">
                         <Row>
-                            <textarea placeholder="Details of discount..." onChange={this.onDetailsChanged}></textarea>
+                            <textarea placeholder="Details of discount..." value={this.state.details} onChange={this.onDetailsChanged}/>
                             {this.state.deliveryPromo && <Input placeholder="Discount value" onChange={this.onPromoDiscountValueChanged}></Input>}
                             {this.state.deliveryPromo && <Input placeholder="Minimum value to apply discount" onChange={this.onPromoMinValChanged}></Input>}
                         </Row>
@@ -983,16 +1036,17 @@ class FDSManager extends Component {
                                 <InputGroup>
                                     <Input type="select" onChange={this.onPromoCategoryChanged}>{this.renderPromoCategory()}</Input>
                                     <Input type="select" onChange={this.onPromoTypeChanged}>{this.renderPromoType()}</Input>
+                                    {this.state.isDisplayLimitPromo && <Input type="select" onChange={this.onPromoLimitChange}>{this.renderPromoLimit()}</Input>}
                                     <InputGroupAddon addonType="append">
                                         <Button color="primary" onClick={this.handleAddPromoButton}>Add Promotion</Button>
                                     </InputGroupAddon>
                                 </InputGroup>
                             </Col>
                         </Row>
+                        <div>
+                            {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}
+                        </div>
                         {this.renderActivePromotion()}
-                    </div>
-                    <div>
-                        {this.state.errorMessage && <h3 className="error">{this.state.errorMessage}</h3>}
                     </div>
                 </TabPanel>
             </Tabs>

@@ -288,8 +288,8 @@ CREATE TABLE Salaries (
 
 CREATE TABLE RestaurantStaffs (
 	staff_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
-    rest_id serial references Restaurants(rest_id),
-    primary key(staff_id)
+    rest_id integer references Restaurants(rest_id),
+    primary key(staff_id, rest_id)
 );
 
 CREATE TABLE Foods (
@@ -692,16 +692,16 @@ insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobso
 insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
-insert into RestaurantStaffs (staff_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade');
-insert into RestaurantStaffs (staff_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41');
-insert into RestaurantStaffs (staff_id) values ('bf4f405e-84ef-458c-b825-63d47379c374');
-insert into RestaurantStaffs (staff_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406');
-insert into RestaurantStaffs (staff_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f');
-insert into RestaurantStaffs (staff_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478');
-insert into RestaurantStaffs (staff_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818');
-insert into RestaurantStaffs (staff_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5');
-insert into RestaurantStaffs (staff_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5');
-insert into RestaurantStaffs (staff_id) values ('fd1001b8-2503-4685-9661-fff922fa7798');
+insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
+insert into RestaurantStaffs (staff_id, rest_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2);
+insert into RestaurantStaffs (staff_id, rest_id) values ('bf4f405e-84ef-458c-b825-63d47379c374', 3);
+insert into RestaurantStaffs (staff_id, rest_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4);
+insert into RestaurantStaffs (staff_id, rest_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5);
+insert into RestaurantStaffs (staff_id, rest_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6);
+insert into RestaurantStaffs (staff_id, rest_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7);
+insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 8);
+insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
+insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
 
 -- WWS
 INSERT into WWS (start_day) values 
@@ -1059,6 +1059,29 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(3, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(3, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(3, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(3, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(3, '7-ups', '$1.10', 200, 200, 'Drink'),
+	(3, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(3, 'Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(3, 'Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(4, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(4, '7-ups', '$1.10', 200, 200, 'Drink'),
+	(4, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(4, 'NAMA Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(4, 'NAMA Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(5, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(5, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(5, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(5, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(5, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(5, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(5, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

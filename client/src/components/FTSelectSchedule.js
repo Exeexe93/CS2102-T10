@@ -22,6 +22,11 @@ class FTSelectSchedule extends Component {
               </div>
             );
           })}
+          <div className="ft-schedule-form">
+            <button onClick={this.props.handleSubmitUpdateSchedule}>
+              Submit Schedule
+            </button>
+          </div>
         </div>
 
         <div className="ft-schedule-col">

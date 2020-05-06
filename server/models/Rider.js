@@ -3,7 +3,7 @@ const db = require("../database/index.js");
 class Rider {
   static acceptOrder(oid, rid, callback) {
     db.query(
-      "UPDATE Orders SET rid = $2, order_placed = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
+      "UPDATE Orders SET rid = $2, depart_for_rest = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
       [oid, rid],
       (err, res) => {
         if (err.error) {
@@ -22,7 +22,7 @@ class Rider {
   //  restaurant_location,
   static getOngoingOrder(rid, callback) {
     db.query(
-      "SELECT O.oid AS order_number, C.name AS cname, P.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN Places P using (oid) INNER JOIN Customers C using (cid) INNER JOIN Restaurants R using (rest_id) WHERE O.rid = $1",
+      "SELECT O.oid AS order_number, C.name AS cname, P.address AS delivery_location, R.name AS restaurant_name, R.address AS restaurant_location FROM Orders O INNER JOIN Places P using (oid) INNER JOIN Customers C using (cid) INNER JOIN Restaurants R using (rest_id) WHERE O.rid = $1 AND O.deliver_to_cust IS NULL",
       [rid],
       (err, res) => {
         if (err.error) {

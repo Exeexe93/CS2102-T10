@@ -623,7 +623,7 @@ class FDSManager extends Component {
     }
 
     inputValidityCheck = () => {
-        let isValidTriggerVal = (this.state.triggerValue > 0) && !isNaN(this.state.triggerValue)
+        let isValidTriggerVal = (this.state.triggerValue >= 0) && !isNaN(this.state.triggerValue)
         let isValidDiscountVal = (this.state.discountValue > 0) && !isNaN(this.state.discountValue)
         let isStartDayPresent = this.state.promoStartDay
         let isEndDayPresent = this.state.promoEndDay

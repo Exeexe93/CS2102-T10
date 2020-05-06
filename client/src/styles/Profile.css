@@ -131,3 +131,32 @@
   top: 70px;
   size: 100px;
 }
+
+.backIcon:hover {
+  color: lightskyblue;
+}
+
+.backIcon {
+  color: white;
+  font-size: 22px;
+}
+
+.personalInfoTab {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.nameInput {
+  margin-bottom: 20px;
+}
+
+.passwordInput {
+  margin-bottom: 20px;
+}
+
+.personalInfoTitle {
+  margin-bottom: 20px;
+  margin-top: 30px;
+}

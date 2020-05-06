@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS Accounts CASCADE;
 DROP TABLE IF EXISTS Customers CASCADE;
 DROP TABLE IF EXISTS CreditCards CASCADE;
 DROP TABLE IF EXISTS Promos CASCADE;
+DROP TABLE IF EXISTS Given CASCADE;
 DROP TABLE IF EXISTS CustomerPromo CASCADE;
 DROP TABLE IF EXISTS Riders CASCADE;
 DROP TABLE IF EXISTS FTRiders CASCADE;
@@ -40,14 +41,14 @@ CREATE TABLE Accounts (
 -- Customers relation here--
 
 CREATE TABLE Customers (
-	cid varchar(255) references Accounts(account_id) on delete cascade,
+	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	reward_points integer,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
-	cid varchar(255) references Accounts(account_id) on delete cascade,
+	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	card_number varchar(255),
 	primary key (cid, card_number),
 	unique(card_number)
@@ -56,38 +57,51 @@ CREATE TABLE CreditCards (
 
 -- Promotion --
 CREATE TABLE Promos (
-	promo_id serial,
-	account_id varchar(255) references Accounts(account_id) on delete cascade,
+	creator_id varchar(255),
+	promo_id serial unique,
+	use_limit integer,
+	details text not null,
+	category varchar(255) not null,
+	promo_type varchar(255) not null,
+	discount_value integer DEFAULT 0 not null,
+	trigger_value money DEFAULT 0 not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
-	discount integer not null,
-	promo_type varchar(255) not null,
-	primary key (promo_id)
+	primary key (promo_id, creator_id),
+	foreign key (creator_id) references Accounts 
+		on delete cascade
+		on update cascade
 );
 
-CREATE TABLE CustomerPromo (
-	cid varchar(255) references Customers(cid) on delete cascade,
-    promo_id serial primary key
+CREATE TABLE Given (
+	promo_id integer references Promos(promo_id) on delete cascade on update cascade,
+	cid varchar(255) references Customers(cid) on delete cascade on update cascade,
+	primary key(promo_id, cid)
 );
+
+-- CREATE TABLE CustomerPromo (
+-- 	cid varchar(255) references Customers(cid) on delete cascade,
+--     promo_id serial primary key
+-- );
 
 
 -- Riders relation here --
 CREATE TABLE Riders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key (rid)
 );
 
 CREATE TABLE FTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid), 
-    foreign key (rid) references Riders on delete cascade
+    foreign key (rid) references Riders on delete cascade on update cascade
 );
 
 CREATE TABLE PTRiders (
-	rid varchar(255) references Accounts(account_id) on delete cascade,
+	rid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	avg_rating real,
     primary key (rid)
@@ -204,7 +218,7 @@ CREATE TABLE FTWorks(
 );
 
 CREATE TABLE FDSManagers (
-	fds_id varchar(255) references Accounts(account_id) on delete cascade,
+	fds_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
 	primary key(fds_id)
 ); 
@@ -214,7 +228,7 @@ CREATE TABLE Restaurants (
 	name varchar(255) not null,
     order_threshold money not null,
 	address varchar(255) not null,
-    primary key(rest_id) 
+    primary key(rest_id)
 );
 
 CREATE TABLE Orders (
@@ -232,7 +246,22 @@ CREATE TABLE Orders (
 	depart_for_delivery timestamp,
 	deliver_to_cust timestamp,
 	primary key (oid),
+	foreign key (rest_id) references Restaurants(rest_id),
 	foreign key (rid) references Riders
+		on delete cascade
+		on update cascade
+);
+
+CREATE TABLE Places (
+	oid integer references Orders(oid) on delete cascade,
+	cid varchar(255) references Customers(cid),
+	address varchar(255),
+	payment_method varchar(255),
+	card_number varchar(255),
+	primary key(oid),
+	foreign key (card_number) references CreditCards (card_number) 
+		on delete cascade
+		on update cascade
 );
 
 CREATE TABLE Uses (
@@ -240,8 +269,12 @@ CREATE TABLE Uses (
 	promo_id integer NOT NULL,
 	amount money NOT NULL,
 	primary key (oid),
-	foreign key (oid) references Orders,
-	foreign key (promo_id) references Promos
+	foreign key (oid) references Places(oid)
+		on delete cascade
+		on update cascade,
+	foreign key (promo_id) references Promos(promo_id)
+		on delete cascade
+		on update cascade
 );
 
 -- Remove the rates table and add the rating as one of the attributes in Orders
@@ -265,7 +298,7 @@ CREATE TABLE Salaries (
 );
 
 CREATE TABLE RestaurantStaffs (
-	staff_id varchar(255) references Accounts(account_id) on delete cascade,
+	staff_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
     rest_id serial references Restaurants(rest_id),
     primary key(staff_id)
 );
@@ -278,7 +311,8 @@ CREATE TABLE Foods (
     food_limit integer not null,
     quantity integer not null,
     category varchar(255) not null,
-    foreign key (rest_id) references Restaurants on delete cascade
+	availability boolean default true,
+    foreign key (rest_id) references Restaurants on delete cascade on update cascade
 );
 
 CREATE TABLE Consists (
@@ -288,16 +322,6 @@ CREATE TABLE Consists (
 	quantity integer not null,
 	total_price money not null,
 	primary key(oid, fid)
-);
-
-CREATE TABLE Places (
-	oid integer references Orders(oid),
-	cid varchar(255) references Customers(cid),
-	address varchar(255),
-	payment_method varchar(255),
-	card_number varchar(255),
-	primary key(oid),
-	foreign key (card_number) references CreditCards (card_number)
 );
 
 -- Remove reviews table and add review as one of the attributes to Consists table
@@ -330,6 +354,118 @@ ON ShiftInfo
 FOR EACH ROW
 EXECUTE FUNCTION check_max_shift_hour();
 
+-- Need a trigger to reject those orders less than threshold
+CREATE OR REPLACE FUNCTION reject_order_below_threshold()
+	RETURNS trigger AS $$
+DECLARE
+	threshold Restaurants.order_threshold%TYPE;
+BEGIN
+	SELECT R.order_threshold INTO threshold FROM Restaurants as R WHERE R.rest_id = NEW.rest_id;
+	If NEW.total_price < threshold THEN
+	RAISE exception 'Total price of the order - % are less than the threshold - %', NEW.total_price, threshold; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_order_meets_threshold ON ORDERS;
+CREATE TRIGGER check_order_meets_threshold
+BEFORE UPDATE OR INSERT
+ON Orders
+FOR EACH ROW 
+EXECUTE FUNCTION reject_order_below_threshold();
+
+-- Need a trigger to check if it exceed the limit for individual food when update and insert into Consists.
+CREATE OR REPLACE FUNCTION reject_above_food_limit()
+	RETURNS trigger AS $$
+DECLARE
+	food_limit Foods.food_limit%TYPE;
+BEGIN
+	SELECT F.food_limit INTO food_limit FROM Foods AS F WHERE F.fid = NEW.fid;
+	If NEW.quantity > food_limit THEN
+	RAISE exception 'The quantity of the food ordered (%) is more than the food limit (%)', NEW.quantity, food_limit; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_food_quantity_below_limit ON ORDERS;
+CREATE TRIGGER check_food_quantity_below_limit
+BEFORE UPDATE OR INSERT 
+ON Consists
+FOR EACH ROW 
+EXECUTE FUNCTION reject_above_food_limit();
+
+-- Need a trigger to decrease the food quantity after one person paid for the order
+CREATE OR REPLACE FUNCTION update_food_quantity()
+	RETURNS trigger AS $$
+DECLARE 
+	checkCursor CURSOR FOR SELECT C.fid, C.quantity FROM Consists as C WHERE C.oid = NEW.oid;
+	checkRow RECORD;
+BEGIN
+	If NEW.order_status = 'paid' AND OLD.order_status = 'cart' THEN
+		OPEN checkCursor;
+		
+		LOOP
+			FETCH checkCursor INTO checkRow;
+			EXIT WHEN NOT FOUND;
+
+			UPDATE Foods 
+			SET quantity = quantity - checkRow.quantity
+			WHERE fid = checkRow.fid;
+		END LOOP;
+		CLOSE checkCursor;
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_quantity_after_place_order ON ORDERS;
+CREATE TRIGGER update_quantity_after_place_order
+BEFORE UPDATE 
+ON Orders
+FOR EACH ROW 
+EXECUTE FUNCTION update_food_quantity();
+
+-- Need a trigger to check if the food quantity is negative value when update or insert
+CREATE OR REPLACE FUNCTION reject_negative_food_quantity()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity < 0 THEN
+	RAISE exception 'The quantity of the food ordered (%) cannot be negative', NEW.quantity; 
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_negative_food_quantity ON Foods;
+CREATE TRIGGER check_negative_food_quantity
+BEFORE UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION reject_negative_food_quantity();
+
+-- Need a trigger to check set food availability to false when food quantity become zero during update or insert
+CREATE OR REPLACE FUNCTION zero_quantity_set_food_unavailable()
+	RETURNS trigger AS $$
+BEGIN
+	If NEW.quantity = 0 AND OLD.availability = true THEN
+		UPDATE Foods 
+		SET availability = false
+		WHERE fid = NEW.fid; 
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS check_food_availability ON Foods;
+CREATE TRIGGER check_food_availability
+AFTER UPDATE OR INSERT 
+ON Foods
+FOR EACH ROW 
+EXECUTE FUNCTION zero_quantity_set_food_unavailable();
+
+
 -- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
 
 -- need a trigger to check weekly schdedule total hours fit within the range of working hours for ptriders
@@ -338,69 +474,134 @@ EXECUTE FUNCTION check_max_shift_hour();
 
 -- need a trigger to check for FTRiders, 4 WWS is equivalent.
 
--- need a trigger to check
-
 -- need a trigger to ensure everytime a MWS is added, Has table is added with the MWS instance to capture  total participation constraint
  
 -- need a trigger to ensure everytime a WWS is added, Contains table is added with the WWS isntance to capture the total participation constraint
 
--- Need a trigger to reject those orders less than threshold
-
 -- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
+-- need a trigger to update given table
+CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER 
+	AS $$
+DECLARE
+	all_cust 	CURSOR FOR SELECT cid, name, date_created FROM Customers join Accounts on (Accounts.account_id = Customers.cid);
+	first_order	CURSOR FOR SELECT distinct C.cid FROM Customers C
+				WHERE NOT EXISTS (SELECT 1 FROM Places P WHERE c.cid = P.cid);
+	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1 
+						WHERE NOT EXISTS(
+							SELECT 1 FROM customers JOIN places USING (cid) 
+								JOIN orders USING (oid) 
+							WHERE extract(month from age(current_timestamp, order_placed)) > 3);
+	loyal_cust 	CURSOR FOR select distinct cid, money from 
+					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money 
+					from Orders join Places using(oid) 
+					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L 
+					where money >= 100::money; 
+	category	promos.category%TYPE;
+	table_row 	RECORD;
+BEGIN
+	SELECT P.category INTO category 
+		FROM Promos P
+		WHERE P.category = NEW.category;
+	IF category = 'All' THEN
+		OPEN all_cust;
+		LOOP 
+		FETCH all_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid) 
+		VALUES(NEW.promo_id , table_row.cid);
+		END LOOP;
+	ELSIF category = 'First Order' THEN
+		OPEN first_order;
+		LOOP
+		FETCH first_order INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSIF category = 'Inactive Customers' THEN
+		OPEN inactive;
+		LOOP
+		FETCH inactive INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSIF category = 'Loyal Customers' THEN
+		OPEN loyal_cust;
+		LOOP
+		FETCH loyal_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
+	ELSE
+		RAISE exception 'Invalid category'; 
+	END IF;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS add_promo_trigger ON Promos CASCADE;
+CREATE TRIGGER add_promo_trigger
+	AFTER INSERT 
+	ON Promos
+	FOR EACH ROW
+	EXECUTE FUNCTION add_promo();
+
 -- Data insertions
 -- Accounts
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', '1/10/2019', 'FDSManager');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '3d2DMKr5PrT', '10/6/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', '2/24/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fs1xGBE', '2/8/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', '3/30/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'q66zcDrm5a', '5/9/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', '1/30/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'wIB1JM', '3/4/2020', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', '9/26/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'uKELoF', '3/10/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'v2LCrbUvLg', '6/4/2019', 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'E9GxvyFbdtjS', '1/10/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 'yrEEYmGcn', '5/1/2020', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('bf4f405e-84ef-458c-b825-63d47379c374', '9a9z2H', '9/6/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 'almLfEIRrj3T', '2/10/2020', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 'yyXdSlH', '4/12/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 'us3Xhu', '6/2/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 'z28nCgK9SWYb', '12/2/2020', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 'icIkX2ay5Ar', '11/3/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', '2/18/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('fd1001b8-2503-4685-9661-fff922fa7798', 'Rx6d5HKor', '2/11/2019', 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'ksswfSyZo', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f016b0e5-e404-4abf-a824-de805c3e122d', '1F4mKCrVx', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', '87ndxRALrBeO', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 'byyLVU3', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', '7V0T7KKEKFXq', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'LYwVleS', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'j7iF5AaiP', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', '00t2HuvUplb', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'LAhF6AVml', '1/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'BcDUMyc5lI', '5/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'U2UE8YnAf', '5/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'yG9MDVTYdlP', '5/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'H33yBh', '6/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'mQEhePtZrQ', '7/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'yt9UfI', '8/12/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'CylPtRE4ju', '2/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 'QTswbLcY', '2/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'xJbueX7H', '2/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'PQYoS6uP', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'I78qgG', '12/5/2019', 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'qsfX5Ru', '7/10/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', '49h9jXB', '7/10/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'x5BpVKoIjiUX', '2/10/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'XgFgRDStIRa', '9/4/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'u0PxpGApRTmO', '7/5/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', '1/15/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', '7/30/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'S3LpbBAcSbM', '12/5/2019', 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'LA2aqb4x', '12/5/2019', 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', to_date('1/10/2019', 'dd/mm/yyyy'), 'FDSManager');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '3d2DMKr5PrT', to_date('10/6/2019', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', to_date('24/2/2020', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fs1xGBE', to_date('2/8/2020', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', to_date('30/3/2020', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'q66zcDrm5a', to_date('5/9/2019', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', to_date('30/1/2020', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'wIB1JM', to_date('3/4/2020', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', to_date('26/9/2019', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'uKELoF', to_date('3/10/2019', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'v2LCrbUvLg', to_date('6/4/2019', 'dd/mm/yyyy'), 'Customer');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'E9GxvyFbdtjS', to_date('1/10/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 'yrEEYmGcn', to_date('5/1/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('bf4f405e-84ef-458c-b825-63d47379c374', '9a9z2H', to_date('9/6/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 'almLfEIRrj3T', to_date('2/10/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 'yyXdSlH', to_date('4/12/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 'us3Xhu', to_date('6/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 'z28nCgK9SWYb', to_date('12/2/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 'icIkX2ay5Ar', to_date('11/3/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', to_date('18/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('fd1001b8-2503-4685-9661-fff922fa7798', 'Rx6d5HKor', to_date('2/11/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'ksswfSyZo', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('f016b0e5-e404-4abf-a824-de805c3e122d', '1F4mKCrVx', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', '87ndxRALrBeO', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 'byyLVU3', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', '7V0T7KKEKFXq', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'LYwVleS', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'j7iF5AaiP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', '00t2HuvUplb', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'LAhF6AVml', to_date('1/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'BcDUMyc5lI', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'U2UE8YnAf', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'yG9MDVTYdlP', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'H33yBh', to_date('6/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'mQEhePtZrQ', to_date('7/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'yt9UfI', to_date('8/12/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'CylPtRE4ju', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 'QTswbLcY', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'xJbueX7H', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'PQYoS6uP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'I78qgG', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'qsfX5Ru', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', '49h9jXB', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'x5BpVKoIjiUX', to_date('2/10/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'XgFgRDStIRa', to_date('9/4/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'u0PxpGApRTmO', to_date('7/5/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', to_date('15/1/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', to_date('30/7/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'S3LpbBAcSbM', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'LA2aqb4x', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider');
 
 -- Customers
 insert into Customers (cid, name, reward_points) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', 'Florida', 30);
@@ -494,16 +695,16 @@ insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobso
 insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
-insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
-insert into RestaurantStaffs (staff_id, rest_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2);
-insert into RestaurantStaffs (staff_id, rest_id) values ('bf4f405e-84ef-458c-b825-63d47379c374', 3);
-insert into RestaurantStaffs (staff_id, rest_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4);
-insert into RestaurantStaffs (staff_id, rest_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5);
-insert into RestaurantStaffs (staff_id, rest_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6);
-insert into RestaurantStaffs (staff_id, rest_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7);
-insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 8);
-insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
-insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
+insert into RestaurantStaffs (staff_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade');
+insert into RestaurantStaffs (staff_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41');
+insert into RestaurantStaffs (staff_id) values ('bf4f405e-84ef-458c-b825-63d47379c374');
+insert into RestaurantStaffs (staff_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406');
+insert into RestaurantStaffs (staff_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f');
+insert into RestaurantStaffs (staff_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478');
+insert into RestaurantStaffs (staff_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818');
+insert into RestaurantStaffs (staff_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5');
+insert into RestaurantStaffs (staff_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5');
+insert into RestaurantStaffs (staff_id) values ('fd1001b8-2503-4685-9661-fff922fa7798');
 
 -- WWS
 INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');
@@ -657,16 +858,16 @@ insert into Salaries (sid, rid, start_date, end_date, amount) values (28, '16710
 insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
 
 -- Orders
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.78', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$0.25', '$5.35', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$4.45', '$93.45', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00');
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$29.32', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$80.73', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$4.62', '$97.13', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$1.19', '$25.01', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 3);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$2.41', '$50.69', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$2.46', '$51.68', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', 5);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$4.63', '$97.30', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$1.01', '$20.20', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$4.45', '$89.00', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00');
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$4.62', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$1.19', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 3);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$2.41', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', 4);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$2.46', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$4.63', '$98.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', 5);
 
 -- Places
 insert into Places (oid, cid, address, payment_method) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760', 'credit-card');
@@ -681,24 +882,24 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 1, '1000', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 1, '1000', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 1, '1000', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 1, '1000', 'Side Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, '100', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, '50', 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, '50', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, '20', 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 2, '20', 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 4, '20', 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, 100, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, 50, 'Dessert');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, 50, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, 20, 'Drink');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

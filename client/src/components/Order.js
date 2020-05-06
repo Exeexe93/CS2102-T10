@@ -1,9 +1,11 @@
 import React, { Component } from "react";
-import { Container } from "reactstrap";
 import "../styles/Order.css";
 
 class Order extends Component {
-  state = {};
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     const {
       order_number,
@@ -15,7 +17,7 @@ class Order extends Component {
 
     return (
       <React.Fragment>
-        <Container fluid className="container-fluid">
+        <div className="container-fluid">
           <div className="order-container">
             <div className="order-row">
               <h3>Order Number: </h3>
@@ -42,9 +44,14 @@ class Order extends Component {
               <p>{restaurant_location}</p>
             </div>
 
-            <button className="order-button">Accept</button>
+            <button
+              onClick={() => this.props.handleAcceptOrder(this.props.orderInfo)}
+              className="order-button"
+            >
+              Accept
+            </button>
           </div>
-        </Container>
+        </div>
       </React.Fragment>
     );
   }

@@ -1,13 +1,6 @@
 import React, { Component } from "react";
 
-import {
-  Container,
-  Navbar,
-  NavbarBrand,
-  Nav,
-  NavLink,
-  Jumbotron,
-} from "reactstrap";
+import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
 
 import "../styles/PTRiderMainPage.css";
 
@@ -17,6 +10,8 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
 import CompletedOrderList from "./CompletedOrderList";
+import swal from "sweetalert";
+import OngoingOrder from "./OngoingOrder";
 
 class PTRiderMainPage extends Component {
   constructor(props) {
@@ -28,6 +23,8 @@ class PTRiderMainPage extends Component {
       orders: [],
       completed_orders: [],
       avg_rating: 0,
+      ongoing_order: null,
+      ongoing_order_status_text: "Arrive At Restaurant",
     };
   }
 
@@ -71,6 +68,22 @@ class PTRiderMainPage extends Component {
       })
       .catch((err) => {
         console.log(err);
+      });
+  };
+
+  getOngoingOrder = () => {
+    fetch("http://localhost:3001/Rider/getOngoingOrder", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rid: this.state.id }),
+    })
+      .then((res) => {
+        return res ? res.json() : [null];
+      })
+      .then((res) => {
+        this.setState({
+          ongoing_order: res[0],
+        });
       });
   };
 
@@ -128,14 +141,54 @@ class PTRiderMainPage extends Component {
       });
   };
 
+  // Update ongoing order status for depart for restaurant
+  updateStatusDepartForRestaurant = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDepartForRestaurant", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        }
+      });
+  };
+
+  // Update ongoing order status for arrival at restaurant in DB
+  updateStatusArriveAtRestaurant = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusArriveAtRestaurant", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
   handleViewSalary = () => {
+    // TODO
     // this.props.history.push("/PTriderMainPage/salary");
   };
 
   handleViewSchedule = () => {
     this.props.history.push({
       pathname: "PTRiderMainPage/schedule",
-      isFTRider: this.state.isFTRider,
+      state: {
+        isFTRider: this.state.isFTRider,
+        id: this.state.id,
+      },
     });
   };
 
@@ -145,9 +198,110 @@ class PTRiderMainPage extends Component {
     });
   };
 
+  handleAcceptPendingOrder = (orderInfo) => {
+    // Only 1 Job can be accepted at any given time
+    if (this.state.ongoing_order !== null) {
+      swal(
+        "Unable to accept order " + order_number + "!",
+        "Please complete your ongoing order!",
+        "error"
+      );
+      return;
+    }
+    const order_number = orderInfo.order_number;
+    // Add timestamp to order_placed in Orders table
+    fetch("http://localhost:3001/Rider/acceptOrder", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+        rid: this.state.id,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          swal(
+            "Unable to accept order " + order_number + "!",
+            "Please try again!",
+            "error"
+          );
+        } else {
+          swal("Added Order " + order_number + "!", "", "success");
+          // Place Order into Accepted Job List
+          this.setState({
+            ongoing_order: {
+              order_number: orderInfo.order_number,
+              cname: orderInfo.cname,
+              delivery_location: orderInfo.delivery_location,
+              restaurant_name: orderInfo.restaurant_name,
+              restaurant_location: orderInfo.restaurant_location,
+            },
+          });
+          // TODO
+          // Update DB depart_for_rest
+          this.updateStatusDepartForRestaurant(order_number);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        swal(
+          "Unable to accept order " + order_number + "!",
+          "Please try again!",
+          "error"
+        );
+      });
+  };
+
+  handleStatusUpdate = (order_number) => {
+    const status_text = this.state.ongoing_order_status_text;
+    if (status_text === "Arrive At Restaurant") {
+      // TODO
+      // Update text to "Depart from restaurant to delivery location"
+      this.setState({
+        ongoing_order_status_text:
+          "Depart from restaurant to delivery location",
+      });
+      // Update DB Order arrive_at_rest
+      this.updateStatusArriveAtRestaurant(order_number);
+    } else if (status_text === "Depart from restaurant to delivery location") {
+      // TODO
+      // Update text to "Order Delivered"
+      this.setState({
+        ongoing_order_status_text: "Order Delivered",
+      });
+      // Update DB Order depart_for_delivery
+    } else if (status_text === "Order delivered") {
+      // TODO
+      // Update Ongoing order to Completed Order
+      // Update DB Order deliver_to_cust
+    }
+  };
+
+  displayErrorStatus = () => {
+    return swal("Unable to update status", "Please Try Again!", "error");
+  };
+
+  displaySuccessStatus = () => {
+    return swal("Successfully updated status", "", "success");
+  };
+
+  renderOngoingDelivery = () => {
+    if (this.state.ongoing_order !== null) {
+      return (
+        <OngoingOrder
+          orderInfo={this.state.ongoing_order}
+          orderStatusText={this.state.ongoing_order_status_text}
+          handleStatusUpdate={this.handleStatusUpdate}
+        ></OngoingOrder>
+      );
+    }
+  };
+
   componentDidMount() {
     this.getName();
     this.getAvgRating();
+    this.getOngoingOrder();
     this.getPendingOrders();
     this.getCompletedOrders();
   }
@@ -206,10 +360,14 @@ class PTRiderMainPage extends Component {
           </div>
         </Jumbotron>
 
+        <h1 className="centered-text">Ongoing Delivery</h1>
+        {this.renderOngoingDelivery()}
+
         <OrderList
           key={"pending-orders-" + this.state.orders.length}
           orders={this.state.orders}
           title={"Pending Orders"}
+          handleAcceptOrder={this.handleAcceptPendingOrder}
         />
 
         <CompletedOrderList

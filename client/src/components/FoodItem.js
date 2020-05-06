@@ -1,19 +1,18 @@
 import React, { Component } from "react";
 import "../styles/FoodItem.css";
-import { GiShoppingCart, GiConsoleController } from "react-icons/gi";
+import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson, MdArrowBack } from "react-icons/md";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button, Table } from "react-bootstrap";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import swal from "sweetalert";
 
 class FoodItem extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      message: "",
-      errorAddingFoods: [],
-      errorUpdateFoods: [],
       foodItem: [],
       filtered: [],
       orders: [],
@@ -31,7 +30,7 @@ class FoodItem extends Component {
 
   sortingFoodItem = (first, second) => {
     if (first.category === second.category) {
-      return 0;
+      return first.name - second.name;
     } else if (first.category === "Main Dish") {
       return -1;
     } else if (second.category === "Main Dish") {
@@ -166,7 +165,7 @@ class FoodItem extends Component {
             let isFound = false;
             cartItems.map((cartItem) => {
               if (item.fid === cartItem.fid) {
-                // Update oid, fid, quantity, total_price to be continued
+                // Update oid, fid, quantity, total_price
                 this.updateFood(
                   cartItem.oid,
                   cartItem.fid,
@@ -195,8 +194,10 @@ class FoodItem extends Component {
         });
       }
 
-      this.setState({
-        message: "Order has been added into the cart!",
+      swal({
+        title: "Order has been added into the cart!",
+        text: "You can go to your cart to confirm your order",
+        icon: "success",
       });
     } catch (err) {
       console.error(err);
@@ -213,9 +214,11 @@ class FoodItem extends Component {
         }
       );
       if (response.data[0].exists === true) {
-        this.setState({
-          message:
+        swal({
+          title: "Transaction failed!",
+          text:
             "You cannot add order if you have order from other restaurant in your cart",
+          icon: "error",
         });
       } else {
         this.updateOrderIfExists();
@@ -227,11 +230,6 @@ class FoodItem extends Component {
 
   addOrder = (event) => {
     event.preventDefault();
-    this.setState({
-      errorUpdateFoods: [],
-      errorAddingFoods: [],
-      message: "",
-    });
     // Check whether there are other order that has not paid which same restaurant as current
     this.checkCartContainOtherRestaurantOrder();
   };
@@ -278,14 +276,14 @@ class FoodItem extends Component {
         "http://localhost:3001/Customer/AddFood",
         food
       );
-      if (response.data.detail) {
-        let errorFoods = this.state.errorAddingFoods;
-        errorFoods.push(item.name);
-        this.setState({
-          errorAddingFoods: errorFoods,
-          message:
-            "Food items are unable to added into cart due to exceed limit:",
-        });
+      if (response.data.where) {
+        if (response.data.where.includes("reject_above_food_limit")) {
+          swal({
+            title: "Transaction failed!",
+            text: "Please check that your order do not exceed the limit!",
+            icon: "warning",
+          });
+        }
       }
       var foodItem = this.state.foodItem;
       foodItem[index].actualQuantity = 0;
@@ -308,15 +306,14 @@ class FoodItem extends Component {
           total_price: total_price,
         }
       );
-
-      if (response.data.detail) {
-        let errorFoods = this.state.errorUpdateFoods;
-        errorFoods.push(this.state.foodItem[index].name);
-        this.setState({
-          errorUpdateFoods: errorFoods,
-          message:
-            "Food items are unable to added into cart due to exceed limit:",
-        });
+      if (response.data.where) {
+        if (response.data.where.includes("reject_above_food_limit")) {
+          swal({
+            title: "Transaction failed!",
+            text: "Please check that your order do not exceed the limit!",
+            icon: "warning",
+          });
+        }
       }
       var foodItem = this.state.foodItem;
       foodItem[index].actualQuantity = 0;
@@ -355,74 +352,6 @@ class FoodItem extends Component {
     return formatter.format(total_price);
   };
 
-  displayErrorFoods = () => {
-    return (
-      <div>
-        {this.state.errorAddingFoods.map((food, index) => (
-          <h4 className="errorFoods" key={index}>
-            {food}
-          </h4>
-        ))}
-
-        {this.state.errorUpdateFoods.map((food, index) => (
-          <h4 className="errorFoods" key={index}>
-            {food}
-          </h4>
-        ))}
-      </div>
-    );
-  };
-
-  displayMenuHeader = () => {
-    return (
-      <ListGroup horizontal>
-        <ListGroup.Item className="listName">Food Name</ListGroup.Item>
-        <ListGroup.Item className="listPrice">Price</ListGroup.Item>
-        <ListGroup.Item className="listQuantity">Quantity</ListGroup.Item>
-        <ListGroup.Item className="listQuantityLeft">
-          Quantity Left
-        </ListGroup.Item>
-        {/* <ListGroup.Item className="listLimit">Limit</ListGroup.Item> */}
-        <ListGroup.Item className="listCategory">Category</ListGroup.Item>
-      </ListGroup>
-    );
-  };
-
-  displayMenuFoods = (item, index) => {
-    return (
-      <ListGroup key={index} horizontal>
-        <ListGroup.Item className="listName">{item.name}</ListGroup.Item>
-        <ListGroup.Item className="listPrice">{item.price}</ListGroup.Item>
-        <ListGroup.Item className="listQuantity">
-          <Form.Group controlId={item.name}>
-            <Form.Control
-              as="select"
-              value={this.state.foodItem[index].actualQuantity}
-              onChange={(value) => this.handleQuantity(value, index)}
-            >
-              {item.amount.map((num, index) => {
-                return (
-                  <option key={index} value={num.value}>
-                    {num.value}
-                  </option>
-                );
-              })}
-            </Form.Control>
-          </Form.Group>
-        </ListGroup.Item>
-        <ListGroup.Item className="listQuantityLeft">
-          {item.food_limit}
-        </ListGroup.Item>
-        {/* <ListGroup.Item className="listLimit">
-        {item.food_limit}
-      </ListGroup.Item> */}
-        <ListGroup.Item className="listCategory">
-          {item.category}
-        </ListGroup.Item>
-      </ListGroup>
-    );
-  };
-
   displaySearchInput = () => {
     return (
       <div className="container">
@@ -438,6 +367,60 @@ class FoodItem extends Component {
     );
   };
 
+  displayFood = (food, foodIndex) => {
+    return (
+      <tr key={foodIndex} className="orderTable">
+        <td>{food.name}</td>
+        <td>{food.price}</td>
+        <td>
+          <Form.Group controlId={food.name}>
+            <Form.Control
+              className="form"
+              as="select"
+              value={this.state.foodItem[foodIndex].actualQuantity}
+              onChange={(value) => this.handleQuantity(value, foodIndex)}
+            >
+              {food.amount.map((num, foodIndex) => {
+                return (
+                  <option key={foodIndex} value={num.value}>
+                    {num.value}
+                  </option>
+                );
+              })}
+            </Form.Control>
+          </Form.Group>
+        </td>
+        <td>{food.food_limit}</td>
+        <td>{food.quantity}</td>
+        <td>{food.category}</td>
+      </tr>
+    );
+  };
+
+  displayMenuTable = () => {
+    return (
+      <div className="menuTable">
+        <Table striped bordered hover size="sm">
+          <thead>
+            <tr>
+              <th>Food Name</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Purchase Limit</th>
+              <th>Quantity Left</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.state.filtered.map((food, foodIndex) =>
+              this.displayFood(food, foodIndex)
+            )}
+          </tbody>
+        </Table>
+      </div>
+    );
+  };
+
   displayMenu = () => {
     return (
       <TabPanel>
@@ -449,20 +432,9 @@ class FoodItem extends Component {
 
         <div className="separator"></div>
         <ListGroup className="foodList">
-          {this.displayMenuHeader()}
-          {this.state.filtered.map((item, index) =>
-            this.displayMenuFoods(item, index)
-          )}
+          {this.displayMenuTable()}
+
           <div className="separator"></div>
-          {this.state.message && (
-            <h4 className="message">{this.state.message}</h4>
-          )}
-          {(this.state.errorAddingFoods.length !== 0 ||
-            this.state.errorUpdateFoods.length !== 0) &&
-            this.displayErrorFoods()}
-          {this.state.errorAddingFoods.length !== 0 && (
-            <h4 className="errorFoods">{this.state.errorAddingFoods}</h4>
-          )}
           <Button
             type="button"
             className="submitButton"
@@ -512,9 +484,21 @@ class FoodItem extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Navbar dark color="dark">
+            <Link
+              to={{
+                pathname: "/Customer",
+                state: {
+                  account_id: this.state.cid,
+                },
+              }}
+            >
+              <div className="backIcon">
+                <MdArrowBack />
+                To Home Page
+              </div>
+            </Link>
+          </Navbar>
           <div className="icon-container">
             <GiShoppingCart
               size="3em"

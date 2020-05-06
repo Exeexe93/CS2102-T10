@@ -19,9 +19,11 @@ app.use("/RestaurantStaff", require("./api/Restaurantstaff.js"));
 app.use("/Customer", require("./api/Customer.js"));
 app.use("/FDSManager", require("./api/FDSManager.js"));
 app.use("/Login", require("./api/Login.js"));
+app.use("/Rider", require("./api/Rider.js"));
 app.use("/FTRider", require("./api/FTRider.js"));
 app.use("/PTRider", require("./api/PTRider.js"));
 app.use("/Signup", require("./api/Signup.js"));
+app.use("/Schedule", require("./api/Schedule.js"));
 
 app.use(function (request, response, next) {
   response.header("Access-Control-Allow-Origin", "*");
@@ -51,7 +53,7 @@ app.use(function (err, req, res, next) {
 
 // const db = require("./database/index.js");
 // db.query(
-//   "SELECT name, SUM(Consists.quantity) as TotalQuantity FROM Foods INNER JOIN Consists USING (fid) WHERE rest_id = 1 GROUP BY fid ORDER BY totalQuantity desc LIMIT 5",
+//   "SELECT * FROM Foods ORDER BY fid",
 //   (value, output) => {
 //     console.log(output);
 //   },

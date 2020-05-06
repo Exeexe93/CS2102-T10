@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
-import { Navbar, NavbarBrand, Col, Row, Jumbotron } from "reactstrap";
+import { Navbar, Col, Row, Jumbotron } from "reactstrap";
 import {
   FormGroup,
   Form,
@@ -14,6 +14,7 @@ import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { MdArrowBack } from "react-icons/md";
+import { Link } from "react-router-dom";
 import axios from "axios";
 
 class Profile extends Component {
@@ -25,10 +26,28 @@ class Profile extends Component {
       rewardPoints: 0,
       registeredCreditCard: [],
       orderHistory: [],
+      isInEditMode: false,
+      password: "",
     };
   }
 
   static contextType = AccountContext;
+
+  getCustomerDetails = async (cid) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetCustomerDetails",
+        {
+          cid: cid,
+        }
+      );
+      this.setState({
+        password: response.data[0].account_pass,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   getRewardPoints = (customerName) => {
     var request = new Request(
@@ -63,6 +82,17 @@ class Profile extends Component {
     fetch(request)
       .then((res) => res.json())
       .then((res) => {
+        let orderHistory = res;
+        orderHistory.map((order) => {
+          order["total_price"] =
+            "$" +
+            this.calculateOrderTotalPrice(
+              order.cost,
+              order.promoDiscount,
+              order.deliveryFee,
+              order.pointsUsed
+            );
+        });
         this.setState({
           orderHistory: res,
         });
@@ -93,6 +123,7 @@ class Profile extends Component {
 
   componentDidMount() {
     let value = this.context;
+    this.getCustomerDetails(value.state.cid);
     this.getRewardPoints(value.state.name);
     this.getOrderList(value.state.cid);
     this.getCreditCards(value.state.cid);
@@ -101,6 +132,20 @@ class Profile extends Component {
       customerName: value.state.name,
     });
   }
+
+  calculateOrderTotalPrice = (
+    rawCost,
+    promoDiscount,
+    deliveryFee,
+    rewardPointsOffset
+  ) => {
+    let total_price =
+      parseFloat(rawCost.slice(1)) +
+      parseFloat(deliveryFee.slice(1)) -
+      parseFloat(promoDiscount.slice(1)) -
+      rewardPointsOffset;
+    return parseFloat(total_price.toFixed(2));
+  };
 
   addCreditCard = (event) => {
     const form = event.target;
@@ -318,7 +363,7 @@ class Profile extends Component {
       <tr key={"totalCost - " + order.orderNum} className="orderTable">
         <td>Total Cost</td>
         <td></td>
-        <td>{order.cost}</td>
+        <td>{order.total_price}</td>
         <td></td>
       </tr>
     );
@@ -362,7 +407,7 @@ class Profile extends Component {
       <tr key={foodIndex} className="orderTable">
         <td>{food.FoodName}</td>
         <td>{food.FoodQuantity}</td>
-        <td>${food.FoodCost}</td>
+        <td>{food.FoodCost}</td>
         <td>{this.displayReviewInput(foodIndex, index)}</td>
       </tr>
     );
@@ -479,13 +524,111 @@ class Profile extends Component {
     );
   };
 
+  changeEditMode = () => {
+    this.setState({ isInEditMode: !this.state.isInEditMode });
+  };
+
+  handleUpdate = async (event) => {
+    let form = event.target;
+    event.preventDefault();
+    let customerName = form.elements.name.value;
+    let password = form.elements.password.value;
+    this.setState({
+      customerName: customerName,
+      password: password,
+      isInEditMode: false,
+    });
+    try {
+      await axios.post("http://localhost:3001/Customer/updateCustomerDetails", {
+        cid: this.state.cid,
+        name: customerName,
+        account_pass: password,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  renderEditView = () => {
+    return (
+      <form onSubmit={this.handleUpdate}>
+        <FormGroup>
+          <Form.Label>Name: </Form.Label>
+          <Form.Control
+            className="nameInput"
+            name="name"
+            required={true}
+            type="text"
+            defaultValue={this.state.customerName}
+            placeholder="Name"
+          />
+          <Form.Label>Password: </Form.Label>
+          <Form.Control
+            className="passwordInput"
+            name="password"
+            required={true}
+            type="password"
+            defaultValue={this.state.password}
+            placeholder="Password"
+          />
+          <Button type="submit"> Update </Button>{" "}
+          <Button onClick={this.handleCancel}> Cancel </Button>
+        </FormGroup>
+      </form>
+    );
+  };
+
+  renderDefaultView = () => {
+    return (
+      <div>
+        <h3>Name: {this.state.customerName}</h3>
+        <h3>Password:{this.state.password}</h3>
+      </div>
+    );
+  };
+
+  handleCancel = () => {
+    this.setState({ isInEditMode: false });
+  };
+
+  displayPersonalInfoTab = () => {
+    return (
+      <TabPanel className="personalInfoTab">
+        <h2 align="center" className="personalInfoTitle">
+          <span> Personal Information </span>
+          {this.state.isInEditMode ? (
+            ""
+          ) : (
+            <Button onClick={this.changeEditMode}>Update Profile</Button>
+          )}
+        </h2>
+        <h3>
+          {" "}
+          {this.state.isInEditMode
+            ? this.renderEditView()
+            : this.renderDefaultView()}{" "}
+        </h3>
+      </TabPanel>
+    );
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Link
+            to={{
+              pathname: "/Customer",
+              state: {
+                account_id: this.state.cid,
+              },
+            }}
+          >
+            <div className="backIcon">
+              <MdArrowBack />
+              To Home Page
+            </div>
+          </Link>
         </Navbar>
 
         <Col>
@@ -504,9 +647,11 @@ class Profile extends Component {
           <TabList id="tabs">
             <Tab>Post Order History</Tab>
             <Tab>Pre-registered credit card</Tab>
+            <Tab>Personal's information</Tab>
           </TabList>
           {this.displayPostOrderTab()}
           {this.displayPreregisteredCreditCardTab()}
+          {this.displayPersonalInfoTab()}
         </Tabs>
       </div>
     );

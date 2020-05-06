@@ -71,3 +71,16 @@ body {
   .react-tabs__tab-panel--selected {
     display: block;
   }
+
+.error {
+  color : red
+}
+
+.link {
+  color: whitesmoke;
+  font-size: 22px;
+}
+
+.link:hover {
+  color: lightskyblue;
+}

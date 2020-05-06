@@ -225,27 +225,27 @@ class RestaurantStaffMainPage extends Component {
         return (
             <div>
                 <Navbar className="navbar" color="dark" dark>
-                    <NavbarBrand className="link">Home Page</NavbarBrand>
+                    <NavbarBrand>Home Page</NavbarBrand>
 
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleProfileNavigation} className="link">
+                        <NavLink href="" onClick={this.handleProfileNavigation} className="icon">
                             <MdPerson />
                             <span> Restaurant Profile </span>
                         </NavLink>
 
-                        <NavLink href="" onClick={this.handlePromotionNavigation} className="link">
+                        <NavLink href="" onClick={this.handlePromotionNavigation} className="icon">
                          <FaBullhorn />
                             <span> Promotional Campaigns </span>
                         </NavLink>
 
-                        <NavLink href="" onClick={this.handleSummaryNavigation} className="link">
+                        <NavLink href="" onClick={this.handleSummaryNavigation} className="icon">
                          <MdDataUsage />
                             <span> Summary Info </span>
                         </NavLink>
                     </Nav>
     
                     <Nav>
-                        <NavLink href="/Login" className="link">
+                        <NavLink href="/Login" className="icon">
                             <RiLogoutBoxLine />
                             <span> Logout </span>
                         </NavLink>

@@ -59,6 +59,7 @@ CREATE TABLE CreditCards (
 CREATE TABLE Promos (
 	creator_id varchar(255),
 	promo_id serial unique,
+	use_limit integer,
 	details text not null,
 	category varchar(255) not null,
 	promo_type varchar(255) not null,
@@ -480,35 +481,35 @@ EXECUTE FUNCTION zero_quantity_set_food_unavailable();
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
 -- need a trigger to update given table
-CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER
 	AS $$
 DECLARE
 	all_cust 	CURSOR FOR SELECT cid, name, date_created FROM Customers join Accounts on (Accounts.account_id = Customers.cid);
 	first_order	CURSOR FOR SELECT distinct C.cid FROM Customers C
 				WHERE NOT EXISTS (SELECT 1 FROM Places P WHERE c.cid = P.cid);
-	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1 
+	inactive	CURSOR FOR SELECT DISTINCT cid FROM places P1
 						WHERE NOT EXISTS(
-							SELECT 1 FROM customers JOIN places USING (cid) 
-								JOIN orders USING (oid) 
+							SELECT 1 FROM customers JOIN places USING (cid)
+								JOIN orders USING (oid)
 							WHERE extract(month from age(current_timestamp, order_placed)) > 3);
-	loyal_cust 	CURSOR FOR select distinct cid, money from 
-					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money 
-					from Orders join Places using(oid) 
-					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L 
-					where money >= 100::money; 
+	loyal_cust 	CURSOR FOR select distinct cid, money from
+					(select cid, order_placed,(select coalesce(total_price, 0::money) + coalesce(delivery_fee, 0::money)) as money
+					from Orders join Places using(oid)
+					where extract(month from age('now'::timestamp - '1 month'::interval,  order_placed)) <= 1) as L
+					where money >= 100::money;
 	category	promos.category%TYPE;
 	table_row 	RECORD;
 BEGIN
-	SELECT P.category INTO category 
+	SELECT P.category INTO category
 		FROM Promos P
 		WHERE P.category = NEW.category;
 	IF category = 'All' THEN
 		OPEN all_cust;
-		LOOP 
+		LOOP
 		FETCH all_cust INTO table_row;
 		EXIT WHEN NOT FOUND;
-		INSERT INTO Given(promo_id, cid) 
-		VALUES(NEW.promo_id , table_row.cid);
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
 	ELSIF category = 'First Order' THEN
 		OPEN first_order;
@@ -534,8 +535,16 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+	ELSIF category = 'Restaurant' THEN
+		OPEN all_cust;
+		LOOP
+		FETCH all_cust INTO table_row;
+		EXIT WHEN NOT FOUND;
+		INSERT INTO Given(promo_id, cid)
+		VALUES(NEW.promo_id, table_row.cid);
+		END LOOP;
 	ELSE
-		RAISE exception 'Invalid category'; 
+		RAISE exception 'Invalid category';
 	END IF;
 	RETURN NULL;
 END;
@@ -927,3 +936,12 @@ insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e5
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
 insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
+
+-- Promos
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $20 and above this month to get a $3 discount on your total order.', 'Restaurant', 'flat-rate', '3', '20', '03/04/2020', '02/05/2020');
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $80 and above to qualify for a 20% discount on your total order.', 'Restaurant', 'percent', '20', '80', '03/04/2020', '02/05/2020');
+
+-- Uses
+insert into Uses (oid, promo_id, amount) values (2, 1, '$3.00');
+insert into Uses (oid, promo_id, amount) values (3, 2, '$17.80');
+

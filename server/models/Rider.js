@@ -62,6 +62,34 @@ class Rider {
     );
   }
 
+  static getStatusDepartForDelivery(oid, callback) {
+    db.query(
+      "SELECT depart_for_delivery FROM Orders WHERE oid = $1",
+      [oid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain status: ", err);
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static getStatusDeliverToCustomer(oid, callback) {
+    db.query(
+      "SELECT deliver_to_cust FROM Orders WHERE oid = $1",
+      [oid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain status: ", err);
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
   static updateStatusDepartForRestaurant(oid, callback) {
     db.query(
       "UPDATE Orders SET depart_for_rest = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
@@ -90,9 +118,9 @@ class Rider {
     );
   }
 
-  static getStatusDepartForDelivery(oid, callback) {
+  static updateStatusDepartForDelivery(oid, callback) {
     db.query(
-      "SELECT depart_for_delivery FROM Orders WHERE oid = $1",
+      "UPDATE Orders SET depart_for_delivery = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
       [oid],
       (err, res) => {
         if (err.error) {
@@ -104,9 +132,9 @@ class Rider {
     );
   }
 
-  static getStatusDeliverToCustomer(oid, callback) {
+  static updateStatusDeliverToCustomer(oid, callback) {
     db.query(
-      "SELECT deliver_to_cust FROM Orders WHERE oid = $1",
+      "UPDATE Orders SET deliver_to_cust = to_timestamp(to_char(NOW(), 'YYYY-MM-DD HH24:MI:SS'), 'YYYY-MM-DD HH24:MI:SS') WHERE oid = $1",
       [oid],
       (err, res) => {
         if (err.error) {

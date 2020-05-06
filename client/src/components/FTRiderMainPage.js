@@ -174,6 +174,42 @@ class FTRiderMainPage extends Component {
       });
   };
 
+  updateStatusDepartForDelivery = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDepartForDelivery", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
+  updateStatusDeliverToCustomer = (order_number) => {
+    fetch("http://localhost:3001/Rider/updateStatusDeliverToCustomer", {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        oid: order_number,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.error) {
+          this.displayErrorStatus();
+        } else {
+          this.displaySuccessStatus();
+        }
+      });
+  };
+
   handleViewSalary = () => {
     // TODO
     // if (this.state.isFTRider) {
@@ -257,7 +293,6 @@ class FTRiderMainPage extends Component {
   handleStatusUpdate = (order_number) => {
     const status_text = this.state.ongoing_order_status_text;
     if (status_text === "Arrive At Restaurant") {
-      // TODO
       // Update text to "Depart from restaurant to delivery location"
       this.setState({
         ongoing_order_status_text:
@@ -266,16 +301,17 @@ class FTRiderMainPage extends Component {
       // Update DB Order arrive_at_rest
       this.updateStatusArriveAtRestaurant(order_number);
     } else if (status_text === "Depart from restaurant to delivery location") {
-      // TODO
       // Update text to "Order Delivered"
       this.setState({
         ongoing_order_status_text: "Order Delivered",
       });
       // Update DB Order depart_for_delivery
+      this.updateStatusDepartForDelivery(order_number);
     } else if (status_text === "Order delivered") {
+      // Update DB Order deliver_to_cust
+      this.updateStatusDeliverToCustomer(order_number);
       // TODO
       // Update Ongoing order to Completed Order
-      // Update DB Order deliver_to_cust
     }
   };
 

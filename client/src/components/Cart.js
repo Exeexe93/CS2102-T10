@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -13,7 +13,9 @@ import {
 } from "react-bootstrap";
 import { MdArrowBack } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
+import { Link } from "react-router-dom";
 import axios from "axios";
+import swal from "sweetalert";
 
 class Cart extends Component {
   constructor(props) {
@@ -25,26 +27,49 @@ class Cart extends Component {
       rewardPointsUsed: 0,
       orders: [],
       creditCards: [],
-      errorUpdateFoods: [],
       paymentMethod: "cash",
       addCreditCard: "",
       addDeliveryLocation: "",
-      errorMessage: "",
       rawCost: 0,
       promoDiscount: 0,
       paymentCost: 0,
       deliveryFee: 0,
       discountedCost: 0,
-      promo_id: 0,
+      selectedPromoId: 0,
       addressSelected: "",
       addresses: [],
+      selectedPromo: null,
+      promos: [],
+      isFreeDelivery: false,
     };
   }
 
   static contextType = AccountContext;
 
-  limitToTwoDeciamlPlaces = (value) => {
+  limitToTwoDecimalPlaces = (value) => {
     return parseFloat(value.toFixed(2));
+  };
+
+  getPromoDetails = async (cid, rest_id) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:3001/Customer/GetPromotions",
+        {
+          cid: cid,
+          rest_id: rest_id,
+        }
+      );
+
+      let promos = response.data;
+      promos.map((promo) => {
+        promo.trigger_value = parseFloat(promo.trigger_value.slice(1));
+      });
+      this.setState({
+        promos: promos,
+      });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   getCreditCards = async (value) => {
@@ -93,17 +118,16 @@ class Cart extends Component {
             const singleFoodCost = parseFloat(food.FoodCost.slice(1));
             singleOrderCost += singleFoodCost;
             let individualFoodCost = singleFoodCost / food.FoodQuantity;
-            food["itemCost"] = this.limitToTwoDeciamlPlaces(individualFoodCost);
+            food["itemCost"] = this.limitToTwoDecimalPlaces(individualFoodCost);
             food["originalQuantity"] = food.FoodQuantity;
             food["FoodCost"] = singleFoodCost;
           });
-          data["total_cost"] = this.limitToTwoDeciamlPlaces(singleOrderCost);
+          data["total_cost"] = this.limitToTwoDecimalPlaces(singleOrderCost);
           rawCost = rawCost + singleOrderCost;
         });
-        rawCost = this.limitToTwoDeciamlPlaces(rawCost);
+        rawCost = this.limitToTwoDecimalPlaces(rawCost);
         const deliveryFee = this.calculateDeliveryFee(rawCost);
-        const paymentCost = this.limitToTwoDeciamlPlaces(deliveryFee + rawCost);
-
+        const paymentCost = this.limitToTwoDecimalPlaces(deliveryFee + rawCost);
         this.setState({
           orders: orders,
           cid: value.state.cid,
@@ -112,6 +136,7 @@ class Cart extends Component {
           paymentCost: paymentCost,
           deliveryFee: deliveryFee,
         });
+        this.getPromoDetails(value.state.cid, orders[0].rest_id);
       })
       .catch((err) => console.error(err));
   };
@@ -122,7 +147,7 @@ class Cart extends Component {
         name: value.state.name,
       })
       .then((res) => {
-        let rewardPoints = this.limitToTwoDeciamlPlaces(
+        let rewardPoints = this.limitToTwoDecimalPlaces(
           res.data[0].reward_points
         );
         this.setState({
@@ -142,18 +167,72 @@ class Cart extends Component {
 
   calculateDeliveryFee = (total_cost) => {
     const conversionRate = 0.05;
-    return this.limitToTwoDeciamlPlaces(total_cost * conversionRate);
+    let deliveryFee = this.limitToTwoDecimalPlaces(total_cost * conversionRate);
+    if (this.state.isFreeDelivery) {
+      this.setState({ promoDiscount: deliveryFee, deliveryFee });
+      return 0;
+    }
+    return deliveryFee;
   };
 
   calculateRewardPoint = (total_cost) => {
     const conversionRate = 0.1;
-    let result = this.limitToTwoDeciamlPlaces(total_cost * conversionRate);
+    let result = this.limitToTwoDecimalPlaces(total_cost * conversionRate);
     return result;
   };
 
-  calculateDiscount = () => {
-    // To be continued
-    return 0;
+  calculateDiscount = (promo, rawCost) => {
+    if (promo === null) {
+      this.setState({
+        promoDiscount: 0,
+      });
+      return 0;
+    }
+    if (promo.trigger_value > rawCost) {
+      this.setState({
+        promoDiscount: 0,
+        isFreeDelivery: false,
+      });
+      swal({
+        title: "Promotion unable to be used!",
+        text: "Please make sure the order meet the requirement!",
+        icon: "warning",
+      });
+      return 0;
+    }
+    switch (promo.promo_type) {
+      case "Percent":
+        const promoDiscount = this.limitToTwoDecimalPlaces(
+          (rawCost * promo.discount_value) / 100
+        );
+        this.setState({
+          isFreeDelivery: false,
+          promoDiscount: promoDiscount,
+        });
+        return promoDiscount;
+      case "Flat Rate":
+        this.setState({
+          isFreeDelivery: false,
+          promoDiscount: promo.discount_value,
+        });
+        return promo.discount_value;
+      case "Delivery":
+        this.setState({
+          rewardPointsUsed: 0,
+          isFreeDelivery: true,
+        });
+        return 0;
+      default:
+        this.setState({
+          promoDiscount: 0,
+        });
+        swal({
+          title: "Invalid promotion!",
+          text: "The promotion type is not recognised!",
+          icon: "info",
+        });
+        return 0;
+    }
   };
 
   updateTotalValue = (event, food, foodIndex, index) => {
@@ -161,21 +240,22 @@ class Cart extends Component {
     if (value) {
       // Calculate total cost for the food based on quantity
       let orders = this.state.orders;
-      const FoodCost = this.limitToTwoDeciamlPlaces(
+      const FoodCost = this.limitToTwoDecimalPlaces(
         parseFloat(food.itemCost) * value
       );
       let costChanged = FoodCost - orders[index].foods[foodIndex].FoodCost;
-      costChanged = this.limitToTwoDeciamlPlaces(costChanged);
-      const total_cost = this.limitToTwoDeciamlPlaces(
+      costChanged = this.limitToTwoDecimalPlaces(costChanged);
+      const total_cost = this.limitToTwoDecimalPlaces(
         orders[index].total_cost + costChanged
       );
 
-      const rawCost = this.limitToTwoDeciamlPlaces(
+      const rawCost = this.limitToTwoDecimalPlaces(
         this.state.rawCost + costChanged
       );
-      const discountedCost = rawCost - this.calculateDiscount();
+      const discountedCost =
+        rawCost - this.calculateDiscount(this.state.selectedPromo, rawCost);
       const deliveryFee = this.calculateDeliveryFee(discountedCost);
-      const paymentCost = this.limitToTwoDeciamlPlaces(
+      const paymentCost = this.limitToTwoDecimalPlaces(
         discountedCost + deliveryFee
       );
 
@@ -186,7 +266,6 @@ class Cart extends Component {
         orders,
         rawCost,
         discountedCost,
-        deliveryFee,
         paymentCost,
       });
     }
@@ -210,27 +289,24 @@ class Cart extends Component {
   handleDelete = async (foodIndex, index) => {
     let orders = this.state.orders;
     try {
-      const response = await axios.post(
-        "http://localhost:3001/Customer/DeleteFood",
-        {
-          oid: orders[index].orderNum,
-          fid: orders[index].foods[foodIndex].FoodId,
-        }
-      );
+      await axios.post("http://localhost:3001/Customer/DeleteFood", {
+        oid: orders[index].orderNum,
+        fid: orders[index].foods[foodIndex].FoodId,
+      });
     } catch (err) {
       console.error(err);
     }
 
     const foodCost = orders[index].foods[foodIndex].FoodCost;
-    const orderCost = this.limitToTwoDeciamlPlaces(
+    const orderCost = this.limitToTwoDecimalPlaces(
       orders[index].total_cost - foodCost
     );
-    const rawCost = this.limitToTwoDeciamlPlaces(this.state.rawCost - foodCost);
-    const discountedCost = this.limitToTwoDeciamlPlaces(
-      rawCost - this.calculateDiscount()
+    const rawCost = this.limitToTwoDecimalPlaces(this.state.rawCost - foodCost);
+    const discountedCost = this.limitToTwoDecimalPlaces(
+      rawCost - this.calculateDiscount(this.state.selectedPromo, rawCost)
     );
     const deliveryFee = this.calculateDeliveryFee(discountedCost);
-    const paymentCost = this.limitToTwoDeciamlPlaces(
+    const paymentCost = this.limitToTwoDecimalPlaces(
       discountedCost + deliveryFee
     );
 
@@ -246,7 +322,6 @@ class Cart extends Component {
         orders,
         rawCost,
         discountedCost,
-        deliveryFee,
         paymentCost,
       });
     }
@@ -264,12 +339,20 @@ class Cart extends Component {
         valueList[0] = [];
       }
 
-      valueList[0].push([
-        orderNum,
-        food.FoodId,
-        food.FoodQuantity,
-        food.FoodCost,
-      ]);
+      if (food.FoodQuantity === "0") {
+        if (queryList.length === 1) {
+          queryList.push("DELETE FROM Consists WHERE oid = $1 AND fid = $2");
+          valueList[1] = [];
+        }
+        valueList[1].push([orderNum, food.FoodId]);
+      } else {
+        valueList[0].push([
+          orderNum,
+          food.FoodId,
+          food.FoodQuantity,
+          food.FoodCost,
+        ]);
+      }
     }
   };
 
@@ -302,12 +385,11 @@ class Cart extends Component {
       "UPDATE Customers SET reward_points = TO_NUMBER($2,'9999.99') WHERE cid = $1"
     );
 
-    let rewardPointLeft = this.limitToTwoDeciamlPlaces(
+    let rewardPointLeft = this.limitToTwoDecimalPlaces(
       this.state.rewardPoints -
         this.state.rewardPointsUsed +
         this.calculateRewardPoint(total_cost)
     );
-    console.log(rewardPointLeft);
     valueList.push([[this.state.cid, rewardPointLeft]]);
   };
 
@@ -325,25 +407,24 @@ class Cart extends Component {
       this.updateFood(food, data.orderNum, queryList, valueList);
     });
 
-    if (this.state.promo_id === 0) {
+    if (queryList.length === 2 && valueList[0].length === 0) {
+      queryList.shift();
+      valueList.shift();
+    }
+
+    queryList.push(
+      "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+    );
+    valueList.push([
+      [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
+    ]);
+
+    if (this.state.selectedPromoId !== 0) {
       queryList.push(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+        "INSERT INTO Uses (oid, promo_id, amount) VALUES ($1, $2, $3)"
       );
       valueList.push([
-        [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
-      ]);
-    } else {
-      queryList.push(
-        "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4, promo_used = $5 WHERE oid = $1"
-      );
-      valueList.push([
-        [
-          data.orderNum,
-          "paid",
-          this.state.rawCost,
-          this.state.deliveryFee,
-          this.state.promo_id,
-        ],
+        [data.orderNum, this.state.selectedPromoId, this.state.promoDiscount],
       ]);
     }
 
@@ -364,20 +445,38 @@ class Cart extends Component {
       if (response.data) {
         if (response.data.where) {
           if (response.data.where.includes("reject_order_below_threshold")) {
-            this.setState({
-              errorMessage:
-                "Order's total price does not meet the minimum threshold",
+            swal({
+              title: "Transaction failed!",
+              text: "Order's total price does not meet the minimum threshold!",
+              icon: "error",
             });
           } else if (response.data.where.includes("reject_above_food_limit")) {
             // Need to clear the respective order after transaction
-            this.setState({
-              errorMessage:
-                "Please make sure that the food quantity does not exceed the purchase limit",
+            swal({
+              title: "Transaction failed!",
+              text:
+                "Please make sure that the food quantity does not exceed the purchase limit!",
+              icon: "error",
+            });
+          } else if (
+            response.data.where.includes("reject_negative_food_quantity")
+          ) {
+            swal({
+              title: "Transaction failed!",
+              text:
+                "Please make sure that the food quantity is less than the food quantity left!",
+              icon: "error",
             });
           }
         } else {
           this.setState({
             orders: [],
+          });
+          swal({
+            title: "Order has been placed successfully!",
+            text: "Just wait for the food to come!",
+            icon: "success",
+            button: "Yeah",
           });
         }
       }
@@ -392,8 +491,10 @@ class Cart extends Component {
     event.preventDefault();
 
     if (this.state.addressSelected === "") {
-      this.setState({
-        errorMessage: "Please choose a delivery location!",
+      swal({
+        title: "No delivery location!",
+        text: "Please choose a delivery location!",
+        icon: "error",
       });
     } else {
       this.state.orders.map((data) => {
@@ -434,6 +535,7 @@ class Cart extends Component {
         </td>
         <td>${food.FoodCost}</td>
         <td>{food.FoodLimit}</td>
+        <td>{food.FoodQuantityLeft}</td>
         <td>
           <Button onClick={() => this.handleDelete(foodIndex, index)} size="sm">
             {" "}
@@ -457,7 +559,13 @@ class Cart extends Component {
 
         <Accordion.Collapse eventKey={index}>
           <Card.Body>
-            <h3>{order.restaurantName}</h3>
+            <div className="restaurantHeader">
+              <h3>{order.restaurantName}</h3>
+              <h6 className="orderThreshold">
+                Minimum order cost: {order.order_threshold}
+              </h6>
+            </div>
+
             <Table striped bordered hover size="sm">
               <thead>
                 <tr>
@@ -466,6 +574,7 @@ class Cart extends Component {
                   <th>Quantity</th>
                   <th>Total Cost</th>
                   <th>Purchase Limit</th>
+                  <th>Quantity Left</th>
                   <th></th>
                 </tr>
               </thead>
@@ -537,18 +646,25 @@ class Cart extends Component {
           this.setState({
             creditCards: result,
             paymentMethod: card,
-            errorMessage: "Credit card has been added!",
+          });
+          swal({
+            title: "Credit card has been added!",
+            icon: "success",
           });
         })
         .catch((err) => {
-          this.setState({
-            errorMessage:
+          swal({
+            title: "Unable to add credit card!",
+            text:
               "Credit card has been registered! Please add a unregistered card!",
+            icon: "error",
           });
         });
     } else {
-      this.setState({
-        errorMessage: "Please input a valid 16 digit credit card number!",
+      swal({
+        title: "Invalid input for credit card!",
+        text: "Please input a valid 16 digit credit card number!",
+        icon: "error",
       });
     }
   };
@@ -591,20 +707,24 @@ class Cart extends Component {
     if (value) {
       console.log(value);
       if (value > this.state.rewardPoints) {
-        this.setState({
-          errorMessage:
-            "Points deducted cannot be more than available Reward Points!",
+        swal({
+          title: "Invalid reward points input!",
+          text: "Points deducted cannot be more than available Reward Points!",
+          icon: "warning",
         });
       } else {
         if (value > this.state.deliveryFee) {
-          this.setState({
-            errorMessage: "Points deducted cannot be more than delivery fee!",
+          swal({
+            title: "Invalid reward points input!",
+            text: "Points deducted cannot be more than delivery fee",
+            icon: "warning",
           });
         } else {
-          console.log(value);
           if (value.includes(".") && value.split(".")[1].length >= 3) {
-            this.setState({
-              errorMessage: "Points must be at most 2 decimal places!",
+            swal({
+              title: "Invalid reward points input!",
+              text: "Points must be at most 2 decimal places!",
+              icon: "warning",
             });
           } else {
             // 1 reward point = $1 offset in delivery fee
@@ -622,7 +742,6 @@ class Cart extends Component {
             this.setState({
               rewardPointsUsed: maxRewardPointsUsed,
               paymentCost: paymentCost,
-              errorMessage: "",
             });
           }
         }
@@ -636,22 +755,21 @@ class Cart extends Component {
         <h6 className="rewardPointTitle">Reward Points: </h6>
         <h6>{this.state.rewardPoints}</h6>
         <div className="rewardPointInput">
-          <Form.Control
-            pattern="^[0-9]+(\.[0-9]{1,2})?$"
-            defaultValue="0"
-            onChange={(event) => this.updateRewardPointUsed(event)}
-          />
+          {!this.state.isFreeDelivery ? (
+            <Form.Control
+              pattern="^[0-9]+(\.[0-9]{1,2})?$"
+              defaultValue="0"
+              onChange={(event) => this.updateRewardPointUsed(event)}
+            />
+          ) : (
+            <Form.Control
+              plaintext
+              readOnly
+              defaultValue="0"
+              className="rewardPointsUsed"
+            />
+          )}
         </div>
-      </div>
-    );
-  };
-
-  displayErrorFoodList = () => {
-    return (
-      <div className="errorFoodList">
-        {this.state.errorUpdateFoods.map((food) => (
-          <h6 className="errorMessage">{food}</h6>
-        ))}
       </div>
     );
   };
@@ -662,6 +780,68 @@ class Cart extends Component {
         <h6 className="totalCostTitle">Total Price: </h6>
         <h6>${this.state.rawCost}</h6>
       </div>
+    );
+  };
+
+  handlePromoSelection = (promoIndex) => {
+    const NoPromotionSelected = "-1";
+    let promos = this.state.promos;
+    let selectedPromo = null;
+    let selectedPromoId = 0;
+
+    if (promoIndex !== NoPromotionSelected) {
+      selectedPromo = promos[promoIndex];
+      selectedPromoId = promos[promoIndex].promo_id;
+    }
+    const discountedCost = this.limitToTwoDecimalPlaces(
+      this.state.rawCost -
+        this.calculateDiscount(selectedPromo, this.state.rawCost)
+    );
+
+    setTimeout(() => {
+      const deliveryFee = this.calculateDeliveryFee(discountedCost);
+      const paymentCost = this.limitToTwoDecimalPlaces(
+        discountedCost + deliveryFee
+      );
+
+      this.setState({
+        selectedPromo,
+        selectedPromoId,
+        discountedCost,
+        paymentCost,
+      });
+    }, 50);
+  };
+
+  displayPromoInput = () => {
+    return (
+      <FormGroup>
+        <div className="promoInputContainer">
+          <Form.Label>Promotion: </Form.Label>
+
+          <Form.Control
+            as="select"
+            onChange={(input) => {
+              this.handlePromoSelection(input.target.value);
+            }}
+          >
+            {this.state.promos.length !== 0 ? (
+              <>
+                <option key={-1} value={-1}>
+                  No promotion selected
+                </option>
+                {this.state.promos.map((promo, index) => (
+                  <option key={index} value={index}>
+                    {promo.details}
+                  </option>
+                ))}
+              </>
+            ) : (
+              <option>No promotion available</option>
+            )}
+          </Form.Control>
+        </div>
+      </FormGroup>
     );
   };
 
@@ -682,11 +862,17 @@ class Cart extends Component {
       this.setState({
         addresses,
         addressSelected: address,
-        errorMessage: "Delivery location has been added!",
+      });
+      swal({
+        title: "Success!",
+        text: "Delivery location has been added!",
+        icon: "success",
       });
     } else {
-      this.setState({
-        errorMessage: "Please input a valid address for delivery location",
+      swal({
+        title: "Invalid address!",
+        text: "Please input a valid address for delivery location!",
+        icon: "warning",
       });
     }
   };
@@ -784,9 +970,19 @@ class Cart extends Component {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <NavbarBrand href="/Customer">
-            <MdArrowBack />
-          </NavbarBrand>
+          <Link
+            to={{
+              pathname: "/Customer",
+              state: {
+                account_id: this.state.cid,
+              },
+            }}
+          >
+            <div className="backIcon">
+              <MdArrowBack />
+              To Home Page
+            </div>
+          </Link>
           <div className="icon-container"></div>
         </Navbar>
 
@@ -822,6 +1018,7 @@ class Cart extends Component {
                 )}
               </Accordion>
               {this.displayRawCost()}
+              {this.displayPromoInput()}
               {this.displayPromoDiscount()}
               {this.displayRewardPoints()}
               {this.displayDeliveryFee()}
@@ -832,11 +1029,6 @@ class Cart extends Component {
               {this.displayAddCreditCardInput()}
               {this.displayPaymentOptions()}
 
-              {this.state.errorMessage && (
-                <h6 className="errorMessage">{this.state.errorMessage}</h6>
-              )}
-              {this.state.errorUpdateFoods.length !== 0 &&
-                this.displayErrorFoodList()}
               <Button className="confirm_button" type="submit">
                 {" "}
                 Confirm{" "}

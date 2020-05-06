@@ -12,6 +12,7 @@ import {
 } from "reactstrap";
 import "../styles/Signup.css";
 import { MdHome } from "react-icons/md";
+import swal from "sweetalert";
 
 class Signup extends Component {
   constructor(props) {
@@ -103,25 +104,30 @@ class Signup extends Component {
     const password = e.target.password.value;
     const confirmPassword = e.target.confirmPassword.value;
     const isSamePassword = password === confirmPassword;
-    this.checkAccountId().then((res) => {
-      const isValidAccountId = res[0].is_account_id_available;
-      // Check for valid account id (available for creation)
-      if (isValidAccountId) {
-        const hasAccountType = this.state.accountType !== null;
-        if (isSamePassword && hasAccountType) {
-          this.createAccountType();
-          // Redirect to login page
-          this.navigateToLoginPage();
+    this.checkAccountId()
+      .then((res) => {
+        const isValidAccountId = res[0].is_account_id_available;
+        // Check for valid account id (available for creation)
+        if (isValidAccountId) {
+          const hasAccountType = this.state.accountType !== null;
+          if (isSamePassword && hasAccountType) {
+            this.createAccountType();
+            // Redirect to login page
+            this.navigateToLoginPage();
+          } else {
+            this.setState({
+              isValidAccountId: isValidAccountId,
+              isSamePassword: isSamePassword,
+            });
+          }
         } else {
-          this.setState({
-            isValidAccountId: isValidAccountId,
-            isSamePassword: isSamePassword,
-          });
+          this.setState({ isValidAccountId: false });
         }
-      } else {
-        this.setState({ isValidAccountId: false });
-      }
-    });
+      })
+      .catch((err) => {
+        console.log(err);
+        swal("Unable to create your account! Please try again!");
+      });
   };
 
   createAccountType = () => {
@@ -186,6 +192,8 @@ class Signup extends Component {
   handleSelectRestaurant = (e) => {
     const restaurant = e.currentTarget.textContent;
     const restaurantId = e.target.value;
+
+    console.log(restaurant);
 
     this.setState({
       chosenRestaurantId: restaurantId,

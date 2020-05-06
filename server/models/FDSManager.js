@@ -119,12 +119,18 @@ class FDSManager {
     }
 
     static queryAddPromo(promoStart, promoEnd, promo_type, category, details,
-        discount_value, trigger_value, creator_id, callback) {
-            console.log("promoStart %s\npromoEnd %s", promoStart, promoEnd);
+        discount_value, trigger_value, creator_id, use_limit, callback) {
+        let limitWord = use_limit ? ', use_limit) ' : ') ' 
+        let limit = use_limit ? ', $9)' : ')'
+        let queryVariablesList = 
+            use_limit ? [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id, use_limit]
+                : [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id]
+        console.log("use_limit: ", use_limit)
+        console.log("promoStart %s\npromoEnd %s", promoStart, promoEnd);
         db.query(
-            'INSERT into Promos(start_time, end_time, promo_type, category, details, discount_value, trigger_value, creator_id) ' + 
-            'VALUES (to_timestamp($1, \'ddmmyyyy HH24:MI:SS\'), to_timestamp($2, \'ddmmyyyy HH24:MI:SS\'), $3, $4, $5, $6, $7, $8)',
-            [promoStart, promoEnd, promo_type, category, details, discount_value, trigger_value, creator_id],
+            'INSERT into Promos(start_time, end_time, promo_type, category, details, discount_value, trigger_value, creator_id' + limitWord +
+            'VALUES (to_timestamp($1, \'ddmmyyyy HH24:MI:SS\'), to_timestamp($2, \'ddmmyyyy HH24:MI:SS\'), $3, $4, $5, $6, $7, $8' +
+            limit, queryVariablesList,
             (err, res) => {
                 if (err.error) {
                     console.log("Error occurred at FDSManagerModel#queryAddPromo:", err.error);

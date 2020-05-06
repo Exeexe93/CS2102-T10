@@ -136,3 +136,35 @@
 .errorMessage {
   color: red;
 }
+
+.backIcon:hover {
+  color: lightskyblue;
+}
+
+.backIcon {
+  color: white;
+  font-size: 22px;
+}
+
+.promoInputContainer {
+  margin-top: 20px;
+}
+
+.promoInput {
+  text-align: center;
+}
+
+.restaurantHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.orderThreshold {
+  position: absolute;
+  right: 30px;
+}
+
+.rewardPointsUsed {
+  text-align: right;
+}

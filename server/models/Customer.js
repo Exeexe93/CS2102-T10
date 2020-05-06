@@ -197,7 +197,7 @@ class Customer {
 
   static getCartOrder(cid, callback) {
     db.query(
-      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit, R.name as restaurantName FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) LEFT JOIN Restaurants as R on R.rest_id = O.rest_id WHERE cid = $1 and O.order_status = 'cart'",
+      "SELECT O.oid, F.name, C.quantity, C.total_price, C.fid, F.food_limit, R.name as restaurantName, R.rest_id, R.order_threshold, F.quantity as quantityLeft FROM Customers LEFT JOIN Places using (cid) LEFT JOIN Orders as O using (oid) LEFT JOIN Consists as C on O.oid = C.oid LEFT JOIN Foods as F using (fid) LEFT JOIN Restaurants as R on R.rest_id = O.rest_id WHERE cid = $1 and O.order_status = 'cart'",
       [cid],
       (err, res) => {
         if (err.error) {
@@ -212,6 +212,8 @@ class Customer {
             output.push({
               orderNum: foodItem.oid,
               restaurantName: foodItem.restaurantname,
+              rest_id: foodItem.rest_id,
+              order_threshold: foodItem.order_threshold,
               foods: [],
             });
           }
@@ -219,6 +221,7 @@ class Customer {
             FoodId: foodItem.fid,
             FoodName: foodItem.name,
             FoodQuantity: foodItem.quantity,
+            FoodQuantityLeft: foodItem.quantityleft,
             FoodCost: foodItem.total_price,
             FoodLimit: foodItem.food_limit,
           });
@@ -307,6 +310,67 @@ class Customer {
   static checkCart(cid, rest_id, callback) {
     db.query(
       "SELECT EXISTS (SELECT O.oid From PLACES as P LEFT JOIN ORDERS as O USING (oid) LEFT JOIN CONSISTS as C ON O.oid = C.oid WHERE P.cid = $1 AND O.order_status = 'cart' AND O.rest_id <> $2)",
+      [cid, rest_id],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static getCustomerDetails(cid, callback) {
+    db.query(
+      "SELECT account_pass, name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE account_id = $1",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static updateCustomerDetails(cid, name, account_pass, callback) {
+    db.query(
+      "UPDATE Accounts SET account_pass = $2 WHERE account_id = $1",
+      [cid, account_pass],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        db.query(
+          "UPDATE Customers SET name = $2 WHERE cid = $1",
+          [cid, name],
+          (err, res) => {
+            if (err.error) {
+              return callback(err, res);
+            }
+            return callback(err, res);
+          }
+        );
+      }
+    );
+  }
+
+  static getCustomerName(cid, callback) {
+    db.query(
+      "SELECT name FROM Accounts LEFT JOIN Customers on Accounts.account_id = Customers.cid WHERE cid = $1",
+      [cid],
+      (err, res) => {
+        if (err.error) {
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
+
+  static getPromotions(cid, rest_id, callback) {
+    db.query(
+      "SELECT P.promo_id, P.details, P.promo_type, P.discount_value, P.trigger_value FROM (SELECT promo_id, details, promo_type, discount_value, trigger_value, use_limit FROM Given LEFT JOIN Promos using (promo_id) WHERE cid = $1 AND start_time <= NOW() AND end_time >= NOW() AND 1 = (CASE WHEN category = 'Restaurant' AND creator_id <> ANY(SELECT staff_id FROM RestaurantStaffs WHERE rest_id = $2) THEN 0 ELSE 1 END)) AS P WHERE 1 = CASE WHEN P.use_limit IS NULL THEN 1 WHEN P.use_limit < (SELECT COUNT(*) FROM Uses LEFT JOIN Places using (oid) WHERE cid = $1 AND promo_id = P.promo_id) THEN 1 ELSE 0 END",
       [cid, rest_id],
       (err, res) => {
         if (err.error) {

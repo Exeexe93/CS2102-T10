@@ -21,7 +21,8 @@ class RestaurantPromotions extends Component {
             rest_id: this.props.location.state.rest_id,
             startDate: null,
             endDate: null,
-            promotion_type: "Percent"
+            promotion_type: "Percent",
+            errorMessage: ""
         };
     }
 
@@ -38,27 +39,32 @@ class RestaurantPromotions extends Component {
     handleSubmit = event => {
         let form = event.target;
         event.preventDefault();
-        let new_promo = {
-            creator_id: this.props.location.state.account_id,
-            details: form.elements.promotion_details.value,
-            category: "Restaurant",
-            promo_type: this.state.promotion_type,
-            discount_value: Math.round(form.elements.discount.value),
-            trigger_value: "$" + parseFloat(form.elements.minimum_spending.value).toFixed(2),
-            start_time: this.state.startDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-'),
-            end_time: this.state.endDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')
-        }
+        if (this.state.promotion_type == "Flat Rate" && form.elements.minimum_spending.value - form.elements.discount.value < 0) {
+            this.setState({ errorMessage: "Discount value must not exceed minimum spending." });
+        } else {
+            let new_promo = {
+                creator_id: this.props.location.state.account_id,
+                details: form.elements.promotion_details.value,
+                category: "Restaurant",
+                promo_type: this.state.promotion_type,
+                discount_value: Math.round(form.elements.discount.value),
+                trigger_value: "$" + parseFloat(form.elements.minimum_spending.value).toFixed(2),
+                start_time: this.state.startDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-'),
+                end_time: this.state.endDate._d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).replace(/ /g, '-')
+            }
 
-        axios.post("http://localhost:3001/RestaurantStaff/addPromo", new_promo)
-        .then(() => console.log('Promo Created'))
-        .catch(err => {
-            console.error(err);
-        });
-        this.setState ({ 
-            promos: [...this.state.promos, new_promo],
-            promotion_type: "Percent"
-        });
-        form.reset();
+            axios.post("http://localhost:3001/RestaurantStaff/addPromo", new_promo)
+            .then(() => console.log('Promo Created'))
+            .catch(err => {
+                console.error(err);
+            });
+            this.setState ({ 
+                promos: [...this.state.promos, new_promo],
+                promotion_type: "Percent",
+                errorMessage: ""
+            });
+            form.reset();
+        }
     }
 
     handleHomeNavigation = () => {
@@ -206,6 +212,7 @@ class RestaurantPromotions extends Component {
                                     />
                                 </InputGroup>
                                 <br />
+                                {this.state.errorMessage && (<h5 className="text-danger"> {this.state.errorMessage} </h5>)}
                                 <div className="text-center">
                                     <Button type="submit">Add Promo</Button>
                                 </div>

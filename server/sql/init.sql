@@ -44,21 +44,21 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
-	reward_points integer,
+	reward_points double precision default 0,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
-	card_number varchar(255),
+	card_number varchar(19),
 	primary key (cid, card_number),
 	unique(card_number)
 );
 
 -- Promotion --
 CREATE TABLE Promos (
-	creator_id varchar(255),
 	promo_id serial unique,
+	creator_id varchar(255) not null,
 	use_limit integer,
 	details text not null,
 	category varchar(255) not null,
@@ -67,7 +67,7 @@ CREATE TABLE Promos (
 	trigger_value money DEFAULT 0 not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
-	primary key (promo_id, creator_id),
+	primary key (promo_id),
 	foreign key (creator_id) references Accounts 
 		on delete cascade
 		on update cascade
@@ -141,7 +141,7 @@ CREATE TABLE WWS (
 
 CREATE TABLE Contains (
 	wid integer,
-	working_day integer,
+	working_day integer check (working_day IN (0,1,2,3,4,5,6)),
 	shift_id integer,
 	primary key(wid, working_day),
 	foreign key(wid) references WWS
@@ -165,7 +165,7 @@ CREATE TABLE MWS (
 CREATE TABLE Has (
 	mid integer,
 	wid integer unique,
-	working_week integer,
+	working_week integer check (working_week IN (1,2,3,4)),
 	primary key(mid, working_week),
 	foreign key(mid) references MWS(mid)
 		on delete cascade
@@ -219,7 +219,7 @@ CREATE TABLE Orders (
 	rest_id integer not null,
 	order_status varchar(50) not null,
 	rating integer,
-	points_used integer default 0,
+	points_used double precision default 0,
 	delivery_fee money,
 	total_price money,
 	order_placed timestamp,
@@ -247,10 +247,10 @@ CREATE TABLE Places (
 );
 
 CREATE TABLE Uses (
-	oid integer,
+	oid integer NOT NULL,
 	promo_id integer NOT NULL,
 	amount money NOT NULL,
-	primary key (oid),
+	primary key (oid, promo_id),
 	foreign key (oid) references Places(oid)
 		on delete cascade
 		on update cascade,
@@ -1022,8 +1022,8 @@ insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e5
 ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
 
 -- Promos
-insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $20 and above this month to get a $3 discount on your total order.', 'Restaurant', 'flat-rate', '3', '20', '03/04/2020', '02/05/2020');
-insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $80 and above to qualify for a 20% discount on your total order.', 'Restaurant', 'percent', '20', '80', '03/04/2020', '02/05/2020');
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $20 and above this month to get a $3 discount on your total order.', 'Restaurant', 'Flat Rate', '3', '20', '03/04/2020', '02/05/2020');
+insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $80 and above to qualify for a 20% discount on your total order.', 'Restaurant', 'Percent', '20', '80', '03/04/2020', '02/05/2020');
 -- Uses
 insert into Uses (oid, promo_id, amount) values (2, 1, '$3.00');
 insert into Uses (oid, promo_id, amount) values (3, 2, '$17.80');

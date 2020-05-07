@@ -487,6 +487,8 @@ EXECUTE FUNCTION reject_same_duration();
 -- Need one more trigger for check whether payment method, date and time for order placed and total_price when order status change to paid
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
+-- Need a trigger to update new customers to see if they are available for current promotion 
+
 -- need a trigger to update given table
 CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER
 	AS $$
@@ -727,7 +729,8 @@ INSERT into WWS (start_day) values
 	(0),
 	(0),
 	(0),
-	(2); 
+	(2),
+	(3);
 
 -- MWS
 INSERT into MWS (start_week) values 
@@ -743,7 +746,8 @@ INSERT INTO Has(mid, wid, working_week) values
 	(1, 4, 4);
 
 -- PTWorks
-INSERT into PTWorks (rid, working_week, total_hours, wid) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1, 40, 5);
+INSERT into PTWorks (rid, working_week, total_hours, wid) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1, 40, 5),
+	('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 2, 40, 6);
 -- INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
 -- FTWorks, total_hours
@@ -757,6 +761,7 @@ INSERT into Shift (actual_date) values
 	('2020-04-04'),
 	('2020-04-05'),
 	('2020-04-06'),
+
 -- ftr 1
 	('2020-04-02'),
 	('2020-04-03'),
@@ -780,7 +785,14 @@ INSERT into Shift (actual_date) values
 	('2020-04-24'),
 	('2020-04-25'),
 	('2020-04-26'),
-	('2020-04-27');
+	('2020-04-27'),
+
+-- pt 2nd wk
+	('2020-04-09'),
+	('2020-04-10'),
+	('2020-04-11'),
+	('2020-04-12'),
+	('2020-04-13');
 
 INSERT into ShiftInfo (start_time, end_time) values 
 -- Shift 1
@@ -822,6 +834,12 @@ INSERT into Contains (wid, working_day, shift_id) values
 	(5, 3, 3),
 	(5, 4, 4),
 	(5, 5, 5),
+
+	(6, 1, 26), 
+	(6, 2, 27),
+	(6, 3, 28),
+	(6, 4, 29),
+	(6, 5, 30),	
 -- ft 1
 	(1, 1, 6), 
 	(1, 2, 7),
@@ -848,59 +866,59 @@ INSERT into Contains (wid, working_day, shift_id) values
 	(4, 5, 25);
 
 -- Salaries
-insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (2, '3267e8b9-110c-44fb-a817-2c0b243b21d6', '2020-02-01 03:40:48', '2020-03-01 05:14:34', '$2996.84');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (3, '03667134-3ab1-41e2-bff4-e1e6e14d3035', '2020-02-01 18:08:39', '2020-03-01 23:25:53', '$2835.60');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (4, '58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', '2020-02-01 20:49:56', '2020-03-01 20:12:25', '$2808.27');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (5, 'ccd9673a-c725-46bd-9577-0d26b4564d3f', '2020-02-01 05:20:06', '2020-03-01 08:37:28', '$3788.22');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (6, '149ff060-8b44-4e1c-a56e-c8e6bff22096', '2020-02-01 02:07:09', '2020-03-01 07:17:09', '$2866.29');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (7, 'b6ff623a-1568-42f5-9f8e-91d24e4123a6', '2020-02-01 01:27:23', '2020-03-01 15:24:51', '$3393.74');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (8, '0161cded-c664-4f1b-ad3f-7766dc48fecb', '2020-02-01 14:51:53', '2020-03-01 05:19:50', '$3927.33');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (9, 'b758096a-3183-4de0-9260-dbfce3bdbb28', '2020-02-01 16:06:06', '2020-03-01 00:58:10', '$2655.22');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (10, '94bd068e-1a5c-4a73-92a0-81c64b499dc9', '2020-02-01 09:16:37', '2020-03-01 15:55:03', '$3828.91');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (11, 'c69ffc8f-ab47-46f5-a36d-58406ce626af', '2020-02-01 00:20:46', '2020-03-01 13:33:13', '$2931.22');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (12, '3c30a803-6834-41a9-b81e-6d54b6d5512d', '2020-02-01 18:47:25', '2020-03-01 22:16:32', '$3217.69');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (13, '0486583b-01d0-4c03-95d1-5e11d75a9efd', '2020-02-01 03:46:16', '2020-03-01 01:29:18', '$3071.09');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (14, 'f016b0e5-e404-4abf-a824-de805c3e122d', '2020-02-01 21:49:58', '2020-03-01 13:49:46', '$3259.96');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (15, '056b3388-4088-44e1-91a1-9fa128ab4ba3', '2020-02-01 14:00:23', '2020-03-01 07:42:35', '$3359.67');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (16, 'e9160f72-2094-413c-9764-e39a5d9e5038', '2020-02-01 16:47:36', '2020-03-01 00:21:25', '$3220.97');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (17, 'c9e75699-4da2-4411-9e59-71d4b81856c0', '2020-02-01 01:37:46', '2020-03-01 09:50:08', '$3091.61');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (18, '1e9736bd-78ab-4dbd-9adc-40622a2f7223', '2020-02-01 16:23:23', '2020-03-01 07:06:08', '$3927.92');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (19, 'f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', '2020-02-01 07:52:36', '2020-03-01 05:12:28', '$2564.14');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (20, 'de4b5419-eed5-4829-b013-36d87e28b4ec', '2020-02-01 20:01:01', '2020-03-01 18:46:39', '$3788.71');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (21, 'e6115a43-b3b7-4b45-9014-5f2ac0f913e2', '2020-02-01 10:31:46', '2020-03-01 18:13:39', '$3640.98');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (22, '5bc3951b-9388-4af0-9bf5-ce435acc14f3', '2020-02-01 16:59:18', '2020-03-01 14:30:32', '$2594.38');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (23, '30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', '2020-02-01 11:21:53', '2020-03-01 23:25:51', '$2779.52');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (24, '9c79e02d-14b7-4604-b5d3-2afae637bd0b', '2020-02-01 00:57:41', '2020-03-01 07:18:13', '$2556.39');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (25, '2534042c-6526-44b1-abd5-532d7b7b281a', '2020-02-01 01:43:29', '2020-03-01 15:58:20', '$2930.18');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (26, 'ce80388a-d0cc-4096-9a01-7e8ef8d8017b', '2020-02-01 10:53:38', '2020-03-01 20:49:54', '$2950.20');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (27, '68973b78-642a-4ad9-ad0c-8f46977e6bf0', '2020-02-01 02:50:08', '2020-03-01 20:06:09', '$3222.47');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (28, '16710734-c5dc-460c-a7ad-54a7d3c92a63', '2020-02-01 15:51:25', '2020-03-01 16:15:50', '$3947.52');
-insert into Salaries (sid, rid, start_date, end_date, amount) values (29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
+insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36'),
+(2, '3267e8b9-110c-44fb-a817-2c0b243b21d6', '2020-02-01 03:40:48', '2020-03-01 05:14:34', '$2996.84'),
+(3, '03667134-3ab1-41e2-bff4-e1e6e14d3035', '2020-02-01 18:08:39', '2020-03-01 23:25:53', '$2835.60'),
+(4, '58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', '2020-02-01 20:49:56', '2020-03-01 20:12:25', '$2808.27'),
+(5, 'ccd9673a-c725-46bd-9577-0d26b4564d3f', '2020-02-01 05:20:06', '2020-03-01 08:37:28', '$3788.22'),
+(6, '149ff060-8b44-4e1c-a56e-c8e6bff22096', '2020-02-01 02:07:09', '2020-03-01 07:17:09', '$2866.29'),
+(7, 'b6ff623a-1568-42f5-9f8e-91d24e4123a6', '2020-02-01 01:27:23', '2020-03-01 15:24:51', '$3393.74'),
+(8, '0161cded-c664-4f1b-ad3f-7766dc48fecb', '2020-02-01 14:51:53', '2020-03-01 05:19:50', '$3927.33'),
+(9, 'b758096a-3183-4de0-9260-dbfce3bdbb28', '2020-02-01 16:06:06', '2020-03-01 00:58:10', '$2655.22'),
+(10, '94bd068e-1a5c-4a73-92a0-81c64b499dc9', '2020-02-01 09:16:37', '2020-03-01 15:55:03', '$3828.91'),
+(11, 'c69ffc8f-ab47-46f5-a36d-58406ce626af', '2020-02-01 00:20:46', '2020-03-01 13:33:13', '$2931.22'),
+(12, '3c30a803-6834-41a9-b81e-6d54b6d5512d', '2020-02-01 18:47:25', '2020-03-01 22:16:32', '$3217.69'),
+(13, '0486583b-01d0-4c03-95d1-5e11d75a9efd', '2020-02-01 03:46:16', '2020-03-01 01:29:18', '$3071.09'),
+(14, 'f016b0e5-e404-4abf-a824-de805c3e122d', '2020-02-01 21:49:58', '2020-03-01 13:49:46', '$3259.96'),
+(15, '056b3388-4088-44e1-91a1-9fa128ab4ba3', '2020-02-01 14:00:23', '2020-03-01 07:42:35', '$3359.67'),
+(16, 'e9160f72-2094-413c-9764-e39a5d9e5038', '2020-02-01 16:47:36', '2020-03-01 00:21:25', '$3220.97'),
+(17, 'c9e75699-4da2-4411-9e59-71d4b81856c0', '2020-02-01 01:37:46', '2020-03-01 09:50:08', '$3091.61'),
+(18, '1e9736bd-78ab-4dbd-9adc-40622a2f7223', '2020-02-01 16:23:23', '2020-03-01 07:06:08', '$3927.92'),
+(19, 'f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', '2020-02-01 07:52:36', '2020-03-01 05:12:28', '$2564.14'),
+(20, 'de4b5419-eed5-4829-b013-36d87e28b4ec', '2020-02-01 20:01:01', '2020-03-01 18:46:39', '$3788.71'),
+(21, 'e6115a43-b3b7-4b45-9014-5f2ac0f913e2', '2020-02-01 10:31:46', '2020-03-01 18:13:39', '$3640.98'),
+(22, '5bc3951b-9388-4af0-9bf5-ce435acc14f3', '2020-02-01 16:59:18', '2020-03-01 14:30:32', '$2594.38'),
+(23, '30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', '2020-02-01 11:21:53', '2020-03-01 23:25:51', '$2779.52'),
+(24, '9c79e02d-14b7-4604-b5d3-2afae637bd0b', '2020-02-01 00:57:41', '2020-03-01 07:18:13', '$2556.39'),
+(25, '2534042c-6526-44b1-abd5-532d7b7b281a', '2020-02-01 01:43:29', '2020-03-01 15:58:20', '$2930.18'),
+(26, 'ce80388a-d0cc-4096-9a01-7e8ef8d8017b', '2020-02-01 10:53:38', '2020-03-01 20:49:54', '$2950.20'),
+(27, '68973b78-642a-4ad9-ad0c-8f46977e6bf0', '2020-02-01 02:50:08', '2020-03-01 20:06:09', '$3222.47'),
+(28, '16710734-c5dc-460c-a7ad-54a7d3c92a63', '2020-02-01 15:51:25', '2020-03-01 16:15:50', '$3947.52'),
+(29, '0dfbf360-7152-4c6a-b460-e103aa1ed4d6', '2020-02-01 07:42:42', '2020-03-01 07:34:57', '$3729.79');
 
 -- Orders
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$1.01', '$20.20', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 'paid', '$0.08', '$16.70', '2020-04-15 12:00:00', '2020-04-15 12:00:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:40:00', 4),
+('3c30a803-6834-41a9-b81e-6d54b6d5512d', 1, 'paid', '$1.01', '$20.20', '2020-04-15 12:10:00', '2020-04-15 12:10:00', '2020-04-15 12:15:00', '2020-04-15 13:00:00', '2020-04-15 14:00:00', 5);
 insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 1, 'paid', '$4.45', '$89.00', '2020-04-15 12:05:00', '2020-04-15 12:05:00', '2020-04-15 12:15:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00');
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$4.62', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$1.19', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 3);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$2.41', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', 4);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$2.46', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', 5);
-insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$4.63', '$98.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', 5);
+insert into Orders (rid, rest_id, order_status, delivery_fee, total_price, order_placed, depart_for_rest, arrive_at_rest, depart_for_delivery, deliver_to_cust, rating) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 2, 'paid', '$1.39', '$27.93', '2020-04-15 20:00:00', '2020-04-15 20:00:00', '2020-04-15 20:05:00', '2020-04-15 20:07:00', '2020-04-15 20:15:00', 4),
+('0486583b-01d0-4c03-95d1-5e11d75a9efd', 2, 'paid', '$3.84', '$76.89', '2020-04-15 12:20:00', '2020-04-15 12:20:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 13:00:00', 5),
+('0486583b-01d0-4c03-95d1-5e11d75a9efd', 3, 'paid', '$4.62', '$92.51', '2020-04-15 12:30:00', '2020-04-15 12:30:00', '2020-04-15 12:40:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 4),
+('0161cded-c664-4f1b-ad3f-7766dc48fecb', 3, 'paid', '$1.19', '$23.82', '2020-04-15 12:25:00', '2020-04-15 12:25:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', 3),
+('03667134-3ab1-41e2-bff4-e1e6e14d3035', 3, 'paid', '$2.41', '$48.28', '2020-04-15 12:35:00', '2020-04-15 12:35:00', '2020-04-15 12:45:00', '2020-04-15 12:55:00', '2020-04-15 13:00:00', 4),
+('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 4, 'paid', '$2.46', '$49.22', '2020-04-15 12:40:00', '2020-04-15 12:40:00', '2020-04-15 12:50:00', '2020-04-15 12:50:00', '2020-04-15 13:00:00', 5),
+('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 4, 'paid', '$4.63', '$98.67', '2020-04-15 12:45:00', '2020-04-15 12:45:00', '2020-04-15 13:00:00', '2020-04-15 13:10:00', '2020-04-15 13:15:00', 5);
 
 -- Places
-insert into Places (oid, cid, address, payment_method) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (2, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 761 Yishun Ring rd #08-18 S760761', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (3, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 762 Yishun Ring rd #08-18 S760762', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (5, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 764 Yishun Ring rd #08-18 S760764', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (6, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 765 Yishun Ring rd #08-18 S760765', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (7, 'a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Blk 766 Yishun Ring rd #08-18 S760766', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (8, '2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Blk 767 Yishun Ring rd #08-18 S760767', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Blk 768 Yishun Ring rd #08-18 S760768', 'credit-card');
-insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
+insert into Places (oid, cid, address, payment_method) values (1, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 760 Yishun Ring rd #08-18 S760760', 'credit-card'),
+(2, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 761 Yishun Ring rd #08-18 S760761', 'credit-card'),
+(3, '1b39d987-c6b0-4493-bb95-96e51af734b2', 'Blk 762 Yishun Ring rd #08-18 S760762', 'credit-card'),
+(4, 'e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Blk 763 Yishun Ring rd #08-18 S760763', 'credit-card'),
+(5, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 764 Yishun Ring rd #08-18 S760764', 'credit-card'),
+(6, 'c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Blk 765 Yishun Ring rd #08-18 S760765', 'credit-card'),
+(7, 'a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Blk 766 Yishun Ring rd #08-18 S760766', 'credit-card'),
+(8, '2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Blk 767 Yishun Ring rd #08-18 S760767', 'credit-card'),
+(9, '327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Blk 768 Yishun Ring rd #08-18 S760768', 'credit-card'),
+(10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish'),
@@ -987,27 +1005,25 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values
 	(10, 'Beef Cubes', '$10.50', 100, 100, 'Side Dish');
 
 -- Consists
-insert into Consists (oid, fid, quantity, total_price, review) values (1, 1, 2, '$2.40', 'Taste not bad! Can consider buy again.');
-insert into Consists (oid, fid, quantity, total_price, review) values (1, 5, 2, '$4.20', 'Worth the price!! Recommend this food!');
-insert into Consists (oid, fid, quantity, total_price, review) values (1, 3, 1, '$10.10', 'Bad taste. Not worth the price!');
-insert into Consists (oid, fid, quantity, total_price, review) values (2, 4, 1, '$5.10', 'No comment!');
-insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50');
-insert into Consists (oid, fid, quantity, total_price) values (3, 9, 5, '$17.50');
-insert into Consists (oid, fid, quantity, total_price) values (3, 10, 2, '$3.00');
-insert into Consists (oid, fid, quantity, total_price) values (3, 6, 10, '$51.00');
+insert into Consists (oid, fid, quantity, total_price, review) values (1, 1, 2, '$2.40', 'Taste not bad! Can consider buy again.'),
+(1, 5, 2, '$4.20', 'Worth the price!! Recommend this food!'),
+(1, 3, 1, '$10.10', 'Bad taste. Not worth the price!'),
+(2, 4, 1, '$5.10', 'No comment!');
+insert into Consists (oid, fid, quantity, total_price) values (3, 8, 5, '$17.50'),
+(3, 9, 5, '$17.50'),
+(3, 10, 2, '$3.00'),
+(3, 6, 10, '$51.00');
 
 -- CreditCards
-insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '4000-1523-1652-4534');
-insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1543-4894-1561-1564');
-insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945');
-insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564');
-insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
+insert into CreditCards (cid, card_number) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '4000-1523-1652-4534'),
+('1b39d987-c6b0-4493-bb95-96e51af734b2', '1543-4894-1561-1564'),
+('1b39d987-c6b0-4493-bb95-96e51af734b2', '1565-3158-1564-1945'),
+('1b39d987-c6b0-4493-bb95-96e51af734b2', '1596-1345-1894-1564'),
+('1b39d987-c6b0-4493-bb95-96e51af734b2', '5434-4565-5270-0457');
 
 -- Promos
 insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $20 and above this month to get a $3 discount on your total order.', 'Restaurant', 'flat-rate', '3', '20', '03/04/2020', '02/05/2020');
 insert into Promos (creator_id, details, category, promo_type, discount_value, trigger_value, start_time, end_time) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'Order $80 and above to qualify for a 20% discount on your total order.', 'Restaurant', 'percent', '20', '80', '03/04/2020', '02/05/2020');
-
 -- Uses
 insert into Uses (oid, promo_id, amount) values (2, 1, '$3.00');
 insert into Uses (oid, promo_id, amount) values (3, 2, '$17.80');
-

@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/CS2102-T10/CS2102-T10.svg?branch=master)](https://travis-ci.com/CS2102-T10/CS2102-T10)
 
-# CS2102 Project
+# CS2102 Project Team 30
 
 ## Description
 
@@ -26,6 +26,14 @@ Our application uses React.js, Node.js, Express.js and PostgreSQL.
 1. Change directory to the server folder directory and execute the command ‘npm install’. This will install all the required dependencies in the local node_modules directory for the server to run.
 1. At the source code’s root directory, execute ‘npm install’.
 1. At the source code’s root directory, execute ‘npm run dev’ to launch the application. This will run both the server and React.js application.
+
+# Acknowledgements
+
+1. [Reactstrap](https://reactstrap.github.io/) - Easy to use React Bootstrap 4 components
+1. [react-calendar](https://github.com/wojtekmaj/react-calendar) - Ultimate calendar for your React app
+1. [SweetAlert](https://sweetalert.js.org/guides/) - SweetAlert makes popup messages easy and pretty
+1. [axios](https://www.npmjs.com/package/axios) - Promise based HTTP client for the browser and node.js
+1. [react-icons](https://react-icons.github.io/react-icons/) - Include popular icons in React projects, which utilizes ES6 imports that allows you to include only the icons that the project is using.
 
 # Project Contributors
 

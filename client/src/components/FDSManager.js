@@ -650,7 +650,7 @@ class FDSManager extends Component {
     ];
     let date = new Date();
     let currentYear = date.getFullYear();
-    for (let k = 2000; k <= currentYear; k++) {
+    for (let k = 2000; k <= currentYear + 5; k++) {
       yearOptions.push(
         <option key={k} value={k}>
           {k}

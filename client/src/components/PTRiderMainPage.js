@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
+import { Navbar, NavbarBrand, Nav, Jumbotron } from "reactstrap";
 
 import "../styles/PTRiderMainPage.css";
 
@@ -9,6 +9,7 @@ import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
 import CompletedOrderList from "./CompletedOrderList";
+import { Link } from "react-router-dom";
 import swal from "sweetalert";
 import OngoingOrder from "./OngoingOrder";
 
@@ -17,7 +18,7 @@ class PTRiderMainPage extends Component {
     super(props);
     this.state = {
       isFTRider: false,
-      id: this.props.location.account_id,
+      id: this.props.location.state.account_id,
       name: "",
       orders: [],
       completed_orders: [],
@@ -406,10 +407,15 @@ class PTRiderMainPage extends Component {
           <NavbarBrand>Part Time Rider</NavbarBrand>
 
           <Nav>
-            <NavLink href="/Login" className="link">
+            <Link
+              to={{
+                pathname: "/Login",
+              }}
+              className="link"
+            >
               <RiLogoutBoxLine />
               <span> Logout</span>
-            </NavLink>
+            </Link>
           </Nav>
         </Navbar>
 

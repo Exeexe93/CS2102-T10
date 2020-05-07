@@ -256,12 +256,13 @@ class FTRiderMainPage extends Component {
   };
 
   handleViewSalary = () => {
-    // TODO
-    // if (this.state.isFTRider) {
-    //   this.props.history.push("/FTriderMainPage/salary");
-    // } else {
-    //   this.props.history.push("/PTriderMainPage/salary");
-    // }
+    this.props.history.push({
+      pathname: "/Salary",
+      state: {
+        account_id: this.props.location.state.account_id,
+        isFTRider: this.state.isFTRider
+      }
+    });
   };
 
   handleViewSchedule = () => {

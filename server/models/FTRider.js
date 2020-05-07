@@ -75,6 +75,20 @@ class FTRider {
       }
     );
   }
+
+  static getSalaries(rid, callback) {
+    db.query(
+      "SELECT sid, to_char(start_date, 'DD-Mon-YYYY') as start_date, to_char(end_date, 'DD-Mon-YYYY') as end_date, amount FROM Salaries WHERE rid = $1 ORDER BY start_date",
+      [rid],
+      (err, res) => {
+        if (err.error) {
+          console.log("Could not obtain salary of Rider: ", err);
+          return callback(err, res);
+        }
+        return callback(err, res);
+      }
+    );
+  }
 }
 
 module.exports = FTRider;

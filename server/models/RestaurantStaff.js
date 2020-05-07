@@ -59,8 +59,8 @@ class RestaurantStaff {
       });
     }
 
-  static getNumOfOrders(rest_id, callback) {
-    db.query("SELECT COUNT(rest_id) FROM Orders WHERE rest_id = $1 AND order_status = 'paid'", [rest_id], (err, res) => {
+  static getOrders(rest_id, callback) {
+    db.query("SELECT to_char(deliver_to_cust, 'Mon-YYYY') as order_date, total_price FROM Orders WHERE rest_id = $1 AND order_status = 'paid'", [rest_id], (err, res) => {
       if (err.error) {
         return callback(err);
       }
@@ -69,7 +69,7 @@ class RestaurantStaff {
   }
 
   static getTopItems(rest_id, callback) {
-    db.query("SELECT name, SUM(Consists.quantity) as TotalQuantity FROM Foods INNER JOIN Consists USING (fid) WHERE rest_id = $1 GROUP BY fid ORDER BY totalQuantity desc LIMIT 5",
+    db.query("SELECT to_char(deliver_to_cust, 'Mon-YYYY') as order_date, name, Consists.quantity as TotalQuantity FROM Foods INNER JOIN Consists USING (fid) INNER JOIN Orders USING (oid) WHERE Foods.rest_id = $1 ORDER BY totalQuantity desc",
       [rest_id], (err, res) => {
         if (err.error) {
           return callback(err);

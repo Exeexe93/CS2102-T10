@@ -44,7 +44,7 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
-	reward_points integer default 0,
+	reward_points double precision default 0,
 	primary key (cid)
 );
 
@@ -219,7 +219,7 @@ CREATE TABLE Orders (
 	rest_id integer not null,
 	order_status varchar(50) not null,
 	rating integer,
-	points_used integer default 0,
+	points_used double precision default 0,
 	delivery_fee money,
 	total_price money,
 	order_placed timestamp,
@@ -247,10 +247,10 @@ CREATE TABLE Places (
 );
 
 CREATE TABLE Uses (
-	oid integer,
+	oid integer NOT NULL,
 	promo_id integer NOT NULL,
 	amount money NOT NULL,
-	primary key (oid),
+	primary key (oid, promo_id),
 	foreign key (oid) references Places(oid)
 		on delete cascade
 		on update cascade,

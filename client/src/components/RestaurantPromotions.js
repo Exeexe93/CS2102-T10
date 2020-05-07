@@ -21,7 +21,7 @@ class RestaurantPromotions extends Component {
             rest_id: this.props.location.state.rest_id,
             startDate: null,
             endDate: null,
-            promotion_type: "percent"
+            promotion_type: "Percent"
         };
     }
 
@@ -56,7 +56,7 @@ class RestaurantPromotions extends Component {
         });
         this.setState ({ 
             promos: [...this.state.promos, new_promo],
-            promotion_type: "percent"
+            promotion_type: "Percent"
         });
         form.reset();
     }
@@ -77,11 +77,11 @@ class RestaurantPromotions extends Component {
                 <td>{promo.start_time}</td>
                 <td>{promo.end_time}</td>
                 <td>{promo.details}</td>
-                <td>{promo.promo_type === "percent" ? "Percentage" : "Flatrate"}</td>
+                <td>{promo.promo_type === "Percent" ? "Percentage" : "Flat Rate"}</td>
                 <td>
-                    {promo.promo_type === "flat-rate" ? "$" : ""}
+                    {promo.promo_type === "Flat Rate" ? "$" : ""}
                     {promo.discount_value}
-                    {promo.promo_type === "percent" ? "%" : ""}
+                    {promo.promo_type === "Percent" ? "%" : ""}
                 </td>
                 <td>{promo.trigger_value}</td>
             </tr>
@@ -90,9 +90,9 @@ class RestaurantPromotions extends Component {
     
     handleSelect = event => {
         if (event.target.value === "Percentage") {
-            this.setState({ promotion_type: "percent" })
+            this.setState({ promotion_type: "Percent" })
         } else if (event.target.value === "Flatrate") {
-            this.setState({ promotion_type: "flat-rate" })
+            this.setState({ promotion_type: "Flat Rate" })
         }
     }
 
@@ -101,7 +101,7 @@ class RestaurantPromotions extends Component {
             <div>
                 <Form.Label>Discount Percent: </Form.Label>
                 <InputGroup>
-                    <Form.Control name = "discount" required={true} type="number" min="1" max="100" step="1" data-number-to-fixed="0" placeholder="Discount Percent"/>
+                    <Form.Control name="discount" required={true} type="number" min="1" max="100" step="1" data-number-to-fixed="0" placeholder="Discount Percent"/>
                     <InputGroup.Prepend>
                         <InputGroup.Text id="inputGroupPrepend">%</InputGroup.Text>
                     </InputGroup.Prepend>
@@ -188,7 +188,7 @@ class RestaurantPromotions extends Component {
                                     <option>Flatrate</option>
                                 </Form.Control>
                                 <h1 />
-                                {this.state.promotion_type === "percent" ? this.renderPercentForm() : this.renderFlatrateForm()}
+                                {this.state.promotion_type === "Percent" ? this.renderPercentForm() : this.renderFlatrateForm()}
                                 <h1 />
                                 <Form.Label>Minimum Spending:</Form.Label>
                                 <InputGroup>

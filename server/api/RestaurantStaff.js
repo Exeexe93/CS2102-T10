@@ -60,8 +60,8 @@ router.post("/updateFood", (request, response) => {
   });
 });
 
-router.post("/getNumOfOrders", (request, response) => {
-  RestaurantStaff.getNumOfOrders(request.body.rest_id, (err, result) => {
+router.post("/getOrders", (request, response) => {
+  RestaurantStaff.getOrders(request.body.rest_id, (err, result) => {
     if (err) {
       return response.json(err);
     }

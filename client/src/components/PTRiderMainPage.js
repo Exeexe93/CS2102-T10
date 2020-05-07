@@ -258,8 +258,13 @@ class PTRiderMainPage extends Component {
   };
 
   handleViewSalary = () => {
-    // TODO
-    // this.props.history.push("/PTriderMainPage/salary");
+    this.props.history.push({
+      pathname: "/Salary",
+      state: {
+        account_id: this.props.location.state.account_id,
+        isFTRider: this.state.isFTRider
+      }
+    });
   };
 
   handleViewSchedule = () => {

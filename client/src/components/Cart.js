@@ -412,10 +412,16 @@ class Cart extends Component {
     }
 
     queryList.push(
-      "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4 WHERE oid = $1"
+      "UPDATE Orders SET order_status = $2, total_price = $3, delivery_fee = $4, points_used = $5 WHERE oid = $1"
     );
     valueList.push([
-      [data.orderNum, "paid", this.state.rawCost, this.state.deliveryFee],
+      [
+        data.orderNum,
+        "paid",
+        this.state.rawCost,
+        this.state.deliveryFee,
+        this.state.rewardPointsUsed,
+      ],
     ]);
 
     if (this.state.selectedPromoId !== 0) {

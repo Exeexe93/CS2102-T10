@@ -30,24 +30,26 @@ class FTRider {
           return callback(err, [{ avg_rating: null }]);
         } else {
           newAverageRating = res[0].avg_rating;
+          // If first query was successful
+          if (newAverageRating) {
+            db.query(
+              "UPDATE FTRiders SET avg_rating = $2::Real WHERE rid = $1",
+              [rid, newAverageRating],
+              (err, res) => {
+                if (err.error) {
+                  console.log(
+                    "Could not update average rating of FT Rider: ",
+                    err
+                  );
+                  return callback(err, res);
+                }
+                return callback(err, [{ avg_rating: newAverageRating }]);
+              }
+            );
+          }
         }
       }
     );
-
-    // If first query was successful
-    if (newAverageRating !== undefined) {
-      db.query(
-        "UPDATE FTRiders SET avg_rating = $2::Real WHERE rid = $1",
-        [rid, newAverageRating],
-        (err, res) => {
-          if (err.error) {
-            console.log("Could not update average rating of FT Rider: ", err);
-            return callback(err, res);
-          }
-          return callback(err, [{ avg_rating: newAverageRating }]);
-        }
-      );
-    }
   }
 
   static getName(rid, callback) {

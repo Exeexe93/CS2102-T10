@@ -45,10 +45,11 @@ class FTRiderMainPage extends Component {
   };
 
   getAvgRating = () => {
-    fetch("http://localhost:3001/FTRider", {
+    console.log("getting average rating");
+    fetch("http://localhost:3001/FTRider/", {
       method: "post",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ rid: this.state.id }),
+      body: JSON.stringify({ rid: this.props.location.state.account_id }),
     })
       .then((res) => res.json())
       .then((res) => {

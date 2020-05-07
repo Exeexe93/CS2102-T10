@@ -165,7 +165,7 @@ CREATE TABLE MWS (
 CREATE TABLE Has (
 	mid integer,
 	wid integer unique,
-	working_week integer,
+	working_week integer check (working_week IN (1,2,3,4)),
 	primary key(mid, working_week),
 	foreign key(mid) references MWS(mid)
 		on delete cascade

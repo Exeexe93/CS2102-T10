@@ -298,7 +298,7 @@ class RestaurantStaffMainPage extends Component {
                     <Nav className="mr-auto">
                         <Link to={this.handleProfileNavigation} className="icon">
                             <MdPerson />
-                            <span> Restaurant Profile </span>
+                            <span> Restaurant Profile</span>
                         </Link>
 
                         <Link to={this.handlePromotionNavigation} className="icon">

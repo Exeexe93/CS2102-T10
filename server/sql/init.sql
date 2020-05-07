@@ -141,7 +141,7 @@ CREATE TABLE WWS (
 
 CREATE TABLE Contains (
 	wid integer,
-	working_day integer,
+	working_day integer check (working_day IN (0,1,2,3,4,5,6)),
 	shift_id integer,
 	primary key(wid, working_day),
 	foreign key(wid) references WWS

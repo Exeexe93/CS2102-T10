@@ -1041,29 +1041,30 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, 100, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, 50, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, 50, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, 20, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, 20, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish'),
+	(1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish'),
+	(1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert'),
+	(1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert'),
+	(1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink'),
+	(1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink'),
+	(1, 'exeexe milo', '$1.10', 100, 100, 'Drink'),
+	(1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish'),
+	(1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish'),
+	(1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert'),
+	(2, 'Chocolate lava cake', '$5.00', 50, 50, 'Dessert'),
+	(2, 'Coke zero', '$2.10', 10, 50, 'Drink'),
+	(2, 'Sprite', '$5.10', 20, 20, 'Drink'),
+	(2, '7-ups', '$1.10', 20, 20, 'Drink'),
+	(2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish'),
+	(2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish'),
+	(2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 	(3, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
-	(3, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(3, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
 	(3, 'Coke zero', '$2.10', 100, 500, 'Drink'),
-	(3, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(3, 'Sprite', '$5.10', 200, 200, 'Drink'),
 	(3, '7-ups', '$1.10', 200, 200, 'Drink'),
 	(3, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
 	(3, 'Lamb chop', '$15.50', 100, 100, 'Main Dish'),
@@ -1076,12 +1077,53 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values
 	(4, 'NAMA Beef steak', '$10.50', 100, 100, 'Side Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 	(5, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
-	(5, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(5, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
 	(5, 'Coke zero', '$2.10', 100, 500, 'Drink'),
-	(5, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(5, 'Sprite', '$5.10', 200, 200, 'Drink'),
 	(5, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
 	(5, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
 	(5, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(6, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(6, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
+	(6, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(6, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(6, 'Black pepper Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(6, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(6, 'Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(7, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(7, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(7, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(7, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(7, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(7, 'Soury Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(7, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(8, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(8, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(8, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(8, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(8, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(8, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(8, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(9, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(9, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(9, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(9, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(9, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(9, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(9, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(10, 'Chocolate Foundae', '$7.00', 100, 100, 'Dessert'),
+	(10, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
+	(10, 'Coke', '$2.10', 100, 500, 'Drink'),
+	(10, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(10, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(10, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(10, 'Beef Cubes', '$10.50', 100, 100, 'Side Dish');
+
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

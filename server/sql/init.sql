@@ -457,6 +457,32 @@ EXECUTE FUNCTION reject_same_duration();
 -- Add one more trigger to add the entry in table Consists when order_Status in orders changed to paid
 
 -- Need a trigger to update new customers to see if they are available for current promotion 
+-- Check promo category: All, First Order, Restaurant
+-- Check if the promo is within time limit
+CREATE OR REPLACE FUNCTION add_customer_promotion() RETURNS TRIGGER
+    AS $$
+DECLARE
+    valid_promo CURSOR FOR SELECT promo_id, category FROM Promos WHERE (now() > start_time) AND (end_time > now()) AND category IN ('All', 'First Order', 'Restaurant');
+    table_row     RECORD;
+BEGIN
+    OPEN valid_promo;
+    LOOP
+        FETCH valid_promo INTO table_row;
+        EXIT WHEN NOT FOUND;
+        INSERT INTO Given(promo_id, cid)
+        VALUES(table_row.promo_id, NEW.cid);
+    END LOOP;
+    CLOSE valid_promo;
+	RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS add_customer_promotion_trigger ON Customers CASCADE;
+CREATE TRIGGER add_customer_promotion_trigger
+    AFTER INSERT 
+    ON Customers
+    FOR EACH ROW
+    EXECUTE FUNCTION add_customer_promotion();
 
 -- need a trigger to update given table
 CREATE OR REPLACE FUNCTION add_promo() RETURNS TRIGGER
@@ -489,6 +515,7 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+		CLOSE all_cust;
 	ELSIF category = 'First Order' THEN
 		OPEN first_order;
 		LOOP
@@ -497,6 +524,7 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+		CLOSE first_order;
 	ELSIF category = 'Inactive Customers' THEN
 		OPEN inactive;
 		LOOP
@@ -505,6 +533,7 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+		CLOSE inactive;
 	ELSIF category = 'Loyal Customers' THEN
 		OPEN loyal_cust;
 		LOOP
@@ -513,6 +542,7 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+		CLOSE loyal_cust;
 	ELSIF category = 'Restaurant' THEN
 		OPEN all_cust;
 		LOOP
@@ -521,6 +551,7 @@ BEGIN
 		INSERT INTO Given(promo_id, cid)
 		VALUES(NEW.promo_id, table_row.cid);
 		END LOOP;
+		CLOSE all_cust;
 	ELSE
 		RAISE exception 'Invalid category';
 	END IF;

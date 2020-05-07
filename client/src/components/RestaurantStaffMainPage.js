@@ -1,16 +1,17 @@
 import React, { Component } from "react";
 import "../styles/RestaurantStaffMainPage.css";
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import FormGroup from 'react-bootstrap/FormGroup'
-import { Col } from 'reactstrap';
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import FormGroup from "react-bootstrap/FormGroup";
+import { Col } from "reactstrap";
 import { Table } from "react-bootstrap";
 import Row from "react-bootstrap/Row";
-import axios from 'axios';
-import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
+import axios from "axios";
+import { Navbar, NavbarBrand, Nav, Jumbotron } from "reactstrap";
 import { MdPerson, MdDataUsage, MdRestaurant, MdRestaurantMenu } from "react-icons/md";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaBullhorn } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 class RestaurantStaffMainPage extends Component {
     constructor(props) {
@@ -38,13 +39,13 @@ class RestaurantStaffMainPage extends Component {
         let data = { rest_id: this.state.restaurantDetails.rest_id };
         axios.post('http://localhost:3001/RestaurantStaff/getFoodItems', data)
         .then(res => this.setState({ foodItems: res.data }));
-      };
+    }
 
     componentDidMount() {
         this.getRestaurantStaffDetails();
     }
     
-    handleSubmit = (event) => {
+    handleSubmit = event => {
         let form = event.target;
         event.preventDefault();
         let newFood = {
@@ -66,7 +67,7 @@ class RestaurantStaffMainPage extends Component {
         form.reset();
     }
 
-    handleEdit = (food) => {
+    handleEdit = food => {
         this.setState({ currentFoodItem: food, editMode: true });
     }
 
@@ -74,7 +75,7 @@ class RestaurantStaffMainPage extends Component {
         this.setState({ editMode: false });
     }
 
-    handleUpdate = (event) => {
+    handleUpdate = event => {
         let form = event.target;
         event.preventDefault();
         let updatedFood = {
@@ -86,19 +87,20 @@ class RestaurantStaffMainPage extends Component {
             category: form.elements.foodCategory.value,
             food_limit: Math.round(form.elements.foodLimit.value)
         }
-        axios.post('http://localhost:3001/RestaurantStaff/updateFood', updatedFood)
+        axios.post("http://localhost:3001/RestaurantStaff/updateFood", updatedFood)
         .then(() => console.log('Food Updated'))
         .catch(err => {
             console.error(err);
         });
         let index = this.state.foodItems.indexOf(this.state.currentFoodItem);
-        this.state.foodItems[index] = updatedFood;
-        this.setState({ editMode: false });
+        let updatedFoodList = this.state.foodItems;
+        updatedFoodList[index] = updatedFood;
+        this.setState({ foodItems: updatedFoodList, editMode: false });
         form.reset();
     }
     
-    handleDelete = (food) => {
-        axios.post('http://localhost:3001/RestaurantStaff/deleteFood', food)
+    handleDelete = food => {
+        axios.post("http://localhost:3001/RestaurantStaff/deleteFood", food)
         .then(() => console.log('Food Deleted'))
         .catch(err => {
             console.error(err);
@@ -111,7 +113,7 @@ class RestaurantStaffMainPage extends Component {
     }
 
     renderItem = (food, index) => {
-        return(
+        return (
             <tr key={food.fid}>
                 <td>{index + 1}</td>
                 <td>{food.name}</td>
@@ -120,7 +122,7 @@ class RestaurantStaffMainPage extends Component {
                 <td>{food.category}</td>
                 <td>{food.food_limit}</td>
                 <td>
-                    <Button onClick={() => this.handleEdit(food)}>Edit</Button> {' '}
+                    <Button onClick={() => this.handleEdit(food)}>Edit</Button> {" "}
                     <Button variant="danger" onClick={() => this.handleDelete(food)}>Delete</Button>
                 </td>
             </tr>
@@ -128,98 +130,164 @@ class RestaurantStaffMainPage extends Component {
     }
 
     renderDefaultForm = () => {
-        return <div>
-            <form onSubmit = {this.handleSubmit}>
-                <FormGroup>
-                    <Row>
-                        <Col>
-                            <Form.Label>Food: </Form.Label>
-                            <Form.Control name = "foodName" required={true} type="text" placeholder="Food name" defaultValue=""/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Price: </Form.Label>
-                            <Form.Control name = "foodPrice" required={true} type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price" defaultValue=""/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Category: </Form.Label>
-                            <Form.Control name = "foodCategory" required={true} type="text" placeholder="Food category" defaultValue=""/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Limit: </Form.Label>
-                            <Form.Control name = "foodLimit" required={true} type="number" min="1" placeholder="Daily Food limit" defaultValue=""/>
-                        </Col>
-                        <div>
-                        <Button className="submit-button" type="submit" size="sm"> Add Item </Button>
-                        </div>
-                    </Row>
-                </FormGroup>
-            </form>
-        </div>
+        return (
+            <div>
+                <form onSubmit = {this.handleSubmit}>
+                    <FormGroup>
+                        <Row>
+                            <Col>
+                                <Form.Label>Food: </Form.Label>
+                                <Form.Control 
+                                    name = "foodName"
+                                    required={true} 
+                                    type="text" 
+                                    placeholder="Food name" 
+                                    defaultValue=""
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Price: </Form.Label>
+                                <Form.Control 
+                                    name = "foodPrice" 
+                                    required={true} 
+                                    type="number" 
+                                    min="0.01" 
+                                    step="0.01" 
+                                    data-number-to-fixed="2" 
+                                    placeholder="Food price" 
+                                    defaultValue=""
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Category: </Form.Label>
+                                <Form.Control 
+                                    name = "foodCategory"
+                                    required={true}
+                                    type="text" 
+                                    placeholder="Food category" 
+                                    defaultValue=""
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Limit: </Form.Label>
+                                <Form.Control 
+                                    name = "foodLimit" 
+                                    required={true} 
+                                    type="number" 
+                                    min="1" 
+                                    placeholder="Daily Food limit" 
+                                    defaultValue=""
+                                />
+                            </Col>
+                            <div>
+                                <Button className="submit-button" type="submit" size="sm">
+                                    Add Item
+                                </Button>
+                            </div>
+                        </Row>
+                    </FormGroup>
+                </form>
+            </div>
+        );
     }
 
     renderEditForm = () => {
-        return <div>
-            <form onSubmit = {this.handleUpdate}>
-                <FormGroup>
-                    <Row>
-                        <Col>
-                            <Form.Label>Food: </Form.Label>
-                            <Form.Control name = "foodName" required={true} type="text" placeholder="Food name" defaultValue={this.state.currentFoodItem.name}/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Price: </Form.Label>
-                            <Form.Control name = "foodPrice" required={true} type="number" min="0.01" step="0.01" data-number-to-fixed="2" placeholder="Food price" defaultValue={parseFloat(this.state.currentFoodItem.price.substring(1))}/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Category: </Form.Label>
-                            <Form.Control name = "foodCategory" required={true} type="text" placeholder="Food category" defaultValue={this.state.currentFoodItem.category}/>
-                        </Col>
-                        <Col>
-                            <Form.Label>Limit: </Form.Label>
-                            <Form.Control name = "foodLimit" required={true} type="number" min="1" placeholder="Food limit" defaultValue={this.state.currentFoodItem.food_limit}/>
-                        </Col>
-                        <div>
-                            <Button className="update-button" type="submit" size="sm"> Update Item </Button> {' '}
-                            <Button className="cancel-button" onClick={this.handleCancel} size="sm"> Cancel </Button>
-                        </div>
-                    </Row>
-                </FormGroup>
-            </form>
-        </div>
+        return (
+            <div>
+                <form onSubmit = {this.handleUpdate}>
+                    <FormGroup>
+                        <Row>
+                            <Col>
+                                <Form.Label>Food:</Form.Label>
+                                <Form.Control
+                                    name = "foodName" 
+                                    required={true} 
+                                    type="text" 
+                                    placeholder="Food name" 
+                                    defaultValue={this.state.currentFoodItem.name}
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Price:</Form.Label>
+                                <Form.Control 
+                                    name = "foodPrice" 
+                                    required={true} 
+                                    type="number" 
+                                    min="0.01" 
+                                    step="0.01" 
+                                    data-number-to-fixed="2" 
+                                    placeholder="Food price" 
+                                    defaultValue={parseFloat(this.state.currentFoodItem.price.substring(1))}
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Category:</Form.Label>
+                                <Form.Control 
+                                    name = "foodCategory" 
+                                    required={true} 
+                                    type="text" 
+                                    placeholder="Food category" 
+                                    defaultValue={this.state.currentFoodItem.category}
+                                />
+                            </Col>
+                            <Col>
+                                <Form.Label>Limit:</Form.Label>
+                                <Form.Control 
+                                    name = "foodLimit" 
+                                    required={true} 
+                                    type="number" 
+                                    min="1" 
+                                    placeholder="Food limit" 
+                                    defaultValue={this.state.currentFoodItem.food_limit}
+                                />
+                            </Col>
+                            <div>
+                                <Button className="update-button" type="submit" size="sm">
+                                    Update Item
+                                </Button> {" "}
+                                <Button className="cancel-button" onClick={this.handleCancel} size="sm">
+                                    Cancel
+                                </Button>
+                            </div>
+                        </Row>
+                    </FormGroup>
+                </form>
+            </div>
+        );
     }
 
     handleProfileNavigation = () => {
-        this.props.history.push({
-            pathname: '/RestaurantProfile',
+        return {
+            pathname: "/RestaurantProfile",
             state: {
                 account_id: this.props.location.state.account_id,
                 rest_id: this.state.restaurantDetails.rest_id,
                 name: this.state.restaurantDetails.name,
                 order_threshold: this.state.restaurantDetails.order_threshold,
                 address: this.state.restaurantDetails.address
-          }
-        });
-    };
+          },
+        };
+    }
       
     handlePromotionNavigation = () => {
-        this.props.history.push({
-            pathname: '/RestaurantPromotions',
+        return {
+            pathname: "/RestaurantPromotions",
             state: {
                 account_id: this.props.location.state.account_id,
                 rest_id: this.state.restaurantDetails.rest_id
-            }
-        });
-    };
+            },
+        };
+    }
     
     handleSummaryNavigation = () => {
-        this.props.history.push({
-            pathname: '/RestaurantSummaryPage',
+        return {
+            pathname: "/RestaurantSummaryPage",
             state: {
                 account_id: this.props.location.state.account_id,
                 rest_id: this.state.restaurantDetails.rest_id
-            }
-        });
-    };
+            },
+        };
+    }
 
     render() {
         return (
@@ -228,27 +296,27 @@ class RestaurantStaffMainPage extends Component {
                     <NavbarBrand>Home Page</NavbarBrand>
 
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleProfileNavigation} className="icon">
+                        <Link to={this.handleProfileNavigation} className="icon">
                             <MdPerson />
                             <span> Restaurant Profile </span>
-                        </NavLink>
+                        </Link>
 
-                        <NavLink href="" onClick={this.handlePromotionNavigation} className="icon">
-                         <FaBullhorn />
+                        <Link to={this.handlePromotionNavigation} className="icon">
+                            <FaBullhorn />
                             <span> Promotional Campaigns </span>
-                        </NavLink>
+                        </Link>
 
-                        <NavLink href="" onClick={this.handleSummaryNavigation} className="icon">
-                         <MdDataUsage />
+                        <Link to={this.handleSummaryNavigation} className="icon">
+                            <MdDataUsage />
                             <span> Summary Info </span>
-                        </NavLink>
+                        </Link>
                     </Nav>
     
                     <Nav>
-                        <NavLink href="/Login" className="icon">
+                        <Link to="/Login" className="icon">
                             <RiLogoutBoxLine />
                             <span> Logout </span>
-                        </NavLink>
+                        </Link>
                     </Nav>
                 </Navbar>
             
@@ -270,7 +338,7 @@ class RestaurantStaffMainPage extends Component {
                             <MdRestaurantMenu />
                         </h1>
                         {this.state.editMode ? this.renderEditForm() : this.renderDefaultForm()}
-                        <br/>
+                        <br />
                         <Table striped bordered hover>
                             <thead>
                                 <tr>

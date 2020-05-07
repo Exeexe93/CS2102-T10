@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import FormGroup from 'react-bootstrap/FormGroup'
-import axios from 'axios';
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import FormGroup from "react-bootstrap/FormGroup";
+import axios from "axios";
 import { MdHome } from "react-icons/md";
-import { Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
+import { Navbar, NavbarBrand, Nav } from "reactstrap";
 import { RiLogoutBoxLine } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 class RestaurantProfile extends Component {
     constructor(props) {
@@ -20,19 +21,19 @@ class RestaurantProfile extends Component {
     }
 
     handleHomeNavigation = () => {
-        this.props.history.push({
-            pathname: '/RestaurantStaffMainPage',
+        return {
+            pathname: "/RestaurantStaffMainPage",
             state: {
               account_id: this.props.location.state.account_id
-            }
-        });
-      };
+            },
+        };
+    }
     
     changeEditMode = () => {
-        this.setState({isInEditMode: !this.state.isInEditMode})
+        this.setState({ isInEditMode: !this.state.isInEditMode });
     }
 
-    handleUpdate = (event) => {
+    handleUpdate = event => {
         let form = event.target;
         event.preventDefault();
         let restaurantName = form.elements.restaurantName.value;
@@ -58,35 +59,61 @@ class RestaurantProfile extends Component {
     }
 
     renderEditView = () => {
-        return <form onSubmit = {this.handleUpdate}>
-            <FormGroup>
-                <Form.Label>Restaurant Name: </Form.Label>
-                <Form.Control name = "restaurantName" required={true} type="text" defaultValue={this.state.restaurantName} placeholder="Restaurant Name"/><h4/>
-                <Form.Label>Restaurant Order Threshold: </Form.Label>
-                <Form.Control name = "order_threshold" required={true} type="number" min="0.01" step="0.01" 
-                    data-number-to-fixed="2" defaultValue={this.state.order_threshold} placeholder="Order Threshold"/>
-                <Form.Text className="text-muted">
-                    The minimum amount customers are required to spend per order.
-                </Form.Text> <h4/>
-                <Form.Label>Restaurant Address: </Form.Label>
-                <Form.Control name = "address" required={true} type="text" defaultValue={this.state.address} placeholder="Restaurant Address"/>
-                <h4/>
-                <Button type="submit"> Update </Button> {' '}
-                <Button onClick={this.handleCancel}> Cancel </Button>
+        return (
+            <form onSubmit = {this.handleUpdate}>
+                <FormGroup>
+                    <Form.Label>Restaurant Name: </Form.Label>
+                    <Form.Control 
+                        name="restaurantName" 
+                        required={true} 
+                        type="text" 
+                        defaultValue={this.state.restaurantName} 
+                        placeholder="Restaurant Name"
+                    />
+                    <h4 />
+                    <Form.Label>Restaurant Order Threshold:</Form.Label>
+                    <Form.Control 
+                        name="order_threshold" 
+                        required={true} 
+                        type="number" 
+                        min="0.01" 
+                        step="0.01" 
+                        data-number-to-fixed="2" 
+                        defaultValue={this.state.order_threshold} 
+                        placeholder="Order Threshold"
+                    />
+                    <Form.Text className="text-muted">
+                        The minimum amount customers are required to spend per order.
+                    </Form.Text>
+                    <h4 />
+                    <Form.Label>Restaurant Address:</Form.Label>
+                    <Form.Control 
+                        name="address"
+                        required={true}
+                        type="text"
+                        defaultValue={this.state.address}
+                        placeholder="Restaurant Address"
+                    />
+                    <h4 />
+                    <Button type="submit">Update</Button>{" "}
+                    <Button onClick={this.handleCancel}>Cancel</Button>
                 </FormGroup>
-        </form>
+            </form>
+        );
     }
 
     renderDefaultView = () => {
-        return <div>
-            <h3>Restaurant Name: {this.state.restaurantName}</h3>
-            <h3>Restaurant Order Threshold: ${this.state.order_threshold}</h3>
-            <h3>Restaurant Address: {this.state.address}</h3>
+        return (
+            <div>
+                <h3>Restaurant Name: {this.state.restaurantName}</h3>
+                <h3>Restaurant Order Threshold: ${this.state.order_threshold}</h3>
+                <h3>Restaurant Address: {this.state.address}</h3>
             </div>
+        );
     }
           
     handleCancel = () => {
-        this.setState({isInEditMode: false})
+        this.setState({ isInEditMode: false })
     }
 
     render() {
@@ -95,25 +122,27 @@ class RestaurantProfile extends Component {
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand>Restaurant Profile</NavbarBrand>
                     <Nav className="mr-auto">
-                        <NavLink href="" onClick={this.handleHomeNavigation} className="icon">
+                        <Link to={this.handleHomeNavigation} className="icon">
                             <MdHome />
-                            <span> Home</span>
-                        </NavLink>
+                            <span>Home</span>
+                        </Link>
                     </Nav>
                     <Nav>
-                        <NavLink href="/Login" className="icon">
+                        <Link to="/Login" className="icon">
                             <RiLogoutBoxLine />
-                            <span> Logout</span>
-                        </NavLink>
+                            <span>Logout</span>
+                        </Link>
                     </Nav>
                 </Navbar>
                 <div className="content">
                     <div className="container">
                         <h1 align="center" className="display-4">
-                            <span> Restaurant Details </span>
-                            {this.state.isInEditMode ? "" : <Button onClick={this.changeEditMode}> Update Profile</Button>}
+                            <span>Restaurant Details </span>
+                            {this.state.isInEditMode ? "" : <Button onClick={this.changeEditMode}>Update Profile</Button>}
                         </h1>
-                        <h3> {this.state.isInEditMode ? this.renderEditView() : this.renderDefaultView()} </h3>
+                        <h3>
+                            {this.state.isInEditMode ? this.renderEditView() : this.renderDefaultView()}
+                        </h3>
                     </div>
                 </div>
             </div>

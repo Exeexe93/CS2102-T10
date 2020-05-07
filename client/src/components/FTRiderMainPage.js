@@ -407,12 +407,7 @@ class FTRiderMainPage extends Component {
           <NavbarBrand>Full Time Rider</NavbarBrand>
 
           <Nav>
-            <Link
-              to={{
-                pathname: "/Login",
-              }}
-              className="link"
-            >
+            <Link to={{ pathname: "/Login" }} className="link">
               <RiLogoutBoxLine />
               <span> Logout</span>
             </Link>

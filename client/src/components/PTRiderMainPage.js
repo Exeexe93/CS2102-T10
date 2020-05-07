@@ -407,12 +407,7 @@ class PTRiderMainPage extends Component {
           <NavbarBrand>Part Time Rider</NavbarBrand>
 
           <Nav>
-            <Link
-              to={{
-                pathname: "/Login",
-              }}
-              className="link"
-            >
+            <Link to={{ pathname: "/Login" }} className="link">
               <RiLogoutBoxLine />
               <span> Logout</span>
             </Link>

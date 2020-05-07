@@ -56,16 +56,14 @@ class FDSManager {
 
     static queryRidersStats(month, year, callback) {
         db.query(
-            'With RiderOrders as (select r.rid, r.name, sum(o.total_price) as total_price, MAX(age(deliver_to_cust, order_placed)) as delivery_duration, count(distinct o.rating) as num_rating, ' +
-	        'round(avg(rating), 2) as avg_rating, count(o.oid) as num_orders from Riders r left join Orders o using (rid) where extract(month from o.order_placed) = $1 ' +
-	        'and extract(year from o.order_placed) = $2 group by rid order by name), ' + 
-            'RiderSalary as (select r.rid, sum(amount) as salary, start_date from Salaries right join Riders r using (rid) where extract(month from start_date) = $1 ' +
-	        'and extract(year from start_date) = $2 group by (rid, start_date)), ' +
-            'RiderWorkHour as (select r.rid, coalesce(sum(ftwh.total_hours), sum(ptwh.total_hours)) as total_hours from Riders r left join PTWorks ptwh using (rid) left join FTWorks ftwh using(rid) ' +
-	        'where month = $1 group by r.rid) ' + 
-            'select rid, r.name, coalesce(ro.total_price, 0::money) as total_price, coalesce(ro.delivery_duration, \'00:00:00\') as delivery_duration, ' +
-	        'coalesce(ro.num_rating, 0) as num_rating, coalesce(ro.avg_rating, 0) as avg_rating, coalesce(ro.num_orders, 0) as num_orders, coalesce(rs.salary, 0::money) as salary, ' +
-            'coalesce(rwh.total_hours, 0) as total_hours from Riders r left join RiderOrders as ro using (rid) left join RiderSalary as rs using (rid) left join RiderWorkHour as rwh using (rid) order by name',
+            'With RiderOrders as (select r.rid, r.name, sum(o.total_price) as total_price, MAX(age(deliver_to_cust, order_placed)) as delivery_duration, count(distinct o.rating) as num_rating, round(avg(rating), 2) as avg_rating, count(o.oid) as num_orders ' + 
+            'from Riders r left join Orders o using (rid) where extract(month from o.order_placed) = $1 and extract(year from o.order_placed) = $2 group by rid order by name), RiderSalary as (select r.rid, sum(amount) as salary, start_date ' +
+            'from Salaries right join Riders r using (rid) where extract(month from start_date) = $1 and extract(year from start_date) = $2 group by (rid, start_date)), ptwh as (select rid, max(name) as name, sum(total_hours) as total_hours ' +
+            'from (select rid, wid, riders.name, max(total_hours) as total_hours from Riders left join ptriders using (rid) left join ptworks using (rid) left join wws using(wid) left join contains using(wid) left join shift using(shift_id) where extract(month from actual_date) = $1 ' +
+            'and extract(year from actual_date) = $2 group by rid, wid) as helpptwh group by rid), ftwh as (select rid, riders.name, max(total_hours) as total_hours from Riders left join ftriders using (rid) left join ftworks using (rid) left join mws using(mid) ' +
+            'left join has using(mid) left join wws using(wid) left join contains using(wid) left join shift using(shift_id) where extract(month from actual_date) = $1 and extract(year from actual_date) = $2 group by rid), RiderWorkHour as (select rid, name, coalesce(ptwh.total_hours, ftwh.total_hours) as ' +
+            'total_hours from Riders left join ptwh using (rid,name) left join ftwh using (rid,name)) select rid, r.name, coalesce(ro.total_price, 0::money) as total_price, coalesce(ro.delivery_duration, \'00:00:00\') as delivery_duration, coalesce(ro.num_rating, 0) as num_rating, coalesce(ro.avg_rating, 0) as avg_rating, ' +
+            'coalesce(ro.num_orders, 0) as num_orders, coalesce(rs.salary, 0::money) as salary, coalesce(rwh.total_hours, 0) as total_hours from Riders r left join RiderOrders as ro using (rid) left join RiderSalary as rs using (rid) left join RiderWorkHour as rwh using (rid) order by name',
             [month, year],
             (err, res) => {
                 if (err.error) {

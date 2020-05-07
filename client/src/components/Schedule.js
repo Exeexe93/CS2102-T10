@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
+import { Navbar, NavbarBrand, Nav } from "reactstrap";
+import { Link } from "react-router-dom";
 import swal from "sweetalert";
 
 import Calendar from "react-calendar";
@@ -16,6 +17,7 @@ class Schedule extends Component {
     this.state = {
       date: this.formatDate(new Date()),
       selectedScheduleList: [],
+      originalScheduleList: [],
     };
   }
 
@@ -90,11 +92,48 @@ class Schedule extends Component {
   handleSubmitUpdateFTSchedule = () => {
     // TODO
     console.log(this.state.selectedScheduleList);
+    let scheduleList = [];
+    // Check difference in selected and original
+    this.state.selectedScheduleList.map((selected) => {
+      const index = this.state.originalScheduleList.findIndex((original) => {
+        return (
+          selected.date === original.date && selected.shift === original.shift
+        );
+      });
+      if (index === -1) {
+        scheduleList.push(selected);
+      }
+    });
+    console.log("FTSchedule unique schedule addition: ", scheduleList);
   };
 
   handleSubmitUpdatePTSchedule = () => {
     // TODO
     console.log(this.state.selectedScheduleList);
+    let scheduleList = [];
+    // Check difference in selected and original
+    this.state.selectedScheduleList.map((selected) => {
+      const index = this.state.originalScheduleList.findIndex((original) => {
+        const isSameDate = selected.date === original.date;
+        const isSameShiftCount =
+          selected.shift.length === original.shift.length;
+        let isSameShiftValues = true;
+        selected.shift.map((selected_shift_value) => {
+          const value_index = original.shift.findIndex(
+            (original_shift_value) => {
+              return original_shift_value === selected_shift_value;
+            }
+          );
+          if (value_index === -1) {
+            isSameShiftValues = false;
+          }
+        });
+        if (!(isSameDate && isSameShiftCount && isSameShiftValues)) {
+          // Unique addition
+          scheduleList.push(selected);
+        }
+      });
+    });
   };
 
   handleFTSubmit = (e) => {
@@ -173,12 +212,6 @@ class Schedule extends Component {
     }
   };
 
-  handleHomeNavigation = () => {
-    this.props.history.push({
-      pathname: "/",
-    });
-  };
-
   // Format given Date object into a string of Format:
   // DAY MONTH YEAR (e.g. 4 May 2020)
   formatDate = (date) => {
@@ -193,19 +226,26 @@ class Schedule extends Component {
   };
 
   render() {
+    console.log(this.props.location.state);
     return (
       <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Schedule</NavbarBrand>
           <Nav className="mr-auto">
-            <NavLink
-              href=""
-              onClick={this.handleHomeNavigation}
+            <Link
+              to={{
+                pathname: this.props.location.state.isFTRider
+                  ? "/FTRiderMainPage"
+                  : "/PTRiderMainPage",
+                state: {
+                  account_id: this.props.location.state.id,
+                },
+              }}
               className="link"
             >
-              <MdHome />
+              <MdHome size="2em" />
               <span> Home</span>
-            </NavLink>
+            </Link>
           </Nav>
         </Navbar>
 

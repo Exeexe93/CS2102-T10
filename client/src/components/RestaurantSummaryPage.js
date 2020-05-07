@@ -105,7 +105,7 @@ class RestaurantSummaryPage extends Component {
     }
 
     render() {
-        return(
+        return (
             <div>
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand>Summary Information</NavbarBrand>

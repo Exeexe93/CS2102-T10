@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -11,7 +11,7 @@ import {
   DropdownButton,
   FormGroup,
 } from "react-bootstrap";
-import { MdArrowBack } from "react-icons/md";
+import { MdHome } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -331,7 +331,6 @@ class Cart extends Component {
 
   updateFood = async (food, orderNum, queryList, valueList) => {
     if (food.originalQuantity !== food.FoodQuantity) {
-      console.log("Food: " + food.FoodName + "(" + food.FoodQuantity + ")");
       if (queryList.length === 0) {
         queryList.push(
           "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2"
@@ -441,7 +440,6 @@ class Cart extends Component {
           valueList: valueList,
         }
       );
-      console.log(response.data);
       if (response.data) {
         if (response.data.where) {
           if (response.data.where.includes("reject_order_below_threshold")) {
@@ -481,8 +479,8 @@ class Cart extends Component {
         }
       }
     } catch (err) {
-      console.log(err);
       console.error("Transaction failed!");
+      console.error(err);
     }
   };
 
@@ -705,7 +703,6 @@ class Cart extends Component {
   updateRewardPointUsed = (event) => {
     let value = event.target.value;
     if (value) {
-      console.log(value);
       if (value > this.state.rewardPoints) {
         swal({
           title: "Invalid reward points input!",
@@ -966,24 +963,25 @@ class Cart extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <Link
-            to={{
-              pathname: "/Customer",
-              state: {
-                account_id: this.state.cid,
-              },
-            }}
-          >
-            <div className="backIcon">
-              <MdArrowBack />
-              To Home Page
-            </div>
+          <NavbarBrand>Cart</NavbarBrand>
+
+          <Link to={this.handleHomeDirectory} className="backIcon">
+            <MdHome size="2em" />
+            Home
           </Link>
-          <div className="icon-container"></div>
         </Navbar>
 
         <Row>

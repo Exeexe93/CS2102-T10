@@ -71,7 +71,7 @@ class RestaurantPromotions extends Component {
     }
 
     renderItem = (promo, index) => {
-        return(
+        return (
             <tr key={promo.promo_id}>
                 <td>{index + 1}</td>
                 <td>{promo.start_time}</td>
@@ -136,7 +136,7 @@ class RestaurantPromotions extends Component {
     }
 
     render() {
-        return(
+        return (
             <div>
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand>Promotional Campaigns</NavbarBrand>

@@ -117,7 +117,7 @@ class RestaurantProfile extends Component {
     }
 
     render() {
-        return(
+        return (
             <div>
                 <Navbar className="navbar" color="dark" dark>
                     <NavbarBrand>Restaurant Profile</NavbarBrand>

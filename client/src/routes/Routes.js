@@ -1,6 +1,5 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
-import App from "../App";
+import { Switch, Route, Redirect } from "react-router-dom";
 import Customer from "../components/Customer";
 import RestaurantStaffMainPage from "../components/RestaurantStaffMainPage";
 import RestaurantProfile from "../components/RestaurantProfile";
@@ -21,18 +20,30 @@ class Routes extends React.Component {
   render() {
     return (
       <Switch>
-        <Route exact path="/" component={App} />
+        <Route exact path="/" render={() => <Redirect to="/Login" />} />
+        <Route exact path="/Login" component={Login} />
         <Route exact path="/Customer" component={Customer} />
         <Route exact path="/Customer/:handle" component={FoodItem} />
-        <Route exact path="/Login" component={Login} />
         <Route exact path="/Profile" component={Profile} />
         <Route exact path="/Cart" component={Cart} />
         <Route exact path="/FDSManager" component={FDSManager} />
 
-        <Route exact path="/RestaurantStaffMainPage" component={RestaurantStaffMainPage} />
+        <Route
+          exact
+          path="/RestaurantStaffMainPage"
+          component={RestaurantStaffMainPage}
+        />
         <Route exact path="/RestaurantProfile" component={RestaurantProfile} />
-        <Route exact path="/RestaurantPromotions" component={RestaurantPromotions} />
-        <Route exact path="/RestaurantSummaryPage" component={RestaurantSummaryPage} />
+        <Route
+          exact
+          path="/RestaurantPromotions"
+          component={RestaurantPromotions}
+        />
+        <Route
+          exact
+          path="/RestaurantSummaryPage"
+          component={RestaurantSummaryPage}
+        />
 
         <Route exact path="/Signup" component={Signup} />
 

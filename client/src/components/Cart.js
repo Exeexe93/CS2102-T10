@@ -966,21 +966,22 @@ class Cart extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div className="page">
         <Navbar dark color="dark">
           <NavbarBrand>Cart</NavbarBrand>
 
-          <Link
-            to={{
-              pathname: "/Customer",
-              state: {
-                account_id: this.state.cid,
-              },
-            }}
-            className="backIcon"
-          >
+          <Link to={this.handleHomeDirectory} className="backIcon">
             <MdHome size="2em" />
             Home
           </Link>

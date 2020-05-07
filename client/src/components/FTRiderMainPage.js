@@ -4,7 +4,6 @@ import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
 import "../styles/FTRiderMainPage.css";
 
 import { GiFoodTruck } from "react-icons/gi";
-import { MdHome } from "react-icons/md";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
@@ -17,7 +16,7 @@ class FTRiderMainPage extends Component {
     super(props);
     this.state = {
       isFTRider: true,
-      id: this.props.location.id,
+      id: this.props.location.account_id,
       name: "",
       orders: [],
       completed_orders: [],
@@ -273,12 +272,6 @@ class FTRiderMainPage extends Component {
     });
   };
 
-  handleHomeNavigation = () => {
-    this.props.history.push({
-      pathname: "/",
-    });
-  };
-
   handleAcceptPendingOrder = (orderInfo) => {
     console.log("handleAcceptPendingOrder this.state: ", this.state);
     const order_number = orderInfo.order_number;
@@ -410,18 +403,7 @@ class FTRiderMainPage extends Component {
     return (
       <div>
         <Navbar className="navbar" color="dark" dark>
-          <NavbarBrand href="/">Full Time Rider</NavbarBrand>
-
-          <Nav className="mr-auto">
-            <NavLink
-              href=""
-              onClick={this.handleHomeNavigation}
-              className="link"
-            >
-              <MdHome />
-              <span> Home</span>
-            </NavLink>
-          </Nav>
+          <NavbarBrand>Full Time Rider</NavbarBrand>
 
           <Nav>
             <NavLink href="/Login" className="link">

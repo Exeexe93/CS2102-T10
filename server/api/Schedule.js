@@ -13,4 +13,13 @@ router.get("/getMWS", (request, response) => {
   });
 });
 
+router.get("/submitUpdateFTSchedule", (request, response) => {
+  Schedule.submitUpdateFTSchedule(rid, month, (err, result) => {
+    if (err.error) {
+      return response.status(404).json(err);
+    }
+    return response.status(200).json(result);
+  });
+});
+
 module.exports = router;

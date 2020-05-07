@@ -12,6 +12,16 @@ class Schedule {
       return callback(err, res);
     });
   }
+
+  static submitUpdateFTSchedule(queryList, valueList, callback) {
+    db.transaction(queryList, valueList, (err, res) => {
+      if (err.error) {
+        console.log("Could not update the FT Schedule", err);
+        return callback(err, res);
+      }
+      return callback(err, res);
+    });
+  }
 }
 
 module.exports = Schedule;

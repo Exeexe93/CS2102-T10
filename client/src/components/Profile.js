@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AccountContext } from "./AccountProvider";
 import "../styles/Profile.css";
-import { Navbar, Col, Row, Jumbotron } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Row, Jumbotron } from "reactstrap";
 import {
   FormGroup,
   Form,
@@ -13,7 +13,7 @@ import {
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { GoCreditCard } from "react-icons/go";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-import { MdArrowBack } from "react-icons/md";
+import { MdHome } from "react-icons/md";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -612,22 +612,24 @@ class Profile extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <Link
-            to={{
-              pathname: "/Customer",
-              state: {
-                account_id: this.state.cid,
-              },
-            }}
-          >
-            <div className="backIcon">
-              <MdArrowBack />
-              To Home Page
-            </div>
+          <NavbarBrand>Profile</NavbarBrand>
+
+          <Link to={this.handleHomeDirectory} className="backIcon">
+            <MdHome size="2em" />
+            Home
           </Link>
         </Navbar>
 

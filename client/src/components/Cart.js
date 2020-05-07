@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -11,7 +11,7 @@ import {
   DropdownButton,
   FormGroup,
 } from "react-bootstrap";
-import { MdArrowBack } from "react-icons/md";
+import { MdHome } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -966,24 +966,25 @@ class Cart extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div className="page">
         <Navbar dark color="dark">
-          <Link
-            to={{
-              pathname: "/Customer",
-              state: {
-                account_id: this.state.cid,
-              },
-            }}
-          >
-            <div className="backIcon">
-              <MdArrowBack />
-              To Home Page
-            </div>
+          <NavbarBrand>Cart</NavbarBrand>
+
+          <Link to={this.handleHomeDirectory} className="backIcon">
+            <MdHome size="2em" />
+            Home
           </Link>
-          <div className="icon-container"></div>
         </Navbar>
 
         <Row>

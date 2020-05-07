@@ -1,40 +1,42 @@
 .content {
-    justify-content: center;
-    display: flex;
+  justify-content: center;
+  display: flex;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding-top: 3em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 3em;
 }
 
 .submit-button {
-    min-height: 53%;
-    min-width: 120%;
-    position:relative;
-    margin-top:32px;
-  }
+  min-height: 53%;
+  min-width: 120%;
+  position: relative;
+  margin-top: 32px;
+}
 
 .update-button {
-    min-height: 53%;
-    position:relative;
-    margin-top:32px;
+  min-height: 53%;
+  position: relative;
+  margin-top: 32px;
 }
 
 .cancel-button {
-    min-height: 53%;
-    position:relative;
-    margin-top:32px;
+  min-height: 53%;
+  position: relative;
+  margin-top: 32px;
 }
 
 .icon {
-    color: whitesmoke;
-    font-size: 20px;
+  color: whitesmoke;
+  font-size: 20px;
+  margin-left: 10px;
 }
 
 .icon:hover {
-    color: lightskyblue;
+  color: lightskyblue;
+  text-decoration: none;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { Navbar, NavbarBrand, Nav, NavLink } from "reactstrap";
+import { Navbar, NavbarBrand, Nav } from "reactstrap";
+import { Link } from "react-router-dom";
 import swal from "sweetalert";
 
 import Calendar from "react-calendar";
@@ -211,12 +212,6 @@ class Schedule extends Component {
     }
   };
 
-  handleHomeNavigation = () => {
-    this.props.history.push({
-      pathname: "/",
-    });
-  };
-
   // Format given Date object into a string of Format:
   // DAY MONTH YEAR (e.g. 4 May 2020)
   formatDate = (date) => {
@@ -231,19 +226,26 @@ class Schedule extends Component {
   };
 
   render() {
+    console.log(this.props.location.state);
     return (
       <div>
         <Navbar className="navbar" color="dark" dark>
           <NavbarBrand href="/">Schedule</NavbarBrand>
           <Nav className="mr-auto">
-            <NavLink
-              href=""
-              onClick={this.handleHomeNavigation}
+            <Link
+              to={{
+                pathname: this.props.location.state.isFTRider
+                  ? "/FTRiderMainPage"
+                  : "/PTRiderMainPage",
+                state: {
+                  account_id: this.props.location.state.id,
+                },
+              }}
               className="link"
             >
-              <MdHome />
+              <MdHome size="2em" />
               <span> Home</span>
-            </NavLink>
+            </Link>
           </Nav>
         </Navbar>
 

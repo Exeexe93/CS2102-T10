@@ -384,6 +384,7 @@ class FoodItem extends Component {
         </td>
         <td>{food.food_limit}</td>
         <td>{food.quantity}</td>
+        <td>{food.availability ? "Available" : "Sold out"}</td>
         <td>{food.category}</td>
       </tr>
     );
@@ -400,6 +401,7 @@ class FoodItem extends Component {
               <th>Quantity</th>
               <th>Purchase Limit</th>
               <th>Quantity Left</th>
+              <th>Availability</th>
               <th>Category</th>
             </tr>
           </thead>
@@ -485,7 +487,7 @@ class FoodItem extends Component {
     return (
       <div>
         <Navbar dark color="dark">
-          <NavbarBrand>Order</NavbarBrand>
+          <NavbarBrand>Menu</NavbarBrand>
           <Nav className="mr-auto">
             <Link to={{ pathname: "/Cart" }} className="link">
               <GiShoppingCart size="2em" />

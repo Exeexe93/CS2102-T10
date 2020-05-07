@@ -171,7 +171,7 @@ CREATE TABLE MWS (
 
 CREATE TABLE Has (
 	mid integer,
-	wid integer,
+	wid integer unique,
 	working_week integer,
 	primary key(mid, working_week),
 	foreign key(mid) references MWS(mid)
@@ -288,8 +288,8 @@ CREATE TABLE Salaries (
 
 CREATE TABLE RestaurantStaffs (
 	staff_id varchar(255) references Accounts(account_id) on delete cascade on update cascade,
-    rest_id serial references Restaurants(rest_id),
-    primary key(staff_id)
+    rest_id integer references Restaurants(rest_id),
+    primary key(staff_id, rest_id)
 );
 
 CREATE TABLE Foods (
@@ -709,132 +709,294 @@ insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobso
 insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
-insert into RestaurantStaffs (staff_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade');
-insert into RestaurantStaffs (staff_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41');
-insert into RestaurantStaffs (staff_id) values ('bf4f405e-84ef-458c-b825-63d47379c374');
-insert into RestaurantStaffs (staff_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406');
-insert into RestaurantStaffs (staff_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f');
-insert into RestaurantStaffs (staff_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478');
-insert into RestaurantStaffs (staff_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818');
-insert into RestaurantStaffs (staff_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5');
-insert into RestaurantStaffs (staff_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5');
-insert into RestaurantStaffs (staff_id) values ('fd1001b8-2503-4685-9661-fff922fa7798');
+insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
+insert into RestaurantStaffs (staff_id, rest_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2);
+insert into RestaurantStaffs (staff_id, rest_id) values ('bf4f405e-84ef-458c-b825-63d47379c374', 3);
+insert into RestaurantStaffs (staff_id, rest_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4);
+insert into RestaurantStaffs (staff_id, rest_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5);
+insert into RestaurantStaffs (staff_id, rest_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6);
+insert into RestaurantStaffs (staff_id, rest_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7);
+insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 8);
+insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
+insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
 
 -- WWS
--- INSERT into WWS (wk_no, start_date, end_date) values (18, '2020-05-02', '2020-05-08');
+INSERT into WWS (start_day) values 
+-- first ft
+	(0),
+	(0),
+	(0),
+	(0),
+-- second ft
+	-- (1),
+	-- (1),
+	-- (1),
+	-- (1),
+	-- For pt worker rid e6115a43-b3b7-4b45-9014-5f2ac0f913e2
+	(2); 
+-- third ft
+-- 	(3),
+-- 	(3),
+-- 	(3),
+-- 	(3),
+-- -- fourth
+-- 	(4),
+-- 	(4),
+-- 	(4),
+-- 	(4), 
+-- -- fifth
+-- 	(5), 
+-- 	(5), 
+-- 	(5), 
+-- 	(5);
 -- INSERT into WWS (wk_no, start_date, end_date) values (19, '2020-05-09', '2020-05-15');
 -- INSERT into WWS (wk_no, start_date, end_date) values (20, '2020-05-16', '2020-05-22');
 -- INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05-29');
 
 -- MWS
--- INSERT into MWS (month, total_hours, start_wk, end_wk) values (5, 120, 18, 21);
+INSERT into MWS (start_week) values 
+-- first rider
+	(14);
+	-- (14),
+	-- (14),
+	-- (14),
+	-- (14);
 
 -- Has
--- INSERT INTO Has(month, start_wk, end_wk, wk_no, start_date, end_date) values 
--- 	(5, 18, 21, 18, '2020-05-02', '2020-05-08'),
--- 	(5, 18, 21, 19, '2020-05-09', '2020-05-15'),
--- 	(5, 18, 21, 20, '2020-05-16', '2020-05-22'),
--- 	(5, 18, 21, 21, '2020-05-23', '2020-05-29');
+INSERT INTO Has(mid, wid, working_week) values 
+-- First ft
+	(1, 1, 1),
+	(1, 2, 2),
+	(1, 3, 3),
+	(1, 4, 4);
+-- -- Secpmd ft
+-- 	(2, 5, 1),
+-- 	(2, 6, 2),
+-- 	(2, 7, 3),
+-- 	(2, 8, 4),
+-- -- third
+-- 	(3, 10, 1),
+-- 	(3, 11, 2),
+-- 	(3, 12, 3),
+-- 	(3, 13, 4),
+-- -- 4
+-- 	(4, 14, 1),
+-- 	(4, 15, 2),
+-- 	(4, 16, 3),
+-- 	(4, 17, 4),
+-- -- 5
+-- 	(5, 18, 1),
+-- 	(5, 19, 2),
+-- 	(5, 20, 3),
+-- 	(5, 21, 4);
+
 
 -- PTWorks
--- INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 18, '2020-05-02', '2020-05-08', 40);
+INSERT into PTWorks (rid, working_week, total_hours, wid) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1, 40, 5);
 -- INSERT into PTWorks (rid, wk_no, start_date, end_date, total_hours) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 19, '2020-05-09', '2020-05-15', 40);
 
 -- FTWorks, total_hours
--- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 5, 18, 21, 160);
--- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 5, 18, 21, 160);
--- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 5, 18, 21, 160);
--- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 5, 18, 21, 160);
--- insert into FTWorks (rid, month, start_wk, end_wk, total_hours) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 5, 18, 21, 160);
+insert into FTWorks (rid, working_month, total_hours, mid) values 
+	('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1, 160, 1);
+	-- ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 160, 2),
+	-- ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 1, 160, 3),
+	-- ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 1, 160, 4),
+	-- ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 1, 160, 5);
 
 
--- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-02');
--- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-03');
--- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-04');
--- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-05');
--- INSERT into Shift (shift_id, actual_date) values (1, '2020-05-06');
--- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-02');
--- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-03');
--- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-04');
--- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-05');
--- INSERT into Shift (shift_id, actual_date) values (2, '2020-05-06');
--- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-02');
--- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-03');
--- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-04');
--- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-05');
--- INSERT into Shift (shift_id, actual_date) values (3, '2020-05-06');
--- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-02');
--- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-03');
--- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-04');
--- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-05');
--- INSERT into Shift (shift_id, actual_date) values (4, '2020-05-06');
+INSERT into Shift (actual_date) values 
+-- pt
+	('2020-04-02'),
+	('2020-04-03'),
+	('2020-04-04'),
+	('2020-04-05'),
+	('2020-04-06'),
+-- ftr 1
+	('2020-04-02'),
+	('2020-04-03'),
+	('2020-04-04'),
+	('2020-04-05'),
+	('2020-04-06'),
 
+	('2020-04-09'),
+	('2020-04-10'),
+	('2020-04-11'),
+	('2020-04-12'),
+	('2020-04-13'),
 
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-02');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-02');
+	('2020-04-16'),
+	('2020-04-17'),
+	('2020-04-18'),
+	('2020-04-19'),
+	('2020-04-20'),
 
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-03');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-03');
+	('2020-04-23'),
+	('2020-04-24'),
+	('2020-04-25'),
+	('2020-04-26'),
+	('2020-04-27');
 
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-04');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-04');
+INSERT into ShiftInfo (start_time, end_time) values 
+-- Shift 1
+	('10:00:00', '14:00:00'),
+	('15:00:00', '19:00:00'),
+-- Shift 2
+	('11:00:00', '15:00:00'),
+	('16:00:00', '20:00:00'),
+-- Shift 3
+	('12:00:00', '16:00:00'),
+	('17:00:00', '21:00:00'),
+-- Shift 4
+	('13:00:00', '17:00:00'),
+	('18:00:00', '22:00:00');
 
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-05');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-05');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('10:00:00', '14:00:00', 1, '2020-05-06');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('15:00:00', '19:00:00', 1, '2020-05-06');
-
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-02');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-02');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-03');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-03');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-04');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-04');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-05');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-05');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('11:00:00', '15:00:00', 2, '2020-05-06');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('16:00:00', '20:00:00', 2, '2020-05-06');
-
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-02');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-02');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-03');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-03');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-04');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-04');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-05');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-05');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('12:00:00', '16:00:00', 3, '2020-05-06');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('17:00:00', '21:00:00', 3, '2020-05-06');
-
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-02');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-02');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-03');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-03');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-04');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-04');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-05');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-05');
-
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('13:00:00', '17:00:00', 4, '2020-05-06');
--- INSERT into ShiftInfo (start_time, end_time, shift_id, actual_date) values ('18:00:00', '22:00:00', 4, '2020-05-06');
+-- Describes
+INSERT into Describes (shift_id, iid, working_interval) values
+-- 4/2 do shift 1
+	(1, 1, 1),
+	(1, 2, 2),
+-- 4/3 do shift 2
+	(2, 3, 1),
+	(2, 4, 2),
+-- 4/4 do shift 3
+	(3, 5, 1),
+	(3, 6, 2),
+-- 4/5 do shift 4
+	(4, 7, 1),
+	(4, 8, 2),
+-- 4/6 do shift 1
+	(5, 1, 1),
+	(5, 2, 2);
 
 -- Contains
--- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-02');
+INSERT into Contains (wid, working_day, shift_id) values 
+-- Part time 1
+	(5, 1, 1), 
+	(5, 2, 2),
+	(5, 3, 3),
+	(5, 4, 4),
+	(5, 5, 5),
+-- ft 1
+	(1, 1, 6), 
+	(1, 2, 7),
+	(1, 3, 8),
+	(1, 4, 9),
+	(1, 5, 10),
+
+	(2, 1, 11), 
+	(2, 2, 12),
+	(2, 3, 13),
+	(2, 4, 14),
+	(2, 5, 15),
+
+	(3, 1, 16), 
+	(3, 2, 17),
+	(3, 3, 18),
+	(3, 4, 19),
+	(3, 5, 20),
+
+	(4, 1, 21), 
+	(4, 2, 22),
+	(4, 3, 23),
+	(4, 4, 24),
+	(4, 5, 25);
+-- 2
+-- 	(5, 1, 1), 
+-- 	(5, 2, 2),
+-- 	(5, 3, 3),
+-- 	(5, 4, 4),
+-- 	(5, 5, 5),
+
+-- 	(6, 1, 1), 
+-- 	(6, 2, 2),
+-- 	(6, 3, 3),
+-- 	(6, 4, 4),
+-- 	(6, 5, 5),
+
+-- 	(7, 1, 1), 
+-- 	(7, 2, 2),
+-- 	(7, 3, 3),
+-- 	(7, 4, 4),
+-- 	(7, 5, 5),
+
+-- 	(8, 1, 1), 
+-- 	(8, 2, 2),
+-- 	(8, 3, 3),
+-- 	(8, 4, 4),
+-- 	(8, 5, 5),
+-- -- 3
+-- 	(10, 1, 1), 
+-- 	(10, 2, 2),
+-- 	(10, 3, 3),
+-- 	(10, 4, 4),
+-- 	(10, 5, 5),
+
+-- 	(11, 1, 1), 
+-- 	(11, 2, 2),
+-- 	(11, 3, 3),
+-- 	(11, 4, 4),
+-- 	(11, 5, 5),
+
+-- 	(12, 1, 1), 
+-- 	(12, 2, 2),
+-- 	(12, 3, 3),
+-- 	(12, 4, 4),
+-- 	(12, 5, 5),
+
+-- 	(13, 1, 1), 
+-- 	(13, 2, 2),
+-- 	(13, 3, 3),
+-- 	(13, 4, 4),
+-- 	(13, 5, 5),
+-- -- 4
+-- 	(14, 1, 1), 
+-- 	(14, 2, 2),
+-- 	(14, 3, 3),
+-- 	(14, 4, 4),
+-- 	(14, 5, 5),
+
+-- 	(15, 1, 1), 
+-- 	(15, 2, 2),
+-- 	(15, 3, 3),
+-- 	(15, 4, 4),
+-- 	(15, 5, 5),
+
+-- 	(16, 1, 1), 
+-- 	(16, 2, 2),
+-- 	(16, 3, 3),
+-- 	(16, 4, 4),
+-- 	(16, 5, 5),
+
+-- 	(17, 1, 1), 
+-- 	(17, 2, 2),
+-- 	(17, 3, 3),
+-- 	(17, 4, 4),
+-- 	(17, 5, 5),
+-- -- 5
+-- 	(18, 1, 1), 
+-- 	(18, 2, 2),
+-- 	(18, 3, 3),
+-- 	(18, 4, 4),
+-- 	(18, 5, 5),
+
+-- 	(19, 1, 1), 
+-- 	(19, 2, 2),
+-- 	(19, 3, 3),
+-- 	(19, 4, 4),
+-- 	(19, 5, 5),
+
+-- 	(20, 1, 1), 
+-- 	(20, 2, 2),
+-- 	(20, 3, 3),
+-- 	(20, 4, 4),
+-- 	(20, 5, 5),
+
+-- 	(21, 1, 1), 
+-- 	(21, 2, 2),
+-- 	(21, 3, 3),
+-- 	(21, 4, 4),
+-- 	(21, 5, 5);
+
 -- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-03');
 -- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-04');
 -- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-05');
@@ -914,6 +1076,29 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(3, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(3, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(3, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(3, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(3, '7-ups', '$1.10', 200, 200, 'Drink'),
+	(3, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(3, 'Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(3, 'Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(4, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(4, '7-ups', '$1.10', 200, 200, 'Drink'),
+	(4, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(4, 'NAMA Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(4, 'NAMA Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(5, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(5, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(5, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(5, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(5, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(5, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(5, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
 
 -- Rates
 -- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');

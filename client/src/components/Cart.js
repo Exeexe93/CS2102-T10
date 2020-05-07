@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "../styles/Cart.css";
-import { Navbar, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import {
   Accordion,
   Card,
@@ -11,7 +11,7 @@ import {
   DropdownButton,
   FormGroup,
 } from "react-bootstrap";
-import { MdArrowBack } from "react-icons/md";
+import { MdHome } from "react-icons/md";
 import { AccountContext } from "./AccountProvider.js";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -970,6 +970,8 @@ class Cart extends Component {
     return (
       <div className="page">
         <Navbar dark color="dark">
+          <NavbarBrand>Cart</NavbarBrand>
+
           <Link
             to={{
               pathname: "/Customer",
@@ -977,13 +979,11 @@ class Cart extends Component {
                 account_id: this.state.cid,
               },
             }}
+            className="backIcon"
           >
-            <div className="backIcon">
-              <MdArrowBack />
-              To Home Page
-            </div>
+            <MdHome size="2em" />
+            Home
           </Link>
-          <div className="icon-container"></div>
         </Navbar>
 
         <Row>

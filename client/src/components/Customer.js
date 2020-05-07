@@ -4,7 +4,7 @@ import { GiShoppingCart } from "react-icons/gi";
 import { Link } from "react-router-dom";
 import { MdPerson } from "react-icons/md";
 import { RiLogoutBoxLine } from "react-icons/ri";
-import { Navbar, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, NavbarBrand, Col, Jumbotron, Row, Nav } from "reactstrap";
 import { AccountContext } from "./AccountProvider.js";
 import axios from "axios";
 
@@ -100,6 +100,30 @@ class Customer extends Component {
     return (
       <div>
         <Navbar dark color="dark">
+          <NavbarBrand>Home Page</NavbarBrand>
+
+          <Nav className="mr-auto">
+            <Link
+              to={{
+                pathname: "/Cart",
+              }}
+              className="link"
+            >
+              <GiShoppingCart size="2em" />
+              Shopping Cart
+            </Link>
+
+            <Link
+              to={{
+                pathname: "/Profile",
+              }}
+              className="link"
+            >
+              <MdPerson size="2em" />
+              Profile
+            </Link>
+          </Nav>
+
           <NavbarBrand href="/Login">
             <div className="logoutIcon">
               <div className="logoutContainer">
@@ -108,14 +132,6 @@ class Customer extends Component {
               </div>
             </div>
           </NavbarBrand>
-          <div className="icon-container">
-            <GiShoppingCart
-              size="3em"
-              color="black"
-              onClick={this.handleCart}
-            />
-            <MdPerson size="3em" color="black" onClick={this.handleProfile} />
-          </div>
         </Navbar>
 
         <Row>

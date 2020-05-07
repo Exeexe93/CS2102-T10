@@ -53,7 +53,6 @@ CREATE TABLE CreditCards (
 	card_number varchar(255),
 	primary key (cid, card_number),
 	unique(card_number)
-	--foreign key (cid) references Customers on delete cascade
 );
 
 -- Promotion --
@@ -79,12 +78,6 @@ CREATE TABLE Given (
 	cid varchar(255) references Customers(cid) on delete cascade on update cascade,
 	primary key(promo_id, cid)
 );
-
--- CREATE TABLE CustomerPromo (
--- 	cid varchar(255) references Customers(cid) on delete cascade,
---     promo_id serial primary key
--- );
-
 
 -- Riders relation here --
 CREATE TABLE Riders (
@@ -266,18 +259,6 @@ CREATE TABLE Uses (
 		on update cascade
 );
 
--- Remove the rates table and add the rating as one of the attributes in Orders
--- As order only have one rating 
-
--- CREATE TABLE Rates (
--- 	rating integer,
--- 	oid integer,
--- 	rid varchar(255) not null,
--- 	primary key (oid),
--- 	foreign key (oid) references Orders (oid),
--- 	foreign key (rid) references Riders(rid)
--- );
-
 CREATE TABLE Salaries (
 	sid serial primary key,
 	rid varchar(255) references Riders,
@@ -312,18 +293,6 @@ CREATE TABLE Consists (
 	total_price money not null,
 	primary key(oid, fid)
 );
-
--- Remove reviews table and add review as one of the attributes to Consists table
--- As each foods for that order have only one review and no point having another table for it.
-
--- CREATE TABLE Reviews (
---     cid varchar(255),
---     fid serial,
---     text varchar(255) not null,
---     primary key (cid, fid),
---     foreign key (fid) references Foods,
---     foreign key (cid) references Customers
--- );
 
 -- Triggers
 CREATE OR REPLACE FUNCTION check_max_shift_hour()

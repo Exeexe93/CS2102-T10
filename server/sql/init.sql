@@ -44,21 +44,21 @@ CREATE TABLE Accounts (
 CREATE TABLE Customers (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
 	name varchar(255) not null,
-	reward_points integer,
+	reward_points integer default 0,
 	primary key (cid)
 );
 
 CREATE TABLE CreditCards (
 	cid varchar(255) references Accounts(account_id) on delete cascade on update cascade,
-	card_number varchar(255),
+	card_number varchar(19),
 	primary key (cid, card_number),
 	unique(card_number)
 );
 
 -- Promotion --
 CREATE TABLE Promos (
-	creator_id varchar(255),
 	promo_id serial unique,
+	creator_id varchar(255) not null,
 	use_limit integer,
 	details text not null,
 	category varchar(255) not null,
@@ -67,7 +67,7 @@ CREATE TABLE Promos (
 	trigger_value money DEFAULT 0 not null,
 	start_time timestamp not null, 
 	end_time timestamp not null,
-	primary key (promo_id, creator_id),
+	primary key (promo_id),
 	foreign key (creator_id) references Accounts 
 		on delete cascade
 		on update cascade

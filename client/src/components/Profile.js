@@ -612,21 +612,22 @@ class Profile extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
           <NavbarBrand>Profile</NavbarBrand>
 
-          <Link
-            to={{
-              pathname: "/Customer",
-              state: {
-                account_id: this.state.cid,
-              },
-            }}
-            className="backIcon"
-          >
+          <Link to={this.handleHomeDirectory} className="backIcon">
             <MdHome size="2em" />
             Home
           </Link>

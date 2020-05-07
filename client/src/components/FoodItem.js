@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "../styles/FoodItem.css";
 import { GiShoppingCart } from "react-icons/gi";
 import { MdPerson, MdArrowBack } from "react-icons/md";
-import { Navbar, Col, Jumbotron, Row } from "reactstrap";
+import { Navbar, Nav, NavbarBrand, Col, Jumbotron, Row } from "reactstrap";
 import { Form, ListGroup, Button, Table } from "react-bootstrap";
 import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
 import { Link } from "react-router-dom";
@@ -90,14 +90,6 @@ class FoodItem extends Component {
     this.updateFoods();
     this.getReviews();
   }
-
-  handleProfile = () => {
-    this.props.history.push("/Profile");
-  };
-
-  handleCart = () => {
-    this.props.history.push("/Cart");
-  };
 
   handleChange(e) {
     let newList = [];
@@ -480,33 +472,35 @@ class FoodItem extends Component {
     );
   };
 
+  handleHomeDirectory = () => {
+    return {
+      pathname: "/Customer",
+      state: {
+        account_id: this.state.cid,
+      },
+    };
+  };
+
   render() {
     return (
       <div>
         <Navbar dark color="dark">
-          <Navbar dark color="dark">
-            <Link
-              to={{
-                pathname: "/Customer",
-                state: {
-                  account_id: this.state.cid,
-                },
-              }}
-            >
-              <div className="backIcon">
-                <MdArrowBack />
-                To Home Page
-              </div>
+          <NavbarBrand>Order</NavbarBrand>
+          <Nav className="mr-auto">
+            <Link to={{ pathname: "/Cart" }} className="link">
+              <GiShoppingCart size="2em" />
+              Shopping Cart
             </Link>
-          </Navbar>
-          <div className="icon-container">
-            <GiShoppingCart
-              size="3em"
-              color="black"
-              onClick={this.handleCart}
-            />
-            <MdPerson size="3em" color="black" onClick={this.handleProfile} />
-          </div>
+            <Link to={{ pathname: "/Profile" }} className="link">
+              <MdPerson size="2em" />
+              Profile
+            </Link>
+          </Nav>
+
+          <Link to={this.handleHomeDirectory} className="backIcon">
+            <MdArrowBack />
+            To Home Page
+          </Link>
         </Navbar>
 
         <Row>

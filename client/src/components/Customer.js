@@ -103,22 +103,12 @@ class Customer extends Component {
           <NavbarBrand>Home Page</NavbarBrand>
 
           <Nav className="mr-auto">
-            <Link
-              to={{
-                pathname: "/Cart",
-              }}
-              className="link"
-            >
+            <Link to={{ pathname: "/Cart" }} className="link">
               <GiShoppingCart size="2em" />
               Shopping Cart
             </Link>
 
-            <Link
-              to={{
-                pathname: "/Profile",
-              }}
-              className="link"
-            >
+            <Link to={{ pathname: "/Profile" }} className="link">
               <MdPerson size="2em" />
               Profile
             </Link>

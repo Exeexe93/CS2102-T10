@@ -566,159 +566,159 @@ CREATE TRIGGER add_promo_trigger
 
 -- Data insertions
 -- Accounts
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', to_date('1/10/2019', 'dd/mm/yyyy'), 'FDSManager');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', '3d2DMKr5PrT', to_date('10/6/2019', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', to_date('24/2/2020', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fs1xGBE', to_date('2/8/2020', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', to_date('30/3/2020', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'q66zcDrm5a', to_date('5/9/2019', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', to_date('30/1/2020', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'wIB1JM', to_date('3/4/2020', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', to_date('26/9/2019', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'uKELoF', to_date('3/10/2019', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'v2LCrbUvLg', to_date('6/4/2019', 'dd/mm/yyyy'), 'Customer');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'E9GxvyFbdtjS', to_date('1/10/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 'yrEEYmGcn', to_date('5/1/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('bf4f405e-84ef-458c-b825-63d47379c374', '9a9z2H', to_date('9/6/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 'almLfEIRrj3T', to_date('2/10/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 'yyXdSlH', to_date('4/12/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 'us3Xhu', to_date('6/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 'z28nCgK9SWYb', to_date('12/2/2020', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 'icIkX2ay5Ar', to_date('11/3/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', to_date('18/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('fd1001b8-2503-4685-9661-fff922fa7798', 'Rx6d5HKor', to_date('2/11/2019', 'dd/mm/yyyy'), 'RestaurantStaff');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'ksswfSyZo', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f016b0e5-e404-4abf-a824-de805c3e122d', '1F4mKCrVx', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', '87ndxRALrBeO', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 'byyLVU3', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', '7V0T7KKEKFXq', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'LYwVleS', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'j7iF5AaiP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', '00t2HuvUplb', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'LAhF6AVml', to_date('1/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'BcDUMyc5lI', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'U2UE8YnAf', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'yG9MDVTYdlP', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'H33yBh', to_date('6/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'mQEhePtZrQ', to_date('7/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'yt9UfI', to_date('8/12/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'CylPtRE4ju', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 'QTswbLcY', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'xJbueX7H', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'PQYoS6uP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'I78qgG', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'qsfX5Ru', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', '49h9jXB', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'x5BpVKoIjiUX', to_date('2/10/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'XgFgRDStIRa', to_date('9/4/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'u0PxpGApRTmO', to_date('7/5/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', to_date('15/1/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', to_date('30/7/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'S3LpbBAcSbM', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider');
-insert into Accounts (account_id, account_pass, date_created, account_type) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'LA2aqb4x', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider');
+insert into Accounts (account_id, account_pass, date_created, account_type) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'NI7pkLaD', to_date('1/10/2019', 'dd/mm/yyyy'), 'FDSManager'),
+('1b39d987-c6b0-4493-bb95-96e51af734b2', '3d2DMKr5PrT', to_date('10/6/2019', 'dd/mm/yyyy'), 'Customer'),
+('e954e29a-40c7-42f0-8567-39ecf6705ffe', '0yktWzL7', to_date('24/2/2020', 'dd/mm/yyyy'), 'Customer'),
+('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fs1xGBE', to_date('2/8/2020', 'dd/mm/yyyy'), 'Customer'),
+('15f6f4f8-42db-428a-949c-98fee850eefa', 'ymcqme3At', to_date('30/3/2020', 'dd/mm/yyyy'), 'Customer'),
+('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'q66zcDrm5a', to_date('5/9/2019', 'dd/mm/yyyy'), 'Customer'),
+('20f57096-5a09-4f4a-aa42-d32306752ddd', 'kIecjK03sQYZ', to_date('30/1/2020', 'dd/mm/yyyy'), 'Customer'),
+('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'wIB1JM', to_date('3/4/2020', 'dd/mm/yyyy'), 'Customer'),
+('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'jUSkstY9HQUl', to_date('26/9/2019', 'dd/mm/yyyy'), 'Customer'),
+('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'uKELoF', to_date('3/10/2019', 'dd/mm/yyyy'), 'Customer'),
+('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'v2LCrbUvLg', to_date('6/4/2019', 'dd/mm/yyyy'), 'Customer'),
+('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 'E9GxvyFbdtjS', to_date('1/10/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 'yrEEYmGcn', to_date('5/1/2020', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('bf4f405e-84ef-458c-b825-63d47379c374', '9a9z2H', to_date('9/6/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 'almLfEIRrj3T', to_date('2/10/2020', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 'yyXdSlH', to_date('4/12/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 'us3Xhu', to_date('6/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 'z28nCgK9SWYb', to_date('12/2/2020', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('5365e90e-6617-4f17-9607-89b25407e2f5', 'icIkX2ay5Ar', to_date('11/3/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 'NSvRBsMQ7z4', to_date('18/2/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('fd1001b8-2503-4685-9661-fff922fa7798', 'Rx6d5HKor', to_date('2/11/2019', 'dd/mm/yyyy'), 'RestaurantStaff'),
+('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'ksswfSyZo', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('f016b0e5-e404-4abf-a824-de805c3e122d', '1F4mKCrVx', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('056b3388-4088-44e1-91a1-9fa128ab4ba3', '87ndxRALrBeO', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('e9160f72-2094-413c-9764-e39a5d9e5038', 'byyLVU3', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('c9e75699-4da2-4411-9e59-71d4b81856c0', '7V0T7KKEKFXq', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'LYwVleS', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'j7iF5AaiP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('de4b5419-eed5-4829-b013-36d87e28b4ec', '00t2HuvUplb', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'LAhF6AVml', to_date('1/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'BcDUMyc5lI', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'U2UE8YnAf', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'yG9MDVTYdlP', to_date('5/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'H33yBh', to_date('6/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'mQEhePtZrQ', to_date('7/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'yt9UfI', to_date('8/12/2019', 'dd/mm/yyyy'), 'FTRider'),
+('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'CylPtRE4ju', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('b758096a-3183-4de0-9260-dbfce3bdbb28', 'QTswbLcY', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'xJbueX7H', to_date('2/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'PQYoS6uP', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'I78qgG', to_date('12/5/2019', 'dd/mm/yyyy'), 'FTRider'),
+('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'qsfX5Ru', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider'),
+('5bc3951b-9388-4af0-9bf5-ce435acc14f3', '49h9jXB', to_date('7/10/2019', 'dd/mm/yyyy'), 'PTRider'),
+('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'x5BpVKoIjiUX', to_date('2/10/2019', 'dd/mm/yyyy'), 'PTRider'),
+('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'XgFgRDStIRa', to_date('9/4/2019', 'dd/mm/yyyy'), 'PTRider'),
+('2534042c-6526-44b1-abd5-532d7b7b281a', 'u0PxpGApRTmO', to_date('7/5/2019', 'dd/mm/yyyy'), 'PTRider'),
+('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'vvTjNg', to_date('15/1/2019', 'dd/mm/yyyy'), 'PTRider'),
+('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'VN4c7SJc', to_date('30/7/2019', 'dd/mm/yyyy'), 'PTRider'),
+('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'S3LpbBAcSbM', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider'),
+('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'LA2aqb4x', to_date('12/5/2019', 'dd/mm/yyyy'), 'PTRider');
 
 -- Customers
-insert into Customers (cid, name, reward_points) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', 'Florida', 30);
-insert into Customers (cid, name, reward_points) values ('e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Liesa', 15);
-insert into Customers (cid, name, reward_points) values ('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fae', 84);
-insert into Customers (cid, name, reward_points) values ('15f6f4f8-42db-428a-949c-98fee850eefa', 'Florentia', 84);
-insert into Customers (cid, name, reward_points) values ('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'Deni', 17);
-insert into Customers (cid, name, reward_points) values ('20f57096-5a09-4f4a-aa42-d32306752ddd', 'Meriel', 11);
-insert into Customers (cid, name, reward_points) values ('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Ripley', 56);
-insert into Customers (cid, name, reward_points) values ('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Merry', 71);
-insert into Customers (cid, name, reward_points) values ('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Mendie', 24);
-insert into Customers (cid, name, reward_points) values ('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Lilyan', 49);
+insert into Customers (cid, name, reward_points) values ('1b39d987-c6b0-4493-bb95-96e51af734b2', 'Florida', 30),
+('e954e29a-40c7-42f0-8567-39ecf6705ffe', 'Liesa', 15),
+('c5b9026c-77a9-4977-9c30-5656e6b463c9', 'Fae', 84),
+('15f6f4f8-42db-428a-949c-98fee850eefa', 'Florentia', 84),
+('2fa0d23c-c53d-484a-90af-88dfce9e4d90', 'Deni', 17),
+('20f57096-5a09-4f4a-aa42-d32306752ddd', 'Meriel', 11),
+('a805a76a-b8d6-4422-98e9-4f83ab58b1e8', 'Ripley', 56),
+('2dfd8ff6-9a23-47ac-b192-560f2ce98424', 'Merry', 71),
+('327b2555-f8d2-4f01-966e-e468b4cea5b0', 'Mendie', 24),
+('3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Lilyan', 49);
 
 -- FDS Managers
 insert into FDSManagers (fds_id, name) values ('c861493b-c7ee-4b6a-9d88-3a80da5686f0', 'Claudetta');
 
 -- Riders
-insert into Riders (rid, name) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'Jonie');
-insert into Riders (rid, name) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'Everard');
-insert into Riders (rid, name) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'Henrie');
-insert into Riders (rid, name) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'Orin');
-insert into Riders (rid, name) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'Sidnee');
-insert into Riders (rid, name) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'Ardene');
-insert into Riders (rid, name) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'Lynna');
-insert into Riders (rid, name) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'Steffane');
-insert into Riders (rid, name) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 'Felicdad');
-insert into Riders (rid, name) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'Katya');
-insert into Riders (rid, name) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'Bowie');
-insert into Riders (rid, name) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'Everett');
-insert into Riders (rid, name) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'Nerty');
-insert into Riders (rid, name) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 'Tait');
-insert into Riders (rid, name) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 'Josie');
-insert into Riders (rid, name) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 'Adrea');
-insert into Riders (rid, name) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 'Antonie');
-insert into Riders (rid, name) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'Kare');
-insert into Riders (rid, name) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'Coriss');
-insert into Riders (rid, name) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 'Zita');
-insert into Riders (rid, name) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'Travers');
-insert into Riders (rid, name) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 'Lemuel');
-insert into Riders (rid, name) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'Mireielle');
-insert into Riders (rid, name) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'Eda');
-insert into Riders (rid, name) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'Vic');
-insert into Riders (rid, name) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'Crosby');
-insert into Riders (rid, name) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'Lambert');
-insert into Riders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'Ring');
-insert into Riders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
+insert into Riders (rid, name) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'Jonie'),
+('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'Everard'),
+('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'Henrie'),
+('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'Orin'),
+('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'Sidnee'),
+('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'Ardene'),
+('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'Lynna'),
+('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'Steffane'),
+('b758096a-3183-4de0-9260-dbfce3bdbb28', 'Felicdad'),
+('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'Katya'),
+('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'Bowie'),
+('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'Everett'),
+('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'Nerty'),
+('f016b0e5-e404-4abf-a824-de805c3e122d', 'Tait'),
+('056b3388-4088-44e1-91a1-9fa128ab4ba3', 'Josie'),
+('e9160f72-2094-413c-9764-e39a5d9e5038', 'Adrea'),
+('c9e75699-4da2-4411-9e59-71d4b81856c0', 'Antonie'),
+('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'Kare'),
+('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'Coriss'),
+('de4b5419-eed5-4829-b013-36d87e28b4ec', 'Zita'),
+('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'Travers'),
+('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 'Lemuel'),
+('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'Mireielle'),
+('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'Eda'),
+('2534042c-6526-44b1-abd5-532d7b7b281a', 'Vic'),
+('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'Crosby'),
+('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'Lambert'),
+('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'Ring'),
+('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
 
 -- FT Riders
-insert into FTRiders (rid, name) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'Jonie');
-insert into FTRiders (rid, name) values ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'Everard');
-insert into FTRiders (rid, name) values ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'Henrie');
-insert into FTRiders (rid, name) values ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'Orin');
-insert into FTRiders (rid, name) values ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'Sidnee');
-insert into FTRiders (rid, name) values ('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'Ardene');
-insert into FTRiders (rid, name) values ('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'Lynna');
-insert into FTRiders (rid, name) values ('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'Steffane');
-insert into FTRiders (rid, name) values ('b758096a-3183-4de0-9260-dbfce3bdbb28', 'Felicdad');
-insert into FTRiders (rid, name) values ('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'Katya');
-insert into FTRiders (rid, name) values ('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'Bowie');
-insert into FTRiders (rid, name) values ('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'Everett');
-insert into FTRiders (rid, name) values ('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'Nerty');
-insert into FTRiders (rid, name) values ('f016b0e5-e404-4abf-a824-de805c3e122d', 'Tait');
-insert into FTRiders (rid, name) values ('056b3388-4088-44e1-91a1-9fa128ab4ba3', 'Josie');
-insert into FTRiders (rid, name) values ('e9160f72-2094-413c-9764-e39a5d9e5038', 'Adrea');
-insert into FTRiders (rid, name) values ('c9e75699-4da2-4411-9e59-71d4b81856c0', 'Antonie');
-insert into FTRiders (rid, name) values ('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'Kare');
-insert into FTRiders (rid, name) values ('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'Coriss');
-insert into FTRiders (rid, name) values ('de4b5419-eed5-4829-b013-36d87e28b4ec', 'Zita');
+insert into FTRiders (rid, name) values ('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 'Jonie'),
+('3267e8b9-110c-44fb-a817-2c0b243b21d6', 'Everard'),
+('03667134-3ab1-41e2-bff4-e1e6e14d3035', 'Henrie'),
+('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 'Orin'),
+('ccd9673a-c725-46bd-9577-0d26b4564d3f', 'Sidnee'),
+('149ff060-8b44-4e1c-a56e-c8e6bff22096', 'Ardene'),
+('b6ff623a-1568-42f5-9f8e-91d24e4123a6', 'Lynna'),
+('0161cded-c664-4f1b-ad3f-7766dc48fecb', 'Steffane'),
+('b758096a-3183-4de0-9260-dbfce3bdbb28', 'Felicdad'),
+('94bd068e-1a5c-4a73-92a0-81c64b499dc9', 'Katya'),
+('c69ffc8f-ab47-46f5-a36d-58406ce626af', 'Bowie'),
+('3c30a803-6834-41a9-b81e-6d54b6d5512d', 'Everett'),
+('0486583b-01d0-4c03-95d1-5e11d75a9efd', 'Nerty'),
+('f016b0e5-e404-4abf-a824-de805c3e122d', 'Tait'),
+('056b3388-4088-44e1-91a1-9fa128ab4ba3', 'Josie'),
+('e9160f72-2094-413c-9764-e39a5d9e5038', 'Adrea'),
+('c9e75699-4da2-4411-9e59-71d4b81856c0', 'Antonie'),
+('1e9736bd-78ab-4dbd-9adc-40622a2f7223', 'Kare'),
+('f0e9ac85-9aaf-415c-87bb-160dc74ac6e4', 'Coriss'),
+('de4b5419-eed5-4829-b013-36d87e28b4ec', 'Zita');
 
 -- PT Riders
-insert into PTRiders (rid, name) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'Travers');
-insert into PTRiders (rid, name) values ('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 'Lemuel');
-insert into PTRiders (rid, name) values ('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'Mireielle');
-insert into PTRiders (rid, name) values ('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'Eda');
-insert into PTRiders (rid, name) values ('2534042c-6526-44b1-abd5-532d7b7b281a', 'Vic');
-insert into PTRiders (rid, name) values ('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'Crosby');
-insert into PTRiders (rid, name) values ('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'Lambert');
-insert into PTRiders (rid, name) values ('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'Ring');
-insert into PTRiders (rid, name) values ('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
+insert into PTRiders (rid, name) values ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 'Travers'),
+('5bc3951b-9388-4af0-9bf5-ce435acc14f3', 'Lemuel'),
+('30dbce76-1e3a-4ca1-9b8f-751f8e0db1d9', 'Mireielle'),
+('9c79e02d-14b7-4604-b5d3-2afae637bd0b', 'Eda'),
+('2534042c-6526-44b1-abd5-532d7b7b281a', 'Vic'),
+('ce80388a-d0cc-4096-9a01-7e8ef8d8017b', 'Crosby'),
+('68973b78-642a-4ad9-ad0c-8f46977e6bf0', 'Lambert'),
+('16710734-c5dc-460c-a7ad-54a7d3c92a63', 'Ring'),
+('0dfbf360-7152-4c6a-b460-e103aa1ed4d6', 'Elena');
 
 -- Restaurants
-insert into Restaurants (name, order_threshold, address) values ('Exeexe-Restaurant', '$11.47', '10 Dempsey Rd, #01-23, S247700');
-insert into Restaurants (name, order_threshold, address) values ('Simonis and Sons', '$12.24', '#01-07 Alexis Condominium, 356 Alexandra Rd, S159948');
-insert into Restaurants (name, order_threshold, address) values ('Vandervort, Rice and Lehner', '$12.62', '1 Cuscaden Rd, Level 2 Regent Singapore, Cuscaden Rd, S249715');
-insert into Restaurants (name, order_threshold, address) values ('Bergnaum LLC', '$14.06', '260 Upper Bukit Timah Rd, #01-01, S588190');
-insert into Restaurants (name, order_threshold, address) values ('Abbott-Harris', '$11.18', '374 Bukit Batok Street 31, HDB, S650374');
-insert into Restaurants (name, order_threshold, address) values ('Streich-Predovic', '$11.94', '#01-01 Orchard Rendezvous Hotel, 1 Tanglin Rd, S247905');
-insert into Restaurants (name, order_threshold, address) values ('Streich, Brekke and Bednar', '$11.18', '118 Commonwealth Cres, #01-29, S140118');
-insert into Restaurants (name, order_threshold, address) values ('Blick, Boyer and Schroeder', '$11.84', 'Faber Peak Singapore, Level 2, 109 Mount Faber Road, 099203');
-insert into Restaurants (name, order_threshold, address) values ('Kirlin-Jacobson', '$10.36', '421 River Valley Rd, S248320');
-insert into Restaurants (name, order_threshold, address) values ('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
+insert into Restaurants (name, order_threshold, address) values ('Exeexe-Restaurant', '$11.47', '10 Dempsey Rd, #01-23, S247700'),
+	('Simonis and Sons', '$12.24', '#01-07 Alexis Condominium, 356 Alexandra Rd, S159948'),
+	('Vandervort, Rice and Lehner', '$12.62', '1 Cuscaden Rd, Level 2 Regent Singapore, Cuscaden Rd, S249715'),
+	('Bergnaum LLC', '$14.06', '260 Upper Bukit Timah Rd, #01-01, S588190'),
+	('Abbott-Harris', '$11.18', '374 Bukit Batok Street 31, HDB, S650374'),
+	('Streich-Predovic', '$11.94', '#01-01 Orchard Rendezvous Hotel, 1 Tanglin Rd, S247905'),
+	('Streich, Brekke and Bednar', '$11.18', '118 Commonwealth Cres, #01-29, S140118'),
+	('Blick, Boyer and Schroeder', '$11.84', 'Faber Peak Singapore, Level 2, 109 Mount Faber Road, 099203'),
+	('Kirlin-Jacobson', '$10.36', '421 River Valley Rd, S248320'),
+	('Ziemann-Halvorson', '$10.20', '#01, 10 Dempsey Rd, 21, S247700');
 
 -- Restaurant staffs
-insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1);
-insert into RestaurantStaffs (staff_id, rest_id) values ('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2);
-insert into RestaurantStaffs (staff_id, rest_id) values ('bf4f405e-84ef-458c-b825-63d47379c374', 3);
-insert into RestaurantStaffs (staff_id, rest_id) values ('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4);
-insert into RestaurantStaffs (staff_id, rest_id) values ('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5);
-insert into RestaurantStaffs (staff_id, rest_id) values ('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6);
-insert into RestaurantStaffs (staff_id, rest_id) values ('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7);
-insert into RestaurantStaffs (staff_id, rest_id) values ('5365e90e-6617-4f17-9607-89b25407e2f5', 8);
-insert into RestaurantStaffs (staff_id, rest_id) values ('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9);
-insert into RestaurantStaffs (staff_id, rest_id) values ('fd1001b8-2503-4685-9661-fff922fa7798', 10);
+insert into RestaurantStaffs (staff_id, rest_id) values ('66e51190-c8fc-4b5b-805d-b23cdb3f1ade', 1),
+	('36f8a429-c338-4bc3-a54a-6a7ca0780e41', 2),
+	('bf4f405e-84ef-458c-b825-63d47379c374', 3),
+	('16a72b31-db4d-40bb-9ae6-4aa858cdb406', 4),
+	('f47e6d61-62d2-4775-bf8d-81bafc4eb67f', 5),
+	('8299a5b8-2c49-485c-9fe5-2fe7cb154478', 6),
+	('6cbc7c7a-cab1-4aec-bfaf-a4b74ca8c818', 7),
+	('5365e90e-6617-4f17-9607-89b25407e2f5', 8),
+	('2c3acca1-cc14-498a-b80a-889cb3fee4b5', 9),
+	('fd1001b8-2503-4685-9661-fff922fa7798', 10);
 
 -- WWS
 INSERT into WWS (start_day) values 
@@ -727,40 +727,12 @@ INSERT into WWS (start_day) values
 	(0),
 	(0),
 	(0),
--- second ft
-	-- (1),
-	-- (1),
-	-- (1),
-	-- (1),
-	-- For pt worker rid e6115a43-b3b7-4b45-9014-5f2ac0f913e2
 	(2); 
--- third ft
--- 	(3),
--- 	(3),
--- 	(3),
--- 	(3),
--- -- fourth
--- 	(4),
--- 	(4),
--- 	(4),
--- 	(4), 
--- -- fifth
--- 	(5), 
--- 	(5), 
--- 	(5), 
--- 	(5);
--- INSERT into WWS (wk_no, start_date, end_date) values (19, '2020-05-09', '2020-05-15');
--- INSERT into WWS (wk_no, start_date, end_date) values (20, '2020-05-16', '2020-05-22');
--- INSERT into WWS (wk_no, start_date, end_date) values (21, '2020-05-23', '2020-05-29');
 
 -- MWS
 INSERT into MWS (start_week) values 
 -- first rider
 	(14);
-	-- (14),
-	-- (14),
-	-- (14),
-	-- (14);
 
 -- Has
 INSERT INTO Has(mid, wid, working_week) values 
@@ -769,27 +741,6 @@ INSERT INTO Has(mid, wid, working_week) values
 	(1, 2, 2),
 	(1, 3, 3),
 	(1, 4, 4);
--- -- Secpmd ft
--- 	(2, 5, 1),
--- 	(2, 6, 2),
--- 	(2, 7, 3),
--- 	(2, 8, 4),
--- -- third
--- 	(3, 10, 1),
--- 	(3, 11, 2),
--- 	(3, 12, 3),
--- 	(3, 13, 4),
--- -- 4
--- 	(4, 14, 1),
--- 	(4, 15, 2),
--- 	(4, 16, 3),
--- 	(4, 17, 4),
--- -- 5
--- 	(5, 18, 1),
--- 	(5, 19, 2),
--- 	(5, 20, 3),
--- 	(5, 21, 4);
-
 
 -- PTWorks
 INSERT into PTWorks (rid, working_week, total_hours, wid) VALUES ('e6115a43-b3b7-4b45-9014-5f2ac0f913e2', 1, 40, 5);
@@ -798,11 +749,6 @@ INSERT into PTWorks (rid, working_week, total_hours, wid) VALUES ('e6115a43-b3b7
 -- FTWorks, total_hours
 insert into FTWorks (rid, working_month, total_hours, mid) values 
 	('06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', 1, 160, 1);
-	-- ('3267e8b9-110c-44fb-a817-2c0b243b21d6', 1, 160, 2),
-	-- ('03667134-3ab1-41e2-bff4-e1e6e14d3035', 1, 160, 3),
-	-- ('58f57fcf-ee9d-4c16-94b4-ab3d945c83aa', 1, 160, 4),
-	-- ('ccd9673a-c725-46bd-9577-0d26b4564d3f', 1, 160, 5);
-
 
 INSERT into Shift (actual_date) values 
 -- pt
@@ -900,107 +846,6 @@ INSERT into Contains (wid, working_day, shift_id) values
 	(4, 3, 23),
 	(4, 4, 24),
 	(4, 5, 25);
--- 2
--- 	(5, 1, 1), 
--- 	(5, 2, 2),
--- 	(5, 3, 3),
--- 	(5, 4, 4),
--- 	(5, 5, 5),
-
--- 	(6, 1, 1), 
--- 	(6, 2, 2),
--- 	(6, 3, 3),
--- 	(6, 4, 4),
--- 	(6, 5, 5),
-
--- 	(7, 1, 1), 
--- 	(7, 2, 2),
--- 	(7, 3, 3),
--- 	(7, 4, 4),
--- 	(7, 5, 5),
-
--- 	(8, 1, 1), 
--- 	(8, 2, 2),
--- 	(8, 3, 3),
--- 	(8, 4, 4),
--- 	(8, 5, 5),
--- -- 3
--- 	(10, 1, 1), 
--- 	(10, 2, 2),
--- 	(10, 3, 3),
--- 	(10, 4, 4),
--- 	(10, 5, 5),
-
--- 	(11, 1, 1), 
--- 	(11, 2, 2),
--- 	(11, 3, 3),
--- 	(11, 4, 4),
--- 	(11, 5, 5),
-
--- 	(12, 1, 1), 
--- 	(12, 2, 2),
--- 	(12, 3, 3),
--- 	(12, 4, 4),
--- 	(12, 5, 5),
-
--- 	(13, 1, 1), 
--- 	(13, 2, 2),
--- 	(13, 3, 3),
--- 	(13, 4, 4),
--- 	(13, 5, 5),
--- -- 4
--- 	(14, 1, 1), 
--- 	(14, 2, 2),
--- 	(14, 3, 3),
--- 	(14, 4, 4),
--- 	(14, 5, 5),
-
--- 	(15, 1, 1), 
--- 	(15, 2, 2),
--- 	(15, 3, 3),
--- 	(15, 4, 4),
--- 	(15, 5, 5),
-
--- 	(16, 1, 1), 
--- 	(16, 2, 2),
--- 	(16, 3, 3),
--- 	(16, 4, 4),
--- 	(16, 5, 5),
-
--- 	(17, 1, 1), 
--- 	(17, 2, 2),
--- 	(17, 3, 3),
--- 	(17, 4, 4),
--- 	(17, 5, 5),
--- -- 5
--- 	(18, 1, 1), 
--- 	(18, 2, 2),
--- 	(18, 3, 3),
--- 	(18, 4, 4),
--- 	(18, 5, 5),
-
--- 	(19, 1, 1), 
--- 	(19, 2, 2),
--- 	(19, 3, 3),
--- 	(19, 4, 4),
--- 	(19, 5, 5),
-
--- 	(20, 1, 1), 
--- 	(20, 2, 2),
--- 	(20, 3, 3),
--- 	(20, 4, 4),
--- 	(20, 5, 5),
-
--- 	(21, 1, 1), 
--- 	(21, 2, 2),
--- 	(21, 3, 3),
--- 	(21, 4, 4),
--- 	(21, 5, 5);
-
--- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-03');
--- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-04');
--- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 1, '2020-05-05');
--- INSERT into Contains (wk_no, start_date, end_date, shift_id, actual_date) values (18, '2020-05-02', '2020-05-08', 2, '2020-05-06');
 
 -- Salaries
 insert into Salaries (sid, rid, start_date, end_date, amount) values (1, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb', '2020-02-01 01:12:21', '2020-03-01 03:31:20', '$2674.36');
@@ -1058,29 +903,30 @@ insert into Places (oid, cid, address, payment_method) values (9, '327b2555-f8d2
 insert into Places (oid, cid, address, payment_method) values (10, '3911899e-8fb4-4ad0-85d3-8b1d4b334a40', 'Blk 769 Bishan Ring rd #08-18 S760769', 'credit-card');
 
 -- Foods
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe milo', '$1.10', 100, 100, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Cholocate lava', '$5.00', 50, 50, 'Dessert');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Coke zero', '$2.10', 10, 50, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spirit', '$5.10', 20, 20, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, '7-ups', '$1.10', 20, 20, 'Drink');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish');
-insert into Foods (rest_id, name, price, food_limit, quantity, category) values (2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values (1, 'exeexe pancake', '$1.20', 20, 20, 'Main Dish'),
+	(1, 'exeexe hotcake', '$1.50', 20, 20, 'Main Dish'),
+	(1, 'exeexe ice-cream cake', '$10.10', 15, 15, 'Dessert'),
+	(1, 'exeexe chocolate cake', '$5.10', 12, 12, 'Dessert'),
+	(1, 'exeexe bubble tea', '$2.10', 16, 16, 'Drink'),
+	(1, 'exeexe brown sugar milk tea', '$5.10', 50, 50, 'Drink'),
+	(1, 'exeexe milo', '$1.10', 100, 100, 'Drink'),
+	(1, 'exeexe chicken rice', '$3.50', 16, 16, 'Main Dish'),
+	(1, 'exeexe duck rice', '$3.50', 16, 16, 'Main Dish'),
+	(1, 'exeexe chicken drumstick', '$1.50', 16, 16, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(2, 'Vanilla ice cream', '$3.00', 100, 100, 'Dessert'),
+	(2, 'Chocolate lava cake', '$5.00', 50, 50, 'Dessert'),
+	(2, 'Coke zero', '$2.10', 10, 50, 'Drink'),
+	(2, 'Sprite', '$5.10', 20, 20, 'Drink'),
+	(2, '7-ups', '$1.10', 20, 20, 'Drink'),
+	(2, 'Aglio Aglio', '$3.50', 10, 10, 'Main Dish'),
+	(2, 'Spaghetti', '$5.50', 10, 10, 'Main Dish'),
+	(2, 'Beef steak', '$10.50', 10, 10, 'Side Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 	(3, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
-	(3, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(3, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
 	(3, 'Coke zero', '$2.10', 100, 500, 'Drink'),
-	(3, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(3, 'Sprite', '$5.10', 200, 200, 'Drink'),
 	(3, '7-ups', '$1.10', 200, 200, 'Drink'),
 	(3, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
 	(3, 'Lamb chop', '$15.50', 100, 100, 'Main Dish'),
@@ -1093,24 +939,52 @@ insert into Foods (rest_id, name, price, food_limit, quantity, category) values
 	(4, 'NAMA Beef steak', '$10.50', 100, 100, 'Side Dish');
 insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
 	(5, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
-	(5, 'Cholocate lava', '$5.00', 500, 500, 'Dessert'),
+	(5, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
 	(5, 'Coke zero', '$2.10', 100, 500, 'Drink'),
-	(5, 'Spirit', '$5.10', 200, 200, 'Drink'),
+	(5, 'Sprite', '$5.10', 200, 200, 'Drink'),
 	(5, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
 	(5, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
 	(5, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
-
--- Rates
--- insert into Rates (rating, oid, rid) values (5, 1, '3267e8b9-110c-44fb-a817-2c0b243b21d6');
--- insert into Rates (rating, oid, rid) values (5, 2, '1e9736bd-78ab-4dbd-9adc-40622a2f7223');
--- insert into Rates (rating, oid, rid) values (2, 3, '3c30a803-6834-41a9-b81e-6d54b6d5512d');
--- insert into Rates (rating, oid, rid) values (1, 4, '2534042c-6526-44b1-abd5-532d7b7b281a');
--- insert into Rates (rating, oid, rid) values (4, 5, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
--- insert into Rates (rating, oid, rid) values (2, 7, '0486583b-01d0-4c03-95d1-5e11d75a9efd');
--- insert into Rates (rating, oid, rid) values (3, 6, '0161cded-c664-4f1b-ad3f-7766dc48fecb');
--- insert into Rates (rating, oid, rid) values (3, 8, '03667134-3ab1-41e2-bff4-e1e6e14d3035');
--- insert into Rates (rating, oid, rid) values (2, 9, '68973b78-642a-4ad9-ad0c-8f46977e6bf0');
--- insert into Rates (rating, oid, rid) values (1, 10, '06c7cf9a-cdfe-411d-93f4-5f6ad5d770bb');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(6, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(6, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
+	(6, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(6, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(6, 'Black pepper Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(6, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(6, 'Beef steak', '$10.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(7, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(7, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(7, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(7, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(7, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(7, 'Soury Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(7, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(8, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(8, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(8, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(8, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(8, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(8, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(8, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(9, 'Chocolate ice cream', '$3.00', 100, 100, 'Dessert'),
+	(9, 'Chocolate lava', '$5.00', 500, 500, 'Dessert'),
+	(9, 'Coke zero', '$2.10', 100, 500, 'Drink'),
+	(9, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(9, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(9, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(9, 'Wagyu Beef steak', '$50.50', 100, 100, 'Side Dish');
+insert into Foods (rest_id, name, price, food_limit, quantity, category) values 
+	(10, 'Chocolate Foundae', '$7.00', 100, 100, 'Dessert'),
+	(10, 'Chocolate lava cake', '$5.00', 500, 500, 'Dessert'),
+	(10, 'Coke', '$2.10', 100, 500, 'Drink'),
+	(10, 'Sprite', '$5.10', 200, 200, 'Drink'),
+	(10, 'Chicken chop', '$7.50', 100, 100, 'Main Dish'),
+	(10, 'Fiery Lamb chop', '$15.50', 100, 100, 'Main Dish'),
+	(10, 'Beef Cubes', '$10.50', 100, 100, 'Side Dish');
 
 -- Consists
 insert into Consists (oid, fid, quantity, total_price, review) values (1, 1, 2, '$2.40', 'Taste not bad! Can consider buy again.');

@@ -42,4 +42,24 @@ router.post("/getCompletedOrders", (request, response) => {
   });
 });
 
+router.post("/getCompletedOrders", (request, response) => {
+  const rid = request.body.rid;
+  FTRider.getCompletedOrders(rid, (err, result) => {
+    if (err.error) {
+      return response.status(404).json(err);
+    }
+    return response.status(200).json(result);
+  });
+});
+
+router.post("/getSalaries", (request, response) => {
+  const rid = request.body.rid;
+  FTRider.getSalaries(rid, (err, result) => {
+    if (err.error) {
+      return response.status(404).json(err);
+    }
+    return response.status(200).json(result);
+  });
+});
+
 module.exports = router;

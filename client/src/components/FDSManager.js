@@ -558,6 +558,7 @@ class FDSManager extends Component {
           });
         } else {
           this.setState({
+            promoLimit: "",
             isDisplayLimitPromo: false,
           });
         }
@@ -649,7 +650,7 @@ class FDSManager extends Component {
     ];
     let date = new Date();
     let currentYear = date.getFullYear();
-    for (let k = 2000; k <= currentYear; k++) {
+    for (let k = 2000; k <= currentYear + 5; k++) {
       yearOptions.push(
         <option key={k} value={k}>
           {k}
@@ -713,7 +714,7 @@ class FDSManager extends Component {
       console.log("in flatrate");
       return false;
     }
-    if (Number(triggerValue) < 0 || isNaN(triggerValue)) {
+    if (type !== 'Delivery' && (Number(triggerValue) < 0 || isNaN(triggerValue))) {
       console.log("triggerv: ", Number(triggerValue));
       console.log("in lesser than 0 or nan triggerval");
       return false;
@@ -721,8 +722,8 @@ class FDSManager extends Component {
     return true;
   };
 
-  checkValidDiscountValue = (discountValue) => {
-    if (isNaN(discountValue) || Number(discountValue) <= 0) {
+  checkValidDiscountValue = (type, discountValue) => {
+    if (type !== 'Delivery' && (isNaN(discountValue) || Number(discountValue) <= 0)) {
       console.log("not valid discount va");
       return false;
     }
@@ -762,6 +763,7 @@ class FDSManager extends Component {
       this.state.discountValue
     );
     let isValidDiscountVal = this.checkValidDiscountValue(
+      this.state.promoType,
       this.state.discountValue
     );
     let isSomeFieldsMissing = !this.checkForNoMissingField(

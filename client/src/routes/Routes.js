@@ -6,6 +6,7 @@ import RestaurantProfile from "../components/RestaurantProfile";
 import RestaurantPromotions from "../components/RestaurantPromotions";
 import RestaurantSummaryPage from "../components/RestaurantSummaryPage";
 import Schedule from "../components/Schedule";
+import Salary from "../components/Salary";
 import Login from "../components/Login";
 import FTRiderMainPage from "../components/FTRiderMainPage";
 import PTRiderMainPage from "../components/PTRiderMainPage";
@@ -47,12 +48,12 @@ class Routes extends React.Component {
         <Route exact path="/Signup" component={Signup} />
 
         <Route exact path="/FTRiderMainPage" component={FTRiderMainPage} />
-        {/* <Route exact path="/FTriderMainPage/salary" component={Salary} /> */}
         <Route exact path="/FTRiderMainPage/schedule" component={Schedule} />
 
         <Route exact path="/PTRiderMainPage" component={PTRiderMainPage} />
-        {/* <Route exact path="/PTriderMainPage/salary" component={Salary} /> */}
         <Route exact path="/PTRiderMainPage/schedule" component={Schedule} />
+
+        <Route exact path="/Salary" component={Salary} />
       </Switch>
     );
   }

@@ -259,7 +259,6 @@ class Customer {
 
   static updateOrder(queryList, valueList, callback) {
     db.transaction(queryList, valueList, (err, res) => {
-      console.log(err);
       if (err.error) return callback(err, res);
       return callback(err, res);
     });

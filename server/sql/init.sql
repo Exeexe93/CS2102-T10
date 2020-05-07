@@ -454,6 +454,23 @@ ON Foods
 FOR EACH ROW 
 EXECUTE FUNCTION zero_quantity_set_food_unavailable();
 
+-- Need a trigger to prevent the user to insert duplicate record for start_time and end_time in shiftinfo
+CREATE OR REPLACE FUNCTION reject_same_duration()
+	RETURNS trigger AS $$
+BEGIN
+	IF EXISTS(SELECT * FROM ShiftInfo WHERE start_time = NEW.start_time AND end_time = NEW.end_time) THEN 
+	RETURN null;
+	END IF;
+	RETURN NEW;	
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS reject_if_exists_same_duration ON ShiftInfo;
+CREATE TRIGGER reject_if_exists_same_duration
+BEFORE INSERT 
+ON ShiftInfo
+FOR EACH ROW 
+EXECUTE FUNCTION reject_same_duration();
 
 -- need a trigger to check whehter weekly schedule added is within the start_wk and end_wk else reject
 

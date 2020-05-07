@@ -5,7 +5,6 @@ import { Navbar, NavbarBrand, Nav, NavLink, Jumbotron } from "reactstrap";
 import "../styles/PTRiderMainPage.css";
 
 import { GiFoodTruck } from "react-icons/gi";
-import { MdHome } from "react-icons/md";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { FaRegCalendarAlt, FaMoneyBillAlt } from "react-icons/fa";
 import OrderList from "./OrderList";
@@ -18,7 +17,7 @@ class PTRiderMainPage extends Component {
     super(props);
     this.state = {
       isFTRider: false,
-      id: this.props.location.id,
+      id: this.props.location.account_id,
       name: "",
       orders: [],
       completed_orders: [],
@@ -272,12 +271,6 @@ class PTRiderMainPage extends Component {
     });
   };
 
-  handleHomeNavigation = () => {
-    this.props.history.push({
-      pathname: "/",
-    });
-  };
-
   handleAcceptPendingOrder = (orderInfo) => {
     console.log("handleAcceptPendingOrder this.state: ", this.state);
     const order_number = orderInfo.order_number;
@@ -410,18 +403,7 @@ class PTRiderMainPage extends Component {
     return (
       <div>
         <Navbar className="navbar" color="dark" dark>
-          <NavbarBrand href="/">Part Time Rider</NavbarBrand>
-
-          <Nav className="mr-auto">
-            <NavLink
-              href=""
-              onClick={this.handleHomeNavigation}
-              className="link"
-            >
-              <MdHome />
-              <span> Home</span>
-            </NavLink>
-          </Nav>
+          <NavbarBrand>Part Time Rider</NavbarBrand>
 
           <Nav>
             <NavLink href="/Login" className="link">

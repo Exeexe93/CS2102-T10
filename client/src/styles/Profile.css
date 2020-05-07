@@ -134,11 +134,13 @@
 
 .backIcon:hover {
   color: lightskyblue;
+  text-decoration: none;
 }
 
 .backIcon {
   color: white;
   font-size: 22px;
+  text-decoration: none;
 }
 
 .personalInfoTab {

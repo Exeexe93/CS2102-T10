@@ -98,8 +98,9 @@ class FoodItem extends Component {
     if (e.target.value !== "") {
       newList = currentList.filter((item) => {
         const lowercaseItem = item.name.toLowerCase();
+        const category = item.category.toLowerCase();
         const filter = e.target.value.toLowerCase();
-        return lowercaseItem.includes(filter);
+        return lowercaseItem.includes(filter) || category.includes(filter);
       });
     } else {
       newList = currentList;

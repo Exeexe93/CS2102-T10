@@ -331,7 +331,6 @@ class Cart extends Component {
 
   updateFood = async (food, orderNum, queryList, valueList) => {
     if (food.originalQuantity !== food.FoodQuantity) {
-      console.log("Food: " + food.FoodName + "(" + food.FoodQuantity + ")");
       if (queryList.length === 0) {
         queryList.push(
           "UPDATE Consists SET quantity = $3, total_price = $4 WHERE oid = $1 AND fid = $2"
@@ -441,7 +440,6 @@ class Cart extends Component {
           valueList: valueList,
         }
       );
-      console.log(response.data);
       if (response.data) {
         if (response.data.where) {
           if (response.data.where.includes("reject_order_below_threshold")) {
@@ -481,8 +479,8 @@ class Cart extends Component {
         }
       }
     } catch (err) {
-      console.log(err);
       console.error("Transaction failed!");
+      console.error(err);
     }
   };
 
@@ -705,7 +703,6 @@ class Cart extends Component {
   updateRewardPointUsed = (event) => {
     let value = event.target.value;
     if (value) {
-      console.log(value);
       if (value > this.state.rewardPoints) {
         swal({
           title: "Invalid reward points input!",
